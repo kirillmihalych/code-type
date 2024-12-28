@@ -1,40 +1,50 @@
 <template>
-  <main>
-    <div class="bg-grey-500 h-dvh flex items-center justify-center">
-      <div>
-        <div>queue: {{ queue[0] }}{{ queue[1] }}</div>
-        <div>current position: {{ currentPosition }}</div>
-        <div>
-          первый символ совпадение: {{ userInput[0] }}{{ queue[0]
-          }}{{ userInput[0] === queue[0] }}
-        </div>
-        <div>user input: {{ userInput }}</div>
-        <div>{{ isInputCorrect }}</div>
-        <input type="text" v-model="userInput" />
+  <main class="font-golos">
+    <div class="bg-grey-500 h-dvh w-[95vw] m-auto grid place-content-center">
+      <div
+        v-if="isResultShown"
+        class="text-center font-bold text-2xl text-gray-600 underline"
+      >
+        Твой wpm {{ result }}
       </div>
-      <div class="border-4 border-green-800 p-10 flex whitespace-pre">
+      <div class="p-10 flex flex-wrap whitespace-pre">
         <div
           v-for="(letter, i) in queue"
           :key="i"
+          class="text-5xl"
           :class="[
-            userInput[i] === queue[i] ? 'text-green-500' : 'text-gray-500',
+            userInput[i] === queue[i]
+              ? 'text-green-500'
+              : userInput[i] && userInput[i] !== queue[i]
+              ? 'text-red-500'
+              : 'text-gray-500',
           ]"
         >
           {{ letter }}
         </div>
       </div>
+      <form class="">
+        <input
+          type="text"
+          v-model="userInput"
+          placeholder="Начни писать, чтобы начать тест"
+          class="w-full text-center"
+        />
+      </form>
     </div>
   </main>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
 
-// , мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём.
-const text = ref("Мы писали.");
+const text = ref(
+  "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
+);
 
 const userInput = ref("");
+
 const currentPosition = computed(() => {
   return userInput.value.length
     ? userInput.value.length - 1
@@ -45,10 +55,30 @@ const queue = computed(() => {
   return text.value.split("");
 });
 
-const isInputCorrect = computed(() => {
-  return (
-    userInput.value[currentPosition.value] ===
-    queue.value[currentPosition.value]
-  );
+const isResultShown = ref(false);
+
+let startTestTime = ref(0);
+let endTestTime = ref(0);
+let result = ref(0);
+watchEffect(() => {
+  if (userInput.value.length === 1) {
+    startTestTime.value = Date.now() / 1000;
+  } else if (queue.value.length - 1 === currentPosition.value) {
+    endTestTime.value = Date.now() / 1000;
+    const charsAmount = queue.value.length;
+    const rawWpm = charsAmount / 5;
+    const time = ((endTestTime.value - startTestTime.value) / 60).toFixed(2);
+    result.value = Math.round(rawWpm / time);
+    isResultShown.value = true;
+    userInput.value = "";
+    startTestTime.value = 0;
+    endTestTime.value = 0;
+  }
+});
+
+watchEffect(() => {
+  if (userInput.value.length === 0) {
+    startTestTime.value = 0;
+  }
 });
 </script>

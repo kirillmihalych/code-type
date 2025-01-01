@@ -1,14 +1,14 @@
 <template>
   <main class="font-golos">
-    <div class="bg-grey-500 h-dvh w-[95vw] m-auto mt-28">
-      <!-- v-if="isResultShown" -->
+    <div class="w-[95vw] m-auto mt-28">
       <div class="text-center font-bold text-2xl text-gray-600 underline">
-        <p>инпут: {{ userInput.length }}</p>
-        <p>позиция: {{ currentPosition }}</p>
-        <p>Твой wpm {{ result }}</p>
+        <CountdownTimer
+          :start="isTimerStarted"
+          @result-time="(seconds) => setResultTime(seconds)"
+        />
+        <p>wpm: {{ Math.round(wpm) }}</p>
       </div>
-      <div class="relative w-full p-10 flex flex-wrap whitespace-pre">
-        <!-- carret -->
+      <div class="w-full p-10 flex flex-wrap gap-6 whitespace-pre">
         <div
           ref="carret"
           style="
@@ -17,29 +17,42 @@
             height: 48px;
             background-color: purple;
           "
-          :style="{ left: carretCoordinates.left + 'px' }"
+          :style="{
+            left: carretCoordinates.left + 'px',
+            top: carretCoordinates.top + 'px',
+          }"
         ></div>
-        <!-- carret -->
         <div
-          v-for="(letter, i) in queue"
-          ref="letter"
+          v-for="(word, i) in wordsQueue"
+          ref="words"
           :key="i"
-          class="text-2xl grow-0 shrink-0 basis-6 flex place-content-center"
-          :class="[
-            userInput[i] === queue[i]
-              ? 'text-green-500'
-              : userInput[i] && userInput[i] !== queue[i]
-              ? 'text-red-500'
-              : 'text-gray-500',
-          ]"
+          class="word flex"
         >
-          {{ letter }}
+          <span
+            v-for="(letter, idx) in word"
+            ref="letter"
+            :key="idx"
+            class="text-2xl w-6 flex place-content-center"
+            :class="[
+              isInputedCharCorrect(idx) && isCurrentWord(i)
+                ? 'text-green-600'
+                : isInputExist(idx) &&
+                  !isInputedCharCorrect(idx) &&
+                  isCurrentWord(i)
+                ? 'text-red-300'
+                : isWordTyped(i)
+                ? '!text-green-600'
+                : 'text-gray-500',
+            ]"
+          >
+            {{ letter }}
+          </span>
         </div>
       </div>
-      <form class="">
+      <form>
         <input
           type="text"
-          v-model="userInput"
+          v-model="currentInput"
           placeholder="Начни писать, чтобы начать тест"
           class="w-full text-center"
         />
@@ -49,84 +62,117 @@
 </template>
 
 <script setup>
-import { ref, onMounted, useTemplateRef, watch } from "vue";
+import { ref, useTemplateRef, onMounted } from "vue";
 import { computed, watchEffect } from "vue";
-import { useMagicKeys, whenever } from "@vueuse/core";
+import { useMagicKeys } from "@vueuse/core";
+import CountdownTimer from "./components/CountdownTimer.vue";
 
-const { backspace } = useMagicKeys();
-
-const carret = useTemplateRef("carret");
-
-const userInput = ref("");
-let userInputLength = userInput.value.length;
-
-const isInputGetsBigger = computed(() => {
-  // [x] создать не реактивную переменную, котора будет говорить длину инпута
-  // [x] обновлять её вручную
-  // [x] отдавать true или false в случае движения
-  // [ ] отдавать null в случае простоя
-  const inputGetsBigger = userInput.value.length > userInputLength;
-  const inputGetsSmaller = userInput.value.length < userInputLength;
-  const inputStaysTheSame = userInput.value.length === userInputLength;
-  userInputLength = userInput.value.length;
-  return inputGetsBigger ? true : inputGetsSmaller ? false : null;
-});
-
-// если
-const currentPosition = computed(() => {
-  return userInput.value.length ? userInput.value.length - 1 : 1;
-});
-
-function putCarretOnStart() {
-  carretCoordinates.value.left = 40;
-}
+const { space } = useMagicKeys();
+// const carret = useTemplateRef("carret");
+const words = useTemplateRef("words");
 
 const carretCoordinates = ref({
-  left: 40,
+  left: 0,
   top: 0,
 });
 
-const letter = ref(null);
 // "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
-const text = ref("Слово записано.");
+const text = ref(
+  "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
+);
 
-const queue = computed(() => {
-  return text.value.split("");
+const totalCharsAmount = computed(() => {
+  // часть формулы (total_amount_of_chars / 5)
+  return text.value.split("").length / 5;
 });
 
-const isResultShown = ref(false);
+// для проверки ставлю стартовое значение на 15
+const resultTime = ref(15);
+function setResultTime(seconds) {
+  resultTime.value = 60 - seconds;
+}
 
-let startTestTime = ref(0);
-let endTestTime = ref(0);
-let result = ref(0);
+const normalizedTime = computed(() => {
+  // часть формулы время_на_тест_в_секундах / 60
+  return resultTime.value / 60;
+});
+
+const wpm = computed(() => {
+  console.log(normalizedTime.value);
+  return totalCharsAmount.value / normalizedTime.value;
+});
+
+const wordsQueue = computed(() => {
+  return text.value.split(" ");
+});
+const currentWordIndex = ref(0);
+const currentWord = computed(() => {
+  return wordsQueue.value[currentWordIndex.value];
+});
+const currentInput = ref("");
+let currentInputLength = currentInput.value.length;
+
+const trimmedInput = computed(() => {
+  return currentInput.value.trimStart();
+});
+let trimmedInputLength = trimmedInput.value.length;
+
+// const typedChars = ref([]);
+
+const isCurrentInputCorrect = computed(() => {
+  return currentWord.value === trimmedInput.value;
+});
+
+function isWordTyped(index) {
+  return index < currentWordIndex.value;
+}
+
+function isInputedCharCorrect(index) {
+  return currentWord.value[index] === trimmedInput.value[index];
+}
+
+function isCurrentWord(index) {
+  return currentWordIndex.value === index;
+}
+
+function isInputExist(index) {
+  return trimmedInput.value[index];
+}
+
+function setCarretCoordinates() {
+  carretCoordinates.value.left =
+    words.value[currentWordIndex.value].getBoundingClientRect().left;
+  carretCoordinates.value.top =
+    words.value[currentWordIndex.value].getBoundingClientRect().top;
+}
+
+const isInputGetsBigger = computed(() => {
+  const inputGetsBigger = currentInput.value.length > currentInputLength;
+  const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
+  currentInputLength = currentInput.value.length;
+  trimmedInputLength = trimmedInput.value.length;
+  return inputGetsBigger ? true : inputGetsSmaller ? false : null;
+});
+
+// const wpm = ref(0);
+
+const isTimerStarted = ref(false);
+
+function startTimer() {
+  isTimerStarted.value = true;
+}
+
+function stopTimer() {
+  isTimerStarted.value = false;
+}
 
 watchEffect(() => {
-  if (userInput.value.length === 1) {
-    startTestTime.value = Date.now() / 1000;
-  } else if (queue.value.length - 1 === currentPosition.value) {
-    endTestTime.value = Date.now() / 1000;
-    const charsAmount = queue.value.length;
-    const rawWpm = charsAmount / 5;
-    const time = ((endTestTime.value - startTestTime.value) / 60).toFixed(2);
-    result.value = Math.round(rawWpm / time);
-    putCarretOnStart();
-    userInput.value = "";
-    isResultShown.value = true;
-    userInputLength = 0;
-    startTestTime.value = 0;
-    endTestTime.value = 0;
+  if (trimmedInput.value.length > 0) {
+    startTimer();
   }
 });
 
-// если пользователь начал вводить что-то,
-// то запускается таймер
-watchEffect(() => {
-  if (userInput.value.length === 0) {
-    startTestTime.value = 0;
-  }
-});
-
-// движение вперёд
+// движение carret по слову
 watchEffect(() => {
   // current position
   if (isInputGetsBigger.value === null) {
@@ -137,6 +183,29 @@ watchEffect(() => {
     carretCoordinates.value.left -= 24;
   }
 });
+
+const lastWordIndex = wordsQueue.value.length - 1;
+// если последняя слово равно currentWordIndex
+// то кончаем тест
+// пробел, переход на следующее слово при нажатии пробела
+watchEffect(() => {
+  if (isCurrentInputCorrect.value && space.value) {
+    currentInput.value = "";
+    currentWordIndex.value += 1;
+    setCarretCoordinates();
+  } else if (space.value && lastWordIndex === currentWordIndex.value) {
+    stopTimer();
+    setResultTime();
+    console.log("test ended");
+  }
+});
+
+onMounted(() => {
+  setCarretCoordinates();
+});
 </script>
 
-<style></style>
+<style>
+/* 
+*/
+</style>

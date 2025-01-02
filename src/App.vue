@@ -21,6 +21,7 @@
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }"
+          class="transition-[left,top]"
         ></div>
         <div
           v-for="(word, i) in wordsQueue"
@@ -206,6 +207,7 @@ onMounted(() => {
 </script>
 
 <style>
-/* 
+/*
+
 */
 </style>

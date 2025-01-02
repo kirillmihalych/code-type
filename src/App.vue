@@ -21,7 +21,7 @@
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }"
-          class="transition-[left,top]"
+          class="transition-[left,top] animate-blink"
         ></div>
         <div
           v-for="(word, i) in wordsQueue"

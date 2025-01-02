@@ -21,8 +21,11 @@
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }"
-          class="transition-[left,top] animate-blink"
+          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink"
         ></div>
+        <!-- 
+        - [ ] 
+        -->
         <div
           v-for="(word, i) in wordsQueue"
           ref="words"

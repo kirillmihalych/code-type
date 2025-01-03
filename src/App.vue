@@ -1,16 +1,28 @@
 <template>
   <main class="font-golos">
-    <div class="w-[95vw] m-auto mt-28">
-      <div class="text-center font-bold text-2xl text-gray-600 underline">
-        <CountdownTimer
-          :start="isTimerStarted"
-          @result-time="(seconds) => setResultTime(seconds)"
-        />
-        <p>wpm: {{ Math.round(wpm) }}</p>
+    <div class="text-center font-bold text-2xl text-gray-600 underline">
+      <CountdownTimer
+        :start="isTimerStarted"
+        @result-time="(seconds) => setResultTime(seconds)"
+      />
+      <p>wpm: {{ Math.round(wpm) }}</p>
+      <p>инпут: {{ isInputFocused }}</p>
+    </div>
+    <div class="grid grid-cols-1 w-[95vw] m-auto mt-28">
+      <div
+        v-show="!isInputFocused"
+        class="row-start-1 col-start-1 self-center m-auto text-gray-600"
+      >
+        Клик здесь для фокуса
       </div>
-      <div class="w-full p-10 flex flex-wrap gap-6 whitespace-pre">
+      <div
+        class="row-start-1 col-start-1 w-full m-auto p-10 flex flex-wrap gap-6 whitespace-pre"
+        :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
+        @click="setFocus"
+      >
         <div
           ref="carret"
+          v-show="isInputFocused"
           style="
             position: absolute;
             width: 2px;
@@ -23,9 +35,6 @@
           }"
           class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink"
         ></div>
-        <!-- 
-        - [ ] 
-        -->
         <div
           v-for="(word, i) in wordsQueue"
           ref="words"
@@ -52,15 +61,15 @@
             {{ letter }}
           </span>
         </div>
+        <form class="absolute opacity-0">
+          <input
+            ref="input"
+            type="text"
+            v-model="currentInput"
+            placeholder="Начни писать, чтобы начать тест"
+          />
+        </form>
       </div>
-      <form>
-        <input
-          type="text"
-          v-model="currentInput"
-          placeholder="Начни писать, чтобы начать тест"
-          class="w-full text-center"
-        />
-      </form>
     </div>
   </main>
 </template>
@@ -68,12 +77,12 @@
 <script setup>
 import { ref, useTemplateRef, onMounted } from "vue";
 import { computed, watchEffect } from "vue";
-import { useMagicKeys } from "@vueuse/core";
+import { useMagicKeys, useFocus } from "@vueuse/core";
 import CountdownTimer from "./components/CountdownTimer.vue";
 
 const { space } = useMagicKeys();
-// const carret = useTemplateRef("carret");
 const words = useTemplateRef("words");
+const input = useTemplateRef("input");
 
 const carretCoordinates = ref({
   left: 0,
@@ -116,12 +125,16 @@ const currentWord = computed(() => {
 const currentInput = ref("");
 let currentInputLength = currentInput.value.length;
 
+const { focused: isInputFocused } = useFocus(input, { initialValue: false });
+
+function setFocus() {
+  isInputFocused.value = true;
+}
+
 const trimmedInput = computed(() => {
   return currentInput.value.trimStart();
 });
 let trimmedInputLength = trimmedInput.value.length;
-
-// const typedChars = ref([]);
 
 const isCurrentInputCorrect = computed(() => {
   return currentWord.value === trimmedInput.value;
@@ -211,6 +224,5 @@ onMounted(() => {
 
 <style>
 /*
-
 */
 </style>

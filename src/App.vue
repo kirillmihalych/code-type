@@ -6,8 +6,7 @@
         @result-time="(seconds) => setResultTime(seconds)"
       />
       <p>wpm: {{ Math.round(wpm) }}</p>
-      <p>isExtraLetters {{ currentWord.length < trimmedInput.length }}</p>
-      <p>extraLetters: {{ extraLetters }}</p>
+      <p>currentWord: {{ currentWord }}</p>
       <p>currentInput: {{ currentInput }}</p>
       <p>trimmedInput: {{ trimmedInput }}</p>
     </div>
@@ -69,7 +68,7 @@
             v-show="isCurrentWord(i)"
             v-for="(extra, index) in extraLetters"
             :key="index"
-            class="text-2xl w-6 flex place-content-center text-red-300"
+            class="text-2xl w-6 flex place-content-center text-red-500"
           >
             {{ extra }}
           </span>
@@ -185,7 +184,8 @@ function setCarretCoordinates() {
 }
 
 const isInputGetsBigger = computed(() => {
-  const inputGetsBigger = currentInput.value.length > currentInputLength;
+  const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
+  // const inputGetsBigger = currentInput.value.length > currentInputLength;
   const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
   currentInputLength = currentInput.value.length;
   trimmedInputLength = trimmedInput.value.length;
@@ -231,12 +231,18 @@ watchEffect(() => {
         extraLetters.value.push(extra[extra.length - 1]);
       }
     }
+    console.log("i do my work");
     carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
     if (extraLetters.value.length > 0) {
       extraLetters.value.pop();
     }
-    carretCoordinates.value.left -= 24;
+    if (trimmedInput.value.length === 0) {
+      extraLetters.value = [];
+      setCarretCoordinates();
+    } else {
+      carretCoordinates.value.left -= 24;
+    }
   }
 });
 
@@ -263,6 +269,5 @@ onMounted(() => {
 
 <style>
 /*
-
 */
 </style>

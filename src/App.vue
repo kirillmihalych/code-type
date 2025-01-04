@@ -6,16 +6,13 @@
         @result-time="(seconds) => setResultTime(seconds)"
       />
       <p>wpm: {{ Math.round(wpm) }}</p>
-      <p>currentWord: {{ currentWord }}</p>
-      <p>currentInput: {{ currentInput }}</p>
-      <p>trimmedInput: {{ trimmedInput }}</p>
     </div>
     <div class="grid grid-cols-1 w-[95vw] m-auto mt-28">
       <div
         v-show="!isInputFocused"
         class="row-start-1 col-start-1 self-center m-auto text-gray-600 opacity-75"
       >
-        Клик здесь для фокуса
+        Клик здесь для фокуса или нажмите любую кнопку
       </div>
       <div
         ref="carret-parent"
@@ -74,7 +71,7 @@
           </span>
           <!-- extra chars -->
         </div>
-        <form class="absolute opacity-0">
+        <form class="absolute opacity-0" @submit.prevent>
           <input
             ref="input"
             type="text"
@@ -93,7 +90,8 @@ import { computed, watchEffect } from "vue";
 import { useMagicKeys, useFocus, useElementBounding } from "@vueuse/core";
 import CountdownTimer from "./components/CountdownTimer.vue";
 
-const { space } = useMagicKeys();
+const { space, current } = useMagicKeys();
+
 const words = useTemplateRef("words");
 const input = useTemplateRef("input");
 const carretParent = useTemplateRef("carret-parent");
@@ -158,6 +156,16 @@ function setFocus() {
   isInputFocused.value = true;
 }
 
+watchEffect(() => {
+  // current.size > 0 && !isInputFocused
+  if (current.size > 0 && !isInputFocused.value) {
+    setFocus();
+    setTimeout(() => {
+      currentInput.value = "";
+    }, 1);
+  }
+});
+
 function isWordTyped(index) {
   return index < currentWordIndex.value;
 }
@@ -192,8 +200,6 @@ const isInputGetsBigger = computed(() => {
   return inputGetsBigger ? true : inputGetsSmaller ? false : null;
 });
 
-// const wpm = ref(0);
-
 const isTimerStarted = ref(false);
 
 function startTimer() {
@@ -217,7 +223,6 @@ watchEffect(() => {
     console.log("hi there");
   } else if (isInputGetsBigger.value) {
     if (isExtraLetters.value) {
-      console.log("there is an extra letters");
       const diff = trimmedInput.value.length - currentWord.value.length;
       let extra = [
         ...trimmedInput.value.slice(
@@ -231,7 +236,6 @@ watchEffect(() => {
         extraLetters.value.push(extra[extra.length - 1]);
       }
     }
-    console.log("i do my work");
     carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
     if (extraLetters.value.length > 0) {

@@ -25,8 +25,9 @@
           v-show="isInputFocused"
           style="
             position: absolute;
-            width: 2px;
-            height: 48px;
+            width: 4px;
+            border-radius: 4px;
+            height: 36px;
             background-color: purple;
           "
           :style="{

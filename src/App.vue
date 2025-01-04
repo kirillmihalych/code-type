@@ -6,17 +6,21 @@
         @result-time="(seconds) => setResultTime(seconds)"
       />
       <p>wpm: {{ Math.round(wpm) }}</p>
-      <p>инпут: {{ isInputFocused }}</p>
+      <p>isExtraLetters {{ currentWord.length < trimmedInput.length }}</p>
+      <p>extraLetters: {{ extraLetters }}</p>
+      <p>currentInput: {{ currentInput }}</p>
+      <p>trimmedInput: {{ trimmedInput }}</p>
     </div>
     <div class="grid grid-cols-1 w-[95vw] m-auto mt-28">
       <div
         v-show="!isInputFocused"
-        class="row-start-1 col-start-1 self-center m-auto text-gray-600"
+        class="row-start-1 col-start-1 self-center m-auto text-gray-600 opacity-75"
       >
         Клик здесь для фокуса
       </div>
       <div
-        class="row-start-1 col-start-1 w-full m-auto p-10 flex flex-wrap gap-6 whitespace-pre"
+        ref="carret-parent"
+        class="relative row-start-1 col-start-1 w-full m-auto p-10 flex flex-wrap gap-6 whitespace-pre"
         :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
         @click="setFocus"
       >
@@ -60,6 +64,16 @@
           >
             {{ letter }}
           </span>
+          <!-- extra chars -->
+          <span
+            v-show="isCurrentWord(i)"
+            v-for="(extra, index) in extraLetters"
+            :key="index"
+            class="text-2xl w-6 flex place-content-center text-red-300"
+          >
+            {{ extra }}
+          </span>
+          <!-- extra chars -->
         </div>
         <form class="absolute opacity-0">
           <input
@@ -77,12 +91,14 @@
 <script setup>
 import { ref, useTemplateRef, onMounted } from "vue";
 import { computed, watchEffect } from "vue";
-import { useMagicKeys, useFocus } from "@vueuse/core";
+import { useMagicKeys, useFocus, useElementBounding } from "@vueuse/core";
 import CountdownTimer from "./components/CountdownTimer.vue";
 
 const { space } = useMagicKeys();
 const words = useTemplateRef("words");
 const input = useTemplateRef("input");
+const carretParent = useTemplateRef("carret-parent");
+const { left, top } = useElementBounding(carretParent);
 
 const carretCoordinates = ref({
   left: 0,
@@ -115,6 +131,7 @@ const wpm = computed(() => {
   return totalCharsAmount.value / normalizedTime.value;
 });
 
+// слова
 const wordsQueue = computed(() => {
   return text.value.split(" ");
 });
@@ -124,21 +141,23 @@ const currentWord = computed(() => {
 });
 const currentInput = ref("");
 let currentInputLength = currentInput.value.length;
+const trimmedInput = computed(() => {
+  return currentInput.value.trimStart();
+});
+let trimmedInputLength = trimmedInput.value.length;
+const isCurrentInputCorrect = computed(() => {
+  return currentWord.value === trimmedInput.value;
+});
+const extraLetters = ref([]);
+const isExtraLetters = computed(() => {
+  return trimmedInput.value.length > currentWord.value.length;
+});
 
 const { focused: isInputFocused } = useFocus(input, { initialValue: false });
 
 function setFocus() {
   isInputFocused.value = true;
 }
-
-const trimmedInput = computed(() => {
-  return currentInput.value.trimStart();
-});
-let trimmedInputLength = trimmedInput.value.length;
-
-const isCurrentInputCorrect = computed(() => {
-  return currentWord.value === trimmedInput.value;
-});
 
 function isWordTyped(index) {
   return index < currentWordIndex.value;
@@ -157,10 +176,12 @@ function isInputExist(index) {
 }
 
 function setCarretCoordinates() {
+  console.log(left.value, top.value);
   carretCoordinates.value.left =
-    words.value[currentWordIndex.value].getBoundingClientRect().left;
+    words.value[currentWordIndex.value].getBoundingClientRect().left -
+    left.value;
   carretCoordinates.value.top =
-    words.value[currentWordIndex.value].getBoundingClientRect().top;
+    words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
 }
 
 const isInputGetsBigger = computed(() => {
@@ -195,8 +216,26 @@ watchEffect(() => {
   if (isInputGetsBigger.value === null) {
     console.log("hi there");
   } else if (isInputGetsBigger.value) {
+    if (isExtraLetters.value) {
+      console.log("there is an extra letters");
+      const diff = trimmedInput.value.length - currentWord.value.length;
+      let extra = [
+        ...trimmedInput.value.slice(
+          currentWord.value.length,
+          currentWord.value.length + diff
+        ),
+      ];
+      if (extra.length === 0) {
+        extraLetters.value.push(" ");
+      } else {
+        extraLetters.value.push(extra[extra.length - 1]);
+      }
+    }
     carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
+    if (extraLetters.value.length > 0) {
+      extraLetters.value.pop();
+    }
     carretCoordinates.value.left -= 24;
   }
 });
@@ -224,5 +263,6 @@ onMounted(() => {
 
 <style>
 /*
+
 */
 </style>

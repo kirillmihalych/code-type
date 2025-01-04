@@ -1,13 +1,15 @@
 <template>
-  <main class="font-golos">
+  <main class="font-golos grid place-content-center h-dvh w-[95vw] m-auto">
     <div class="text-center font-bold text-2xl text-gray-600 underline">
       <CountdownTimer
         :start="isTimerStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
-      <p>wpm: {{ Math.round(wpm) }}</p>
     </div>
-    <div class="grid grid-cols-1 w-[95vw] m-auto mt-28">
+    <p class="text-xl text-center text-gray-500">
+      wpm <span class="font-bold text-blue-400">{{ displayedWpm }}</span>
+    </p>
+    <div class="grid grid-cols-1">
       <div
         v-show="!isInputFocused"
         class="row-start-1 col-start-1 self-center m-auto text-gray-600 opacity-75"
@@ -108,9 +110,11 @@ const text = ref(
   "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
 );
 
+const writtenWords = ref([]);
+
 const totalCharsAmount = computed(() => {
   // часть формулы (total_amount_of_chars / 5)
-  return text.value.split("").length / 5;
+  return writtenWords.value.join("").split("").length / 5;
 });
 
 // для проверки ставлю стартовое значение на 15
@@ -125,10 +129,11 @@ const normalizedTime = computed(() => {
 });
 
 const wpm = computed(() => {
-  console.log(normalizedTime.value);
   return totalCharsAmount.value / normalizedTime.value;
 });
-
+const displayedWpm = computed(() => {
+  return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
+});
 // слова
 const wordsQueue = computed(() => {
   return text.value.split(" ");
@@ -158,7 +163,6 @@ function setFocus() {
 }
 
 watchEffect(() => {
-  // current.size > 0 && !isInputFocused
   if (current.size > 0 && !isInputFocused.value) {
     setFocus();
     setTimeout(() => {
@@ -257,6 +261,7 @@ const lastWordIndex = wordsQueue.value.length - 1;
 // пробел, переход на следующее слово при нажатии пробела
 watchEffect(() => {
   if (isCurrentInputCorrect.value && space.value) {
+    writtenWords.value.push(currentWord.value);
     currentInput.value = "";
     currentWordIndex.value += 1;
     setCarretCoordinates();

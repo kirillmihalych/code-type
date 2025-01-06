@@ -1,19 +1,22 @@
 <template>
   <main class="font-golos grid place-content-center h-dvh w-[95vw] m-auto">
     <div class="text-center font-bold text-2xl text-gray-600">
+      <p></p>
       <CountdownTimer
         :start="isTimerStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
-      <p>{{ currentWord }}</p>
     </div>
     <p class="text-xl text-center text-gray-500">
       wpm <span class="font-bold text-blue-400">{{ displayedWpm }}</span>
     </p>
     <ResultsDisplay
       :total-words-amount="totalWords"
-      :written-words-amount="writtenWordsLength"
+      :written-chars-amount="writtenCharsAmount"
+      :written-words-amount="writtenWordsAmount"
+      :total-chars="totalChars"
       :wpm="displayedWpm"
+      :mistakes="mistakes.length"
     />
     <div class="grid grid-cols-1">
       <div
@@ -97,7 +100,12 @@
 <script setup>
 import { ref, useTemplateRef, onMounted } from "vue";
 import { computed, watchEffect } from "vue";
-import { useMagicKeys, useFocus, useElementBounding } from "@vueuse/core";
+import {
+  useMagicKeys,
+  useFocus,
+  useElementBounding,
+  whenever,
+} from "@vueuse/core";
 import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
@@ -123,9 +131,27 @@ const carretCoordinates = ref({
 const text = ref(
   "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
 );
+const totalChars = computed(() => {
+  return text.value.split("").length;
+});
+const currentlyAtCharIndex = ref(0);
+
+const mistakes = ref([]);
+// what char should i write
+const nextChar = computed(() => {
+  return currentWord.value[trimmedInput.value.length];
+});
+// what char i wrote
+const prevChar = computed(() => {
+  return trimmedInput.value[trimmedInput.value.length - 1];
+});
+// is
 
 const writtenWords = ref([]);
-const writtenWordsLength = computed(() => {
+const writtenCharsAmount = computed(() => {
+  return writtenWords.value.join("").split("").length;
+});
+const writtenWordsAmount = computed(() => {
   return writtenWords.value.length;
 });
 
@@ -193,7 +219,6 @@ function isWordTyped(index) {
 }
 
 function isInputedCharCorrect(index) {
-  console.log(trimmedInput.value[index]);
   return currentWord.value[index] === trimmedInput.value[index];
 }
 
@@ -205,6 +230,19 @@ function isInputExist(index) {
   return trimmedInput.value[index];
 }
 
+const isCharMistake = computed(() => {
+  console.log(
+    "чик-пук",
+    currentWord.value[trimmedInput.value.length - 1] !== prevChar.value
+  );
+  return currentWord.value[trimmedInput.value.length - 1] !== prevChar.value;
+});
+
+watchEffect(() => {
+  if (isCharMistake.value) {
+    mistakes.value.push("mistake");
+  }
+});
 function setCarretCoordinates() {
   console.log(left.value, top.value);
   carretCoordinates.value.left =
@@ -255,20 +293,24 @@ watchEffect(() => {
       ];
       if (extra.length === 0) {
         extraLetters.value.push(" ");
+        mistakes.value.push("extra");
       } else {
         extraLetters.value.push(extra[extra.length - 1]);
+        mistakes.value.push("extra");
       }
+    } else {
+      currentlyAtCharIndex.value += 1;
     }
     carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
-    if (extraLetters.value.length > 0) {
-      extraLetters.value.pop();
-    }
     if (trimmedInput.value.length === 0) {
       extraLetters.value = [];
       setCarretCoordinates();
     } else {
       carretCoordinates.value.left -= 24;
+    }
+    if (extraLetters.value.length > 0) {
+      extraLetters.value.pop();
     }
   }
 });
@@ -278,16 +320,23 @@ const lastWordIndex = wordsQueue.value.length - 1;
 // то кончаем тест
 // пробел, переход на следующее слово при нажатии пробела
 watchEffect(() => {
-  if (isCurrentInputCorrect.value && space.value) {
+  if (
+    space.value &&
+    lastWordIndex === currentWordIndex.value &&
+    isCurrentInputCorrect.value
+  ) {
+    stopTimer();
+    setResultTime();
+    writtenWords.value.push(currentWord.value);
+    console.log("test ended");
+  } else if (isCurrentInputCorrect.value && space.value) {
+    if (isInputedCharCorrect(currentlyAtCharIndex.value)) {
+      currentlyAtCharIndex.value += 1;
+    }
     writtenWords.value.push(currentWord.value);
     currentInput.value = "";
     currentWordIndex.value += 1;
     setCarretCoordinates();
-  } else if (space.value && lastWordIndex === currentWordIndex.value) {
-    writtenWords.value.push(currentWord.value);
-    stopTimer();
-    setResultTime();
-    console.log("test ended");
   }
 });
 

@@ -1,14 +1,19 @@
 <template>
   <main class="font-golos grid place-content-center h-dvh w-[95vw] m-auto">
-    <div class="text-center font-bold text-2xl text-gray-600 underline">
+    <div class="text-center font-bold text-2xl text-gray-600">
       <CountdownTimer
         :start="isTimerStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
+      <p>{{ currentWord }}</p>
     </div>
     <p class="text-xl text-center text-gray-500">
       wpm <span class="font-bold text-blue-400">{{ displayedWpm }}</span>
     </p>
+    <ResultsDisplay
+      :total-words-amount="totalWords"
+      :written-words-amount="writtenWordsLength"
+    />
     <div class="grid grid-cols-1">
       <div
         v-show="!isInputFocused"
@@ -83,6 +88,7 @@
           />
         </form>
       </div>
+      <KeymapLayout />
     </div>
   </main>
 </template>
@@ -91,11 +97,18 @@
 import { ref, useTemplateRef, onMounted } from "vue";
 import { computed, watchEffect } from "vue";
 import { useMagicKeys, useFocus, useElementBounding } from "@vueuse/core";
+import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
+import ResultsDisplay from "./components/ResultsDisplay.vue";
 
 const { space, current } = useMagicKeys();
 
 const words = useTemplateRef("words");
+const totalWords = ref(null);
+function defineTotalWordsAmount() {
+  totalWords.value = words.value.length;
+}
+
 const input = useTemplateRef("input");
 const carretParent = useTemplateRef("carret-parent");
 const { left, top } = useElementBounding(carretParent);
@@ -111,6 +124,9 @@ const text = ref(
 );
 
 const writtenWords = ref([]);
+const writtenWordsLength = computed(() => {
+  return writtenWords.value.length;
+});
 
 const totalCharsAmount = computed(() => {
   // часть формулы (total_amount_of_chars / 5)
@@ -176,6 +192,7 @@ function isWordTyped(index) {
 }
 
 function isInputedCharCorrect(index) {
+  console.log(trimmedInput.value[index]);
   return currentWord.value[index] === trimmedInput.value[index];
 }
 
@@ -266,6 +283,7 @@ watchEffect(() => {
     currentWordIndex.value += 1;
     setCarretCoordinates();
   } else if (space.value && lastWordIndex === currentWordIndex.value) {
+    writtenWords.value.push(currentWord.value);
     stopTimer();
     setResultTime();
     console.log("test ended");
@@ -274,6 +292,7 @@ watchEffect(() => {
 
 onMounted(() => {
   setCarretCoordinates();
+  defineTotalWordsAmount();
 });
 </script>
 

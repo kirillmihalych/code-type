@@ -13,6 +13,7 @@
     <ResultsDisplay
       :total-words-amount="totalWords"
       :written-words-amount="writtenWordsLength"
+      :wpm="displayedWpm"
     />
     <div class="grid grid-cols-1">
       <div
@@ -298,5 +299,6 @@ onMounted(() => {
 
 <style>
 /*
+
 */
 </style>

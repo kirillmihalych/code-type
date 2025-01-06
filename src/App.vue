@@ -1,15 +1,11 @@
 <template>
   <main class="font-golos grid place-content-center h-dvh w-[95vw] m-auto">
     <div class="text-center font-bold text-2xl text-gray-600">
-      <p></p>
       <CountdownTimer
         :start="isTimerStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
     </div>
-    <p class="text-xl text-center text-gray-500">
-      wpm <span class="font-bold text-blue-400">{{ displayedWpm }}</span>
-    </p>
     <ResultsDisplay
       :total-words-amount="totalWords"
       :written-chars-amount="writtenCharsAmount"
@@ -93,6 +89,14 @@
         </form>
       </div>
       <KeymapLayout />
+      <div>
+        <KeyLayout
+          :value="enter"
+          style="width: 5rem; margin: 0 auto; margin-top: 1rem"
+        >
+          Enter
+        </KeyLayout>
+      </div>
     </div>
   </main>
 </template>
@@ -109,15 +113,15 @@ import {
 import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
+import KeyLayout from "./components/KeyLayout.vue";
 
-const { space, current } = useMagicKeys();
+const { space, enter, current } = useMagicKeys();
 
 const words = useTemplateRef("words");
 const totalWords = ref(null);
 function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
-
 const input = useTemplateRef("input");
 const carretParent = useTemplateRef("carret-parent");
 const { left, top } = useElementBounding(carretParent);
@@ -134,7 +138,7 @@ const text = ref(
 const totalChars = computed(() => {
   return text.value.split("").length;
 });
-const currentlyAtCharIndex = ref(0);
+// const currentlyAtCharIndex = ref(0);
 
 const mistakes = ref([]);
 // what char should i write
@@ -145,7 +149,6 @@ const nextChar = computed(() => {
 const prevChar = computed(() => {
   return trimmedInput.value[trimmedInput.value.length - 1];
 });
-// is
 
 const writtenWords = ref([]);
 const writtenCharsAmount = computed(() => {
@@ -199,6 +202,16 @@ const isExtraLetters = computed(() => {
   return trimmedInput.value.length > currentWord.value.length;
 });
 
+function reset() {
+  currentInput.value = "";
+  currentWordIndex.value = 0;
+  writtenWords.value = [];
+  setCarretCoordinates();
+  stopTimer();
+}
+
+whenever(enter, () => reset());
+
 const { focused: isInputFocused } = useFocus(input, { initialValue: false });
 
 function setFocus() {
@@ -231,10 +244,6 @@ function isInputExist(index) {
 }
 
 const isCharMistake = computed(() => {
-  console.log(
-    "чик-пук",
-    currentWord.value[trimmedInput.value.length - 1] !== prevChar.value
-  );
   return currentWord.value[trimmedInput.value.length - 1] !== prevChar.value;
 });
 
@@ -244,7 +253,6 @@ watchEffect(() => {
   }
 });
 function setCarretCoordinates() {
-  console.log(left.value, top.value);
   carretCoordinates.value.left =
     words.value[currentWordIndex.value].getBoundingClientRect().left -
     left.value;
@@ -299,7 +307,7 @@ watchEffect(() => {
         mistakes.value.push("extra");
       }
     } else {
-      currentlyAtCharIndex.value += 1;
+      // currentlyAtCharIndex.value += 1;
     }
     carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
@@ -329,9 +337,9 @@ watchEffect(() => {
     writtenWords.value.push(currentWord.value);
     console.log("test ended");
   } else if (isCurrentInputCorrect.value && space.value) {
-    if (isInputedCharCorrect(currentlyAtCharIndex.value)) {
-      currentlyAtCharIndex.value += 1;
-    }
+    // if (isInputedCharCorrect(currentlyAtCharIndex.value)) {
+    //   currentlyAtCharIndex.value += 1;
+    // }
     writtenWords.value.push(currentWord.value);
     currentInput.value = "";
     currentWordIndex.value += 1;
@@ -353,7 +361,7 @@ onMounted(() => {
 1)  - [x] Отображать количество напечатанных слов в формате 1/15 и т.д.
 2)  - [x] Отображать wpm (сделано)
 3)  - [x] Отображать accuracy
-    - [ ] Переписать логику конца теста
+    - [x] Переписать логику конца теста
 4)  - [x] Поставить opacity статистики на 0.75
 
 ПРОБЛЕМА: shortcuts в приложении

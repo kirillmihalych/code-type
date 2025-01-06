@@ -22,6 +22,8 @@ export default {
         helper: "var(--helper)",
         text: "var(--text)",
         bg: "var(--bg)",
+        error: "var(--error)",
+        caret: "var(--caret)",
       },
     },
   },

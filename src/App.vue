@@ -1,6 +1,6 @@
 <template>
   <main
-    class="busido bg-secondary font-jet-brains grid place-content-center h-dvh"
+    class="lil-dragon bg-secondary font-jet-brains grid place-content-center h-dvh"
   >
     <div class="text-center font-bold text-2xl text-gray-600">
       <CountdownTimer
@@ -42,7 +42,7 @@
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }"
-          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-primary"
+          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
         ></div>
         <div
           v-for="(word, i) in wordsQueue"
@@ -61,7 +61,7 @@
                 : isInputExist(idx) &&
                   !isInputedCharCorrect(idx) &&
                   isCurrentWord(i)
-                ? 'text-primary'
+                ? 'text-error'
                 : isWordTyped(i)
                 ? 'text-helper'
                 : 'text-text',
@@ -74,7 +74,7 @@
             v-show="isCurrentWord(i)"
             v-for="(extra, index) in extraLetters"
             :key="index"
-            class="w-6 flex place-content-center text-primary"
+            class="w-6 flex place-content-center text-error"
           >
             {{ extra }}
           </span>

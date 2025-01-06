@@ -8,4 +8,16 @@
   --helper: #f6f0e9;
   --text: #596172;
   --bg: #1c222d;
+  --error: #ec4c56;
+  --caret: #ec4c56;
+}
+
+.lil-dragon {
+  --primary: #8a5bd6;
+  --secondary: #ebe1ef;
+  --helper: #212b43;
+  --text: #a293c6;
+  --bg: #dac7e2;
+  --error: #f794ca;
+  --caret: #212b43;
 }

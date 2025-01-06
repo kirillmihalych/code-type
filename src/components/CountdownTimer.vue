@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>countdown: {{ remainingTime }}</p>
+    <!-- <p>countdown: {{ remainingTime }}</p> -->
   </div>
 </template>
 
@@ -16,6 +16,7 @@ const remainingTime = ref(60);
 
 function countdown() {
   remainingTime.value -= 1;
+  emits("result-time", remainingTime.value);
 }
 
 function startTimer() {

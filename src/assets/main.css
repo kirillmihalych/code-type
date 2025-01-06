@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.busido {
+  --primary: #ec4c56;
+  --secondary: #242933;
+  --helper: #f6f0e9;
+  --text: #596172;
+  --bg: #1c222d;
+}

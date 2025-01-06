@@ -1,13 +1,11 @@
 <template>
-  <div class="px-10 opacity-75 flex gap-2 text-purple-500">
+  <div class="px-10 opacity-75 flex gap-4 text-primary text-3xl">
     <div>
-      WORDS <span> {{ props.writtenWordsAmount }}</span
+      <span> {{ props.writtenWordsAmount }}</span
       >/{{ props.totalWordsAmount }}
     </div>
-    <div>WPM: {{ props.wpm }}</div>
-    <div>ACC: {{ accuracy }}</div>
-    <p>{{ mistakes }}</p>
-    <p>{{ writtenCharsAmount }}</p>
+    <div>{{ props.wpm }}</div>
+    <div>{{ accuracy }}</div>
   </div>
 </template>
 

@@ -39,7 +39,7 @@
       <KeyLayout :value="Period"> . </KeyLayout>
       <KeyLayout :value="Slash"> / </KeyLayout>
     </div>
-    <KeyLayout :value="Space" style="width: 350px"> default </KeyLayout>
+    <KeyLayout :value="Space" class="w-80"> default </KeyLayout>
   </div>
 </template>
 

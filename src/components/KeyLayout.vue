@@ -1,7 +1,7 @@
 <template>
   <div
-    class="transition-colors duration-100 w-10 h-10 font-bold flex justify-center items-center rounded-sm text-gray-600"
-    :class="props.value ? 'bg-purple-400' : 'bg-purple-200'"
+    class="text-xs transition-colors duration-75 w-7 h-7 flex justify-center items-center rounded-sm text-text"
+    :class="props.value ? 'bg-primary' : 'bg-bg'"
   >
     <slot></slot>
   </div>

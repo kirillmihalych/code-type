@@ -1,5 +1,7 @@
 <template>
-  <main class="font-golos grid place-content-center h-dvh w-[95vw] m-auto">
+  <main
+    class="busido bg-secondary font-jet-brains grid place-content-center h-dvh"
+  >
     <div class="text-center font-bold text-2xl text-gray-600">
       <CountdownTimer
         :start="isTimerStarted"
@@ -35,35 +37,34 @@
             width: 4px;
             border-radius: 4px;
             height: 36px;
-            background-color: purple;
           "
           :style="{
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }"
-          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink"
+          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-primary"
         ></div>
         <div
           v-for="(word, i) in wordsQueue"
           ref="words"
           :key="i"
-          class="word flex"
+          class="word flex text-3xl text-primary"
         >
           <span
             v-for="(letter, idx) in word"
             ref="letter"
             :key="idx"
-            class="text-2xl w-6 flex place-content-center"
+            class="w-6 flex place-content-center"
             :class="[
               isInputedCharCorrect(idx) && isCurrentWord(i)
-                ? 'text-green-600'
+                ? 'text-helper'
                 : isInputExist(idx) &&
                   !isInputedCharCorrect(idx) &&
                   isCurrentWord(i)
-                ? 'text-red-300'
+                ? 'text-primary'
                 : isWordTyped(i)
-                ? '!text-green-600'
-                : 'text-gray-500',
+                ? 'text-helper'
+                : 'text-text',
             ]"
           >
             {{ letter }}
@@ -73,7 +74,7 @@
             v-show="isCurrentWord(i)"
             v-for="(extra, index) in extraLetters"
             :key="index"
-            class="text-2xl w-6 flex place-content-center text-red-500"
+            class="w-6 flex place-content-center text-primary"
           >
             {{ extra }}
           </span>
@@ -365,7 +366,13 @@ onMounted(() => {
 4)  - [x] Поставить opacity статистики на 0.75
 
 ПРОБЛЕМА: shortcuts в приложении
-1) - [ ] enter начать новую игру
+1) - [x] enter начать новую игру
+
+ПРОБЛЕМА: стиль
+1)  - [x] Скопировать стиль с monkeytype но изменить цвета для себя
+          Держать в уме, что дальше буду делать themes для приложения
+2) -  [ ] Добавить иконки для статистики и других всех описаний
+3) -  [ ] Сделать светлую и тёмную тему для приложения
 
 ПРОБЛЕМА: Геймплей 
 1) - [ ] Отображать второй caret, что двигается на постоянной скорости
@@ -374,14 +381,7 @@ onMounted(() => {
    - [ ] Описывать свои предположения о решении и их решение на основе увиденного, 
          чтобы понимать, что работает, а что нет
          и не ходить по кругу 
-
-ПРОБЛЕМА: стиль
-    - [ ] Найти интересный цветовой стиль и скопировать его
-1)  - [ ] Скопировать стиль с monkeytype но изменить цвета для себя
-          Держать в уме, что дальше буду делать themes для приложения
-2) -  [ ] Добавить иконки для статистики и других всех описаний
-3) -  [ ] Сделать светлую и тёмную тему для приложения
-
+         
 ПРОБЛЕМА: анимация
 monkeytype > appearance > tape mode
 1) - [ ] Сделать текст бегущей строкой, что двигается по букве

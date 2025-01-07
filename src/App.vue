@@ -1,13 +1,11 @@
 <template>
   <main
-    class="lil-dragon bg-secondary font-jet-brains grid place-content-center h-dvh"
+    class="lil-dragon bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh"
   >
-    <div class="text-center font-bold text-2xl text-gray-600">
-      <CountdownTimer
-        :start="isTimerStarted"
-        @result-time="(seconds) => setResultTime(seconds)"
-      />
-    </div>
+    <CountdownTimer
+      :start="isTimerStarted"
+      @result-time="(seconds) => setResultTime(seconds)"
+    />
     <ResultsDisplay
       :total-words-amount="totalWords"
       :written-chars-amount="writtenCharsAmount"
@@ -16,95 +14,81 @@
       :wpm="displayedWpm"
       :mistakes="mistakes.length"
     />
-    <div class="grid grid-cols-1 overflow-hidden">
+    <div
+      ref="carret-parent"
+      class="relative w-dvw py-10 flex gap-6 overflow-hidden"
+      @click="setFocus"
+    >
       <div
-        v-show="!isInputFocused"
-        class="row-start-1 col-start-1 self-center m-auto text-gray-600 opacity-75"
-      >
-        Клик здесь для фокуса или нажмите любую кнопку
-      </div>
-      <!-- relative row-start-1 col-start-1 whitespace-pre p-10-->
-      <!-- style="width: 200vw" -->
-      <!-- transition-all -->
-      <div
-        ref="carret-parent"
-        class="w-dvw p-10 flex gap-6 overflow-hidden"
-        :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
-        @click="setFocus"
-      >
-        <!-- :style="{
-          marginLeft: calc(50 % -(tapeMarginLeft + 'px')),
-        }" -->
-        <!-- :style="{
-          marginLeft: tapeMarginLeft === 0 ? 50 + '%' : tapeMarginLeft + 'px',
-        }" -->
-        <div
-          ref="carret"
-          v-show="isInputFocused"
-          style="
-            position: absolute;
-            width: 4px;
-            border-radius: 4px;
-            height: 36px;
-            /* top: 50%; */
-            left: calc(50% + 40px);
-          "
-          class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
-        ></div>
-        <!-- :style="{
+        ref="carret"
+        v-show="isInputFocused"
+        style="
+          position: absolute;
+          width: 4px;
+          border-radius: 4px;
+          height: 36px;
+          /* top: 50%; */
+          left: calc(50%);
+        "
+        class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
+      ></div>
+      <!-- :style="{
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }" -->
-        <div
-          class="words-wrapper flex gap-6 transition-all"
-          :style="{ marginLeft: testMarginLeft }"
-        >
-          <div
-            v-for="(word, i) in wordsQueue"
-            ref="words"
-            :key="i"
-            class="word flex text-3xl text-primary"
-          >
-            <span
-              v-for="(letter, idx) in word"
-              ref="letter"
-              :key="idx"
-              class="w-6 flex place-content-center"
-              :class="[
-                isInputedCharCorrect(idx) && isCurrentWord(i)
-                  ? 'text-helper'
-                  : isInputExist(idx) &&
-                    !isInputedCharCorrect(idx) &&
-                    isCurrentWord(i)
-                  ? 'text-error'
-                  : isWordTyped(i)
-                  ? 'text-helper'
-                  : 'text-text',
-              ]"
-            >
-              {{ letter }}
-            </span>
-            <!-- extra chars -->
-            <span
-              v-show="isCurrentWord(i)"
-              v-for="(extra, index) in extraLetters"
-              :key="index"
-              class="w-6 flex place-content-center text-error"
-            >
-              {{ extra }}
-            </span>
-            <!-- extra chars -->
-          </div>
-        </div>
-        <form class="absolute opacity-0" @submit.prevent>
-          <input
-            ref="input"
-            type="text"
-            v-model="currentInput"
-            placeholder="Начни писать, чтобы начать тест"
-          />
-        </form>
+      <div v-show="!isInputFocused" class="absolute w-full text-center">
+        Клик здесь для фокуса или нажмите любую кнопку
       </div>
+      <div
+        class="words-wrapper text-3xl text-primary flex gap-6 transition-all"
+        :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
+        :style="{ marginLeft: testMarginLeft }"
+      >
+        <div
+          v-for="(word, i) in wordsQueue"
+          ref="words"
+          :key="i"
+          class="word flex"
+        >
+          <span
+            v-for="(letter, idx) in word"
+            ref="letter"
+            :key="idx"
+            class="w-6 flex place-content-center"
+            :class="[
+              isInputedCharCorrect(idx) && isCurrentWord(i)
+                ? 'text-helper'
+                : isInputExist(idx) &&
+                  !isInputedCharCorrect(idx) &&
+                  isCurrentWord(i)
+                ? 'text-error'
+                : isWordTyped(i)
+                ? 'text-helper'
+                : 'text-text',
+            ]"
+          >
+            {{ letter }}
+          </span>
+          <!-- extra chars -->
+          <span
+            v-show="isCurrentWord(i)"
+            v-for="(extra, index) in extraLetters"
+            :key="index"
+            class="w-6 flex place-content-center text-error"
+          >
+            {{ extra }}
+          </span>
+          <!-- extra chars -->
+        </div>
+      </div>
+      <form class="absolute opacity-0" @submit.prevent>
+        <input
+          ref="input"
+          type="text"
+          v-model="currentInput"
+          placeholder="Начни писать, чтобы начать тест"
+        />
+      </form>
     </div>
     <KeymapLayout />
     <div>

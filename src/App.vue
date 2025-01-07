@@ -16,19 +16,28 @@
       :wpm="displayedWpm"
       :mistakes="mistakes.length"
     />
-    <div class="grid grid-cols-1">
+    <div class="grid grid-cols-1 overflow-hidden">
       <div
         v-show="!isInputFocused"
         class="row-start-1 col-start-1 self-center m-auto text-gray-600 opacity-75"
       >
         Клик здесь для фокуса или нажмите любую кнопку
       </div>
+      <!-- relative row-start-1 col-start-1 whitespace-pre p-10-->
+      <!-- style="width: 200vw" -->
+      <!-- transition-all -->
       <div
         ref="carret-parent"
-        class="relative row-start-1 col-start-1 w-full m-auto p-10 flex flex-wrap gap-6 whitespace-pre"
+        class="w-dvw p-10 flex gap-6 overflow-hidden"
         :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
         @click="setFocus"
       >
+        <!-- :style="{
+          marginLeft: calc(50 % -(tapeMarginLeft + 'px')),
+        }" -->
+        <!-- :style="{
+          marginLeft: tapeMarginLeft === 0 ? 50 + '%' : tapeMarginLeft + 'px',
+        }" -->
         <div
           ref="carret"
           v-show="isInputFocused"
@@ -37,48 +46,55 @@
             width: 4px;
             border-radius: 4px;
             height: 36px;
+            /* top: 50%; */
+            left: calc(50% + 40px);
           "
-          :style="{
-            left: carretCoordinates.left + 'px',
-            top: carretCoordinates.top + 'px',
-          }"
           class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
         ></div>
+        <!-- :style="{
+            left: carretCoordinates.left + 'px',
+            top: carretCoordinates.top + 'px',
+          }" -->
         <div
-          v-for="(word, i) in wordsQueue"
-          ref="words"
-          :key="i"
-          class="word flex text-3xl text-primary"
+          class="words-wrapper flex gap-6 transition-all"
+          :style="{ marginLeft: testMarginLeft }"
         >
-          <span
-            v-for="(letter, idx) in word"
-            ref="letter"
-            :key="idx"
-            class="w-6 flex place-content-center"
-            :class="[
-              isInputedCharCorrect(idx) && isCurrentWord(i)
-                ? 'text-helper'
-                : isInputExist(idx) &&
-                  !isInputedCharCorrect(idx) &&
-                  isCurrentWord(i)
-                ? 'text-error'
-                : isWordTyped(i)
-                ? 'text-helper'
-                : 'text-text',
-            ]"
+          <div
+            v-for="(word, i) in wordsQueue"
+            ref="words"
+            :key="i"
+            class="word flex text-3xl text-primary"
           >
-            {{ letter }}
-          </span>
-          <!-- extra chars -->
-          <span
-            v-show="isCurrentWord(i)"
-            v-for="(extra, index) in extraLetters"
-            :key="index"
-            class="w-6 flex place-content-center text-error"
-          >
-            {{ extra }}
-          </span>
-          <!-- extra chars -->
+            <span
+              v-for="(letter, idx) in word"
+              ref="letter"
+              :key="idx"
+              class="w-6 flex place-content-center"
+              :class="[
+                isInputedCharCorrect(idx) && isCurrentWord(i)
+                  ? 'text-helper'
+                  : isInputExist(idx) &&
+                    !isInputedCharCorrect(idx) &&
+                    isCurrentWord(i)
+                  ? 'text-error'
+                  : isWordTyped(i)
+                  ? 'text-helper'
+                  : 'text-text',
+              ]"
+            >
+              {{ letter }}
+            </span>
+            <!-- extra chars -->
+            <span
+              v-show="isCurrentWord(i)"
+              v-for="(extra, index) in extraLetters"
+              :key="index"
+              class="w-6 flex place-content-center text-error"
+            >
+              {{ extra }}
+            </span>
+            <!-- extra chars -->
+          </div>
         </div>
         <form class="absolute opacity-0" @submit.prevent>
           <input
@@ -89,15 +105,15 @@
           />
         </form>
       </div>
-      <KeymapLayout />
-      <div>
-        <KeyLayout
-          :value="enter"
-          style="width: 5rem; margin: 0 auto; margin-top: 1rem"
-        >
-          Enter
-        </KeyLayout>
-      </div>
+    </div>
+    <KeymapLayout />
+    <div>
+      <KeyLayout
+        :value="enter"
+        style="width: 5rem; margin: 0 auto; margin-top: 1rem"
+      >
+        Enter
+      </KeyLayout>
     </div>
   </main>
 </template>
@@ -125,11 +141,15 @@ function defineTotalWordsAmount() {
 }
 const input = useTemplateRef("input");
 const carretParent = useTemplateRef("carret-parent");
-const { left, top } = useElementBounding(carretParent);
+const { left, top, width } = useElementBounding(carretParent);
 
 const carretCoordinates = ref({
   left: 0,
   top: 0,
+});
+const tapeMarginLeft = ref(0);
+const testMarginLeft = computed(() => {
+  return width.value / 2 - tapeMarginLeft.value + "px";
 });
 
 // "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
@@ -254,16 +274,22 @@ watchEffect(() => {
   }
 });
 function setCarretCoordinates() {
-  carretCoordinates.value.left =
-    words.value[currentWordIndex.value].getBoundingClientRect().left -
-    left.value;
-  carretCoordinates.value.top =
-    words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
+  // - [ ] В зависимости от мода classic / tape, координаты должны выставляться по разному
+  //
+  // carretCoordinates.value.left =
+  //   words.value[currentWordIndex.value].getBoundingClientRect().left -
+  //   left.value;
+  // carretCoordinates.value.top =
+  //   words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
+  tapeMarginLeft.value =
+    (writtenWords.value.join("").split("").length + writtenWords.value.length) *
+    24;
+
+  console.log("coordinates setted");
 }
 
 const isInputGetsBigger = computed(() => {
   const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
-  // const inputGetsBigger = currentInput.value.length > currentInputLength;
   const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
   currentInputLength = currentInput.value.length;
   trimmedInputLength = trimmedInput.value.length;
@@ -310,13 +336,19 @@ watchEffect(() => {
     } else {
       // currentlyAtCharIndex.value += 1;
     }
-    carretCoordinates.value.left += 24;
+    // - [ ] в зависимости от мода classic / tape, происходят разные действия
+    tapeMarginLeft.value += 24;
+    // carretCoordinates.value.left += 24;
   } else if (!isInputGetsBigger.value) {
+    if (trimmedInput.value.length >= 0) {
+      // - [ ] в зависимости от мода classic / tape, происходят разные действия
+      tapeMarginLeft.value -= 24;
+    }
     if (trimmedInput.value.length === 0) {
+      // - [ ] в зависимости от мода classic / tape, происходят разные действия
+      // carretCoordinates.value.left -= 24;
       extraLetters.value = [];
       setCarretCoordinates();
-    } else {
-      carretCoordinates.value.left -= 24;
     }
     if (extraLetters.value.length > 0) {
       extraLetters.value.pop();
@@ -338,9 +370,6 @@ watchEffect(() => {
     writtenWords.value.push(currentWord.value);
     console.log("test ended");
   } else if (isCurrentInputCorrect.value && space.value) {
-    // if (isInputedCharCorrect(currentlyAtCharIndex.value)) {
-    //   currentlyAtCharIndex.value += 1;
-    // }
     writtenWords.value.push(currentWord.value);
     currentInput.value = "";
     currentWordIndex.value += 1;
@@ -356,31 +385,27 @@ onMounted(() => {
 
 <style>
 /*
-ПРОБЛЕМА: статистика
-1) Показывать текущий char, что я должен нажать
-Пример с monkeytype
-1)  - [x] Отображать количество напечатанных слов в формате 1/15 и т.д.
-2)  - [x] Отображать wpm (сделано)
-3)  - [x] Отображать accuracy
-    - [x] Переписать логику конца теста
-4)  - [x] Поставить opacity статистики на 0.75
+=====================
+Что происходит, когда я жму ctrl + backspace
+1) стирается всё слово или до пробела, или знака припинания
+2) то есть инпут будет пустым
+Но инпут пустой ещё, когда я перехожу к другому слову
+3) раньше, когда инпут был пустым, я устанавливал координаты caret в начало слова
 
-ПРОБЛЕМА: shortcuts в приложении
-1) - [x] enter начать новую игру
+теперь у меня caret стоит на месте
+и я должен двинуть его так, чтобы текущее слова встало на caret
+Как?
+1) попробовать посчитать количество символов 
 
-ПРОБЛЕМА: стиль
-1)  - [x] Скопировать стиль с monkeytype но изменить цвета для себя
-          Держать в уме, что дальше буду делать themes для приложения
-2) -  [ ] Добавить иконки для статистики и других всех описаний
-3) -  [ ] Сделать светлую и тёмную тему для приложения
 
+=====================
 ПРОБЛЕМА: Геймплей 
 1) - [ ] Отображать второй caret, что двигается на постоянной скорости
 Возможны какие-то вопросы по smoot движению. Их я опускаю если не получается.
    - [ ] Наблюдать за поведением кареты на monkeytype и typeracer
    - [ ] Описывать свои предположения о решении и их решение на основе увиденного, 
          чтобы понимать, что работает, а что нет
-         и не ходить по кругу 
+         и не ходить по кругу.
          
 ПРОБЛЕМА: анимация
 monkeytype > appearance > tape mode

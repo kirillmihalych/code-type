@@ -1,6 +1,6 @@
 <template>
   <main
-    class="lil-dragon bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh"
+    class="bushido bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh"
   >
     <CountdownTimer
       :start="isTimerStarted"
@@ -36,7 +36,10 @@
             left: carretCoordinates.left + 'px',
             top: carretCoordinates.top + 'px',
           }" -->
-      <div v-show="!isInputFocused" class="absolute w-full text-center">
+      <div
+        v-show="!isInputFocused"
+        class="absolute w-full text-center text-helper"
+      >
         Клик здесь для фокуса или нажмите любую кнопку
       </div>
       <div
@@ -91,14 +94,9 @@
       </form>
     </div>
     <KeymapLayout />
-    <div>
-      <KeyLayout
-        :value="enter"
-        style="width: 5rem; margin: 0 auto; margin-top: 1rem"
-      >
-        Enter
-      </KeyLayout>
-    </div>
+    <p class="text-text text-xs mt-10">
+      <span class="bg-bg p-1">enter</span> - начать заново
+    </p>
   </main>
 </template>
 
@@ -393,7 +391,6 @@ onMounted(() => {
          
 ПРОБЛЕМА: анимация
 monkeytype > appearance > tape mode
-1) - [ ] Сделать текст бегущей строкой, что двигается по букве
-2) - [ ] Дать возможность переключаться между стандартным режимом отображения и бегущей строкой
+1) - [ ] Дать возможность переключаться между стандартным режимом отображения и бегущей строкой
 */
 </style>

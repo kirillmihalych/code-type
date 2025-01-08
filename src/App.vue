@@ -20,7 +20,7 @@
     />
     <div
       ref="carret-parent"
-      class="relative w-dvw flex gap-6 overflow-hidden"
+      class="relative w-dvw flex p-10 gap-6 overflow-hidden"
       @click="setFocus"
     >
       <div
@@ -134,7 +134,7 @@ const testMarginLeft = computed(() => {
 });
 const caretStyle = computed(() => {
   return currentMode.value === "tape"
-    ? { left: "calc(50%)" }
+    ? { left: "calc(50% + 40px)" }
     : {
         left: carretCoordinates.value.left + "px",
         top: carretCoordinates.value.top + "px",

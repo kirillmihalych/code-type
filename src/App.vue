@@ -20,26 +20,16 @@
     />
     <div
       ref="carret-parent"
-      class="relative w-dvw py-10 flex gap-6 overflow-hidden"
+      class="relative w-dvw flex gap-6 overflow-hidden"
       @click="setFocus"
     >
       <div
         ref="carret"
         v-show="isInputFocused"
-        style="
-          position: absolute;
-          width: 4px;
-          border-radius: 4px;
-          height: 36px;
-          /* top: 50%; */
-          left: calc(50%);
-        "
+        style="position: absolute; width: 4px; border-radius: 4px; height: 36px"
+        :style="caretStyle"
         class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
       ></div>
-      <!-- :style="{
-            left: carretCoordinates.left + 'px',
-            top: carretCoordinates.top + 'px',
-          }" -->
       <div
         v-show="!isInputFocused"
         class="absolute w-full text-center text-helper"
@@ -49,7 +39,7 @@
       <div
         class="words-wrapper text-3xl text-primary flex gap-6 transition-all"
         :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
-        :style="{ marginLeft: testMarginLeft }"
+        :style="testMarginLeft"
       >
         <div
           v-for="(word, i) in wordsQueue"
@@ -135,7 +125,20 @@ const carretCoordinates = ref({
 });
 const tapeMarginLeft = ref(0);
 const testMarginLeft = computed(() => {
-  return width.value / 2 - tapeMarginLeft.value + "px";
+  return currentMode.value === "tape"
+    ? { marginLeft: width.value / 2 - tapeMarginLeft.value + "px" }
+    : {
+        marginLeft: 0,
+        flexWrap: "wrap",
+      };
+});
+const caretStyle = computed(() => {
+  return currentMode.value === "tape"
+    ? { left: "calc(50%)" }
+    : {
+        left: carretCoordinates.value.left + "px",
+        top: carretCoordinates.value.top + "px",
+      };
 });
 
 // "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
@@ -145,14 +148,15 @@ const text = ref(
 const totalChars = computed(() => {
   return text.value.split("").length;
 });
-// const currentlyAtCharIndex = ref(0);
 
-const currentMode = ref("tape");
+const currentMode = ref("classic");
 function setTapeMode() {
   currentMode.value = "tape";
+  reset();
 }
 function setClassicMode() {
   currentMode.value = "classic";
+  reset();
 }
 
 const mistakes = ref([]);
@@ -344,7 +348,7 @@ watchEffect(() => {
       if (currentMode.value === "tape") {
         tapeMarginLeft.value -= 24;
       } else if (currentMode.value === "classic") {
-        carretCoordinates.value.left += 24;
+        carretCoordinates.value.left -= 24;
       }
     }
     if (trimmedInput.value.length === 0) {

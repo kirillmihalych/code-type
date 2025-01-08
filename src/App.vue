@@ -6,6 +6,10 @@
       :start="isTimerStarted"
       @result-time="(seconds) => setResultTime(seconds)"
     />
+    <div class="flex gap-2">
+      <button @click="setClassicMode" class="bg-white">classic</button>
+      <button @click="setTapeMode" class="bg-white">tape</button>
+    </div>
     <ResultsDisplay
       :total-words-amount="totalWords"
       :written-chars-amount="writtenCharsAmount"
@@ -143,6 +147,14 @@ const totalChars = computed(() => {
 });
 // const currentlyAtCharIndex = ref(0);
 
+const currentMode = ref("tape");
+function setTapeMode() {
+  currentMode.value = "tape";
+}
+function setClassicMode() {
+  currentMode.value = "classic";
+}
+
 const mistakes = ref([]);
 // what char should i write
 const nextChar = computed(() => {
@@ -256,18 +268,20 @@ watchEffect(() => {
   }
 });
 function setCarretCoordinates() {
-  // - [ ] В зависимости от мода classic / tape, координаты должны выставляться по разному
-  //
-  // carretCoordinates.value.left =
-  //   words.value[currentWordIndex.value].getBoundingClientRect().left -
-  //   left.value;
-  // carretCoordinates.value.top =
-  //   words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
-  tapeMarginLeft.value =
-    (writtenWords.value.join("").split("").length + writtenWords.value.length) *
-    24;
-
-  console.log("coordinates setted");
+  // - [x] В зависимости от мода classic / tape, координаты должны выставляться по разному
+  if (currentMode.value === "tape") {
+    tapeMarginLeft.value =
+      (writtenWords.value.join("").split("").length +
+        writtenWords.value.length) *
+      24;
+  } else if (currentMode.value === "classic") {
+    carretCoordinates.value.left =
+      words.value[currentWordIndex.value].getBoundingClientRect().left -
+      left.value;
+    carretCoordinates.value.top =
+      words.value[currentWordIndex.value].getBoundingClientRect().top -
+      top.value;
+  }
 }
 
 const isInputGetsBigger = computed(() => {
@@ -318,17 +332,23 @@ watchEffect(() => {
     } else {
       // currentlyAtCharIndex.value += 1;
     }
-    // - [ ] в зависимости от мода classic / tape, происходят разные действия
-    tapeMarginLeft.value += 24;
-    // carretCoordinates.value.left += 24;
+    // - [x] в зависимости от мода classic / tape, происходят разные действия
+    if (currentMode.value === "tape") {
+      tapeMarginLeft.value += 24;
+    } else if (currentMode.value === "classic") {
+      carretCoordinates.value.left += 24;
+    }
   } else if (!isInputGetsBigger.value) {
-    if (trimmedInput.value.length >= 0) {
-      // - [ ] в зависимости от мода classic / tape, происходят разные действия
-      tapeMarginLeft.value -= 24;
+    if (trimmedInput.value.length > 0) {
+      // - [x] в зависимости от мода classic / tape, происходят разные действия
+      if (currentMode.value === "tape") {
+        tapeMarginLeft.value -= 24;
+      } else if (currentMode.value === "classic") {
+        carretCoordinates.value.left += 24;
+      }
     }
     if (trimmedInput.value.length === 0) {
-      // - [ ] в зависимости от мода classic / tape, происходят разные действия
-      // carretCoordinates.value.left -= 24;
+      // - [x] в зависимости от мода classic / tape, происходят разные действия
       extraLetters.value = [];
       setCarretCoordinates();
     }
@@ -368,19 +388,13 @@ onMounted(() => {
 <style>
 /*
 =====================
-Что происходит, когда я жму ctrl + backspace
-1) стирается всё слово или до пробела, или знака припинания
-2) то есть инпут будет пустым
-Но инпут пустой ещё, когда я перехожу к другому слову
-3) раньше, когда инпут был пустым, я устанавливал координаты caret в начало слова
-
-теперь у меня caret стоит на месте
-и я должен двинуть его так, чтобы текущее слова встало на caret
-Как?
-1) попробовать посчитать количество символов 
-
-
 =====================
+ПРОБЛЕМА: appearence
+1) - [ ] Дать возможность переключаться между стандартным режимом отображения и бегущей строкой
+2) - [ ] Переключение цветовых тем
+
+ПРОБЛЕМА: wpm как-то неверно считает, что ли
+
 ПРОБЛЕМА: Геймплей 
 1) - [ ] Отображать второй caret, что двигается на постоянной скорости
 Возможны какие-то вопросы по smoot движению. Их я опускаю если не получается.
@@ -389,8 +403,5 @@ onMounted(() => {
          чтобы понимать, что работает, а что нет
          и не ходить по кругу.
          
-ПРОБЛЕМА: анимация
-monkeytype > appearance > tape mode
-1) - [ ] Дать возможность переключаться между стандартным режимом отображения и бегущей строкой
 */
 </style>

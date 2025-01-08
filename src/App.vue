@@ -1,15 +1,12 @@
 <template>
   <main
-    class="bushido bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh"
+    class="bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh transition-colors"
+    :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']"
   >
     <CountdownTimer
       :start="isTimerStarted"
       @result-time="(seconds) => setResultTime(seconds)"
     />
-    <div class="flex gap-2">
-      <button @click="setClassicMode" class="bg-white">classic</button>
-      <button @click="setTapeMode" class="bg-white">tape</button>
-    </div>
     <ResultsDisplay
       :total-words-amount="totalWords"
       :written-chars-amount="writtenCharsAmount"
@@ -32,7 +29,7 @@
       ></div>
       <div
         v-show="!isInputFocused"
-        class="absolute w-full text-center text-helper"
+        class="absolute top-1/2 w-full text-center text-helper"
       >
         Клик здесь для фокуса или нажмите любую кнопку
       </div>
@@ -88,9 +85,20 @@
       </form>
     </div>
     <KeymapLayout />
-    <p class="text-text text-xs mt-10">
-      <span class="bg-bg p-1">enter</span> - начать заново
-    </p>
+    <div>
+      <p class="text-text text-xs mt-10">
+        <span class="bg-bg p-1">enter</span> - начать заново
+      </p>
+      <p class="text-text text-xs mt-4">
+        <span class="bg-bg p-1">ctrl + x</span> - отображать строкой
+      </p>
+      <p class="text-text text-xs mt-4">
+        <span class="bg-bg p-1">ctrl + z</span> - отображать параграфом
+      </p>
+      <p class="text-text text-xs mt-4">
+        <span class="bg-bg p-1">ctrl + a</span> - сменить цветовую тему
+      </p>
+    </div>
   </main>
 </template>
 
@@ -106,9 +114,9 @@ import {
 import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
-import KeyLayout from "./components/KeyLayout.vue";
 
-const { space, enter, current } = useMagicKeys();
+const { space, enter, current, ControlLeft_z, ControlLeft_x, ControlLeft_a } =
+  useMagicKeys();
 
 const words = useTemplateRef("words");
 const totalWords = ref(null);
@@ -151,13 +159,32 @@ const totalChars = computed(() => {
 
 const currentMode = ref("classic");
 function setTapeMode() {
+  // console.log("ctrl z");
   currentMode.value = "tape";
-  reset();
+  setTimeout(() => {
+    reset();
+  }, 150);
 }
 function setClassicMode() {
   currentMode.value = "classic";
-  reset();
+  setTimeout(() => {
+    reset();
+  }, 150);
 }
+
+const colorTheme = ref("bushido");
+function toggleColorTheme() {
+  console.log("oh hi");
+  if (colorTheme.value === "bushido") {
+    colorTheme.value = "lil-dragon";
+  } else {
+    colorTheme.value = "bushido";
+  }
+}
+
+whenever(ControlLeft_z, () => setTapeMode());
+whenever(ControlLeft_x, () => setClassicMode());
+whenever(ControlLeft_a, () => toggleColorTheme());
 
 const mistakes = ref([]);
 // what char should i write
@@ -278,7 +305,8 @@ function setCarretCoordinates() {
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
       24;
-  } else if (currentMode.value === "classic") {
+  }
+  if (currentMode.value === "classic") {
     carretCoordinates.value.left =
       words.value[currentWordIndex.value].getBoundingClientRect().left -
       left.value;
@@ -392,12 +420,8 @@ onMounted(() => {
 <style>
 /*
 =====================
-=====================
-ПРОБЛЕМА: appearence
-1) - [ ] Дать возможность переключаться между стандартным режимом отображения и бегущей строкой
-2) - [ ] Переключение цветовых тем
-
 ПРОБЛЕМА: wpm как-то неверно считает, что ли
+- [ ] решить
 
 ПРОБЛЕМА: Геймплей 
 1) - [ ] Отображать второй caret, что двигается на постоянной скорости

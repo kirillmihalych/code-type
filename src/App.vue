@@ -127,7 +127,7 @@ const input = useTemplateRef("input");
 const carretParent = useTemplateRef("carret-parent");
 const { left, top, width } = useElementBounding(carretParent);
 
-const carretCoordinates = ref({
+const caretCoordinates = ref({
   left: 0,
   top: 0,
 });
@@ -144,8 +144,8 @@ const caretStyle = computed(() => {
   return currentMode.value === "tape"
     ? { left: "calc(50% + 40px)" }
     : {
-        left: carretCoordinates.value.left + "px",
-        top: carretCoordinates.value.top + "px",
+        left: caretCoordinates.value.left + "px",
+        top: caretCoordinates.value.top + "px",
       };
 });
 
@@ -158,8 +158,13 @@ const totalChars = computed(() => {
 });
 
 const currentMode = ref("classic");
+const isTapeMode = computed(() => {
+  return currentMode.value === "tape";
+});
+const isClassicMode = computed(() => {
+  return currentMode.value === "classic";
+});
 function setTapeMode() {
-  // console.log("ctrl z");
   currentMode.value = "tape";
   setTimeout(() => {
     reset();
@@ -174,7 +179,6 @@ function setClassicMode() {
 
 const colorTheme = ref("bushido");
 function toggleColorTheme() {
-  console.log("oh hi");
   if (colorTheme.value === "bushido") {
     colorTheme.value = "lil-dragon";
   } else {
@@ -187,11 +191,9 @@ whenever(ControlLeft_x, () => setClassicMode());
 whenever(ControlLeft_a, () => toggleColorTheme());
 
 const mistakes = ref([]);
-// what char i wrote
-const prevChar = computed(() => {
+const lastWrittenChar = computed(() => {
   return trimmedInput.value[trimmedInput.value.length - 1];
 });
-
 const writtenWords = ref([]);
 const writtenCharsAmount = computed(() => {
   return writtenWords.value.join("").split("").length;
@@ -199,29 +201,27 @@ const writtenCharsAmount = computed(() => {
 const writtenWordsAmount = computed(() => {
   return writtenWords.value.length;
 });
-
 const totalCharsAmount = computed(() => {
-  // часть формулы (total_amount_of_chars / 5)
-  return writtenWords.value.join("").split("").length / 5;
+  return writtenWords.value.join("").split("").length;
+});
+const normalizedWordsAmount = computed(() => {
+  return totalCharsAmount.value / 5;
 });
 
-// для проверки ставлю стартовое значение на 15
-const resultTime = ref(15);
+const resultTime = ref(0);
 function setResultTime(seconds) {
   resultTime.value = seconds;
 }
 const normalizedTime = computed(() => {
-  // часть формулы время_на_тест_в_секундах / 60
   return resultTime.value / 60;
 });
 const wpm = computed(() => {
-  return totalCharsAmount.value / normalizedTime.value;
+  return normalizedWordsAmount.value / normalizedTime.value;
 });
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
 
-// слова
 const wordsQueue = computed(() => {
   return text.value.split(" ");
 });
@@ -243,10 +243,10 @@ const isExtraLetters = computed(() => {
 });
 
 function reset() {
-  currentInput.value = "";
+  clearCurrentInput();
   currentWordIndex.value = 0;
   writtenWords.value = [];
-  setCarretCoordinates();
+  setCaretCoordinates();
   stopTimer();
 }
 
@@ -262,10 +262,14 @@ watchEffect(() => {
   if (current.size > 0 && !isInputFocused.value) {
     setFocus();
     setTimeout(() => {
-      currentInput.value = "";
+      clearCurrentInput();
     }, 1);
   }
 });
+
+function clearCurrentInput() {
+  currentInput.value = "";
+}
 
 function isWordTyped(index) {
   return index < currentWordIndex.value;
@@ -284,7 +288,9 @@ function isInputExist(index) {
 }
 
 const isCharMistake = computed(() => {
-  return currentWord.value[trimmedInput.value.length - 1] !== prevChar.value;
+  return (
+    currentWord.value[trimmedInput.value.length - 1] !== lastWrittenChar.value
+  );
 });
 
 watchEffect(() => {
@@ -292,19 +298,18 @@ watchEffect(() => {
     mistakes.value.push("mistake");
   }
 });
-function setCarretCoordinates() {
-  // - [x] В зависимости от мода classic / tape, координаты должны выставляться по разному
-  if (currentMode.value === "tape") {
+function setCaretCoordinates() {
+  if (isTapeMode.value) {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
       24;
   }
-  if (currentMode.value === "classic") {
-    carretCoordinates.value.left =
+  if (isClassicMode.value) {
+    caretCoordinates.value.left =
       words.value[currentWordIndex.value].getBoundingClientRect().left -
       left.value;
-    carretCoordinates.value.top =
+    caretCoordinates.value.top =
       words.value[currentWordIndex.value].getBoundingClientRect().top -
       top.value;
   }
@@ -327,55 +332,57 @@ function stopTimer() {
   isTimerStarted.value = false;
 }
 
+function handleExtraChars() {
+  if (isExtraLetters.value) {
+    const diff = trimmedInput.value.length - currentWord.value.length;
+    let extra = [
+      ...trimmedInput.value.slice(
+        currentWord.value.length,
+        currentWord.value.length + diff
+      ),
+    ];
+    if (extra.length === 0) {
+      extraLetters.value.push(" ");
+      mistakes.value.push("extra");
+    } else {
+      extraLetters.value.push(extra[extra.length - 1]);
+      mistakes.value.push("extra");
+    }
+  }
+}
+
 watchEffect(() => {
   if (trimmedInput.value.length > 0) {
     startTimer();
   }
 });
 
+function moveCaretForward() {
+  tapeMarginLeft.value += 24;
+}
+
 // движение carret по слову
 watchEffect(() => {
-  // current position
   if (isInputGetsBigger.value === null) {
     console.log("hi there");
   } else if (isInputGetsBigger.value) {
-    if (isExtraLetters.value) {
-      const diff = trimmedInput.value.length - currentWord.value.length;
-      let extra = [
-        ...trimmedInput.value.slice(
-          currentWord.value.length,
-          currentWord.value.length + diff
-        ),
-      ];
-      if (extra.length === 0) {
-        extraLetters.value.push(" ");
-        mistakes.value.push("extra");
-      } else {
-        extraLetters.value.push(extra[extra.length - 1]);
-        mistakes.value.push("extra");
-      }
-    } else {
-      // currentlyAtCharIndex.value += 1;
-    }
-    // - [x] в зависимости от мода classic / tape, происходят разные действия
-    if (currentMode.value === "tape") {
-      tapeMarginLeft.value += 24;
-    } else if (currentMode.value === "classic") {
-      carretCoordinates.value.left += 24;
+    handleExtraChars();
+    if (isTapeMode.value) {
+      moveCaretForward();
+    } else if (isClassicMode.value) {
+      caretCoordinates.value.left += 24;
     }
   } else if (!isInputGetsBigger.value) {
     if (trimmedInput.value.length > 0) {
-      // - [x] в зависимости от мода classic / tape, происходят разные действия
-      if (currentMode.value === "tape") {
+      if (isTapeMode.value) {
         tapeMarginLeft.value -= 24;
-      } else if (currentMode.value === "classic") {
-        carretCoordinates.value.left -= 24;
+      } else if (isClassicMode.value) {
+        caretCoordinates.value.left -= 24;
       }
     }
     if (trimmedInput.value.length === 0) {
-      // - [x] в зависимости от мода classic / tape, происходят разные действия
       extraLetters.value = [];
-      setCarretCoordinates();
+      setCaretCoordinates();
     }
     if (extraLetters.value.length > 0) {
       extraLetters.value.pop();
@@ -395,17 +402,21 @@ watchEffect(() => {
     stopTimer();
     setResultTime();
     writtenWords.value.push(currentWord.value);
-    console.log("test ended");
   } else if (isCurrentInputCorrect.value && space.value) {
     writtenWords.value.push(currentWord.value);
-    currentInput.value = "";
+    clearCurrentInput();
     currentWordIndex.value += 1;
-    setCarretCoordinates();
+    setCaretCoordinates();
   }
 });
 
 onMounted(() => {
-  setCarretCoordinates();
+  setCaretCoordinates();
   defineTotalWordsAmount();
 });
 </script>
+
+<style>
+/* 
+*/
+</style>

@@ -208,20 +208,19 @@ const totalCharsAmount = computed(() => {
 // для проверки ставлю стартовое значение на 15
 const resultTime = ref(15);
 function setResultTime(seconds) {
-  resultTime.value = 60 - seconds;
+  resultTime.value = seconds;
 }
-
 const normalizedTime = computed(() => {
   // часть формулы время_на_тест_в_секундах / 60
   return resultTime.value / 60;
 });
-
 const wpm = computed(() => {
   return totalCharsAmount.value / normalizedTime.value;
 });
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
+
 // слова
 const wordsQueue = computed(() => {
   return text.value.split(" ");
@@ -410,11 +409,3 @@ onMounted(() => {
   defineTotalWordsAmount();
 });
 </script>
-
-<style>
-/*
-=====================
-ПРОБЛЕМА: wpm как-то неверно считает, что ли
-- [ ] решить
-*/
-</style>

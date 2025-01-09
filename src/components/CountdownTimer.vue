@@ -1,46 +1,28 @@
 <template>
-  <div>
-    <!-- <p>countdown: {{ remainingTime }}</p> -->
-  </div>
+  <div></div>
 </template>
 
 <script setup>
-import { ref, watchEffect } from "vue";
+import { watchEffect } from "vue";
+import { useInterval } from "@vueuse/core";
 
+const { counter, reset, pause, resume } = useInterval(1000, { controls: true });
 const props = defineProps(["start"]);
 const emits = defineEmits(["result-time"]);
 
-const intervalId = ref(null);
-
-const remainingTime = ref(60);
-
-function countdown() {
-  remainingTime.value -= 1;
-  emits("result-time", remainingTime.value);
-}
-
-function startTimer() {
-  if (!intervalId.value) {
-    intervalId.value = setInterval(countdown, 1000);
-  }
-}
-
-function stopTimer() {
-  clearInterval(intervalId.value);
-}
-
 watchEffect(() => {
-  if (remainingTime.value === 0) {
-    clearInterval(intervalId.value);
+  if (counter.value) {
+    emits("result-time", counter.value);
   }
 });
 
 watchEffect(() => {
   if (props.start) {
-    startTimer();
+    resume();
   } else if (!props.start) {
-    stopTimer();
-    emits("result-time", remainingTime.value);
+    emits("result-time", counter.value);
+    pause();
+    reset();
   }
 });
 </script>

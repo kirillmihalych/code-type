@@ -187,10 +187,6 @@ whenever(ControlLeft_x, () => setClassicMode());
 whenever(ControlLeft_a, () => toggleColorTheme());
 
 const mistakes = ref([]);
-// what char should i write
-const nextChar = computed(() => {
-  return currentWord.value[trimmedInput.value.length];
-});
 // what char i wrote
 const prevChar = computed(() => {
   return trimmedInput.value[trimmedInput.value.length - 1];
@@ -235,7 +231,6 @@ const currentWord = computed(() => {
   return wordsQueue.value[currentWordIndex.value];
 });
 const currentInput = ref("");
-let currentInputLength = currentInput.value.length;
 const trimmedInput = computed(() => {
   return currentInput.value.trimStart();
 });
@@ -319,7 +314,6 @@ function setCarretCoordinates() {
 const isInputGetsBigger = computed(() => {
   const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
   const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
-  currentInputLength = currentInput.value.length;
   trimmedInputLength = trimmedInput.value.length;
   return inputGetsBigger ? true : inputGetsSmaller ? false : null;
 });
@@ -422,14 +416,5 @@ onMounted(() => {
 =====================
 ПРОБЛЕМА: wpm как-то неверно считает, что ли
 - [ ] решить
-
-ПРОБЛЕМА: Геймплей 
-1) - [ ] Отображать второй caret, что двигается на постоянной скорости
-Возможны какие-то вопросы по smoot движению. Их я опускаю если не получается.
-   - [ ] Наблюдать за поведением кареты на monkeytype и typeracer
-   - [ ] Описывать свои предположения о решении и их решение на основе увиденного, 
-         чтобы понимать, что работает, а что нет
-         и не ходить по кругу.
-         
 */
 </style>

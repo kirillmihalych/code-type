@@ -13,6 +13,9 @@
       :written-words-amount="writtenWordsAmount"
       :total-chars="totalChars"
       :wpm="displayedWpm"
+      :accuracy="accuracy"
+      :final-accuracy="finalAccuracy"
+      :final-result-wpm="bestResult"
       :mistakes="mistakes.length"
     />
     <div
@@ -63,7 +66,6 @@
           >
             {{ letter }}
           </span>
-          <!-- extra chars -->
           <span
             v-show="isCurrentWord(i)"
             v-for="(extra, index) in extraLetters"
@@ -72,7 +74,6 @@
           >
             {{ extra }}
           </span>
-          <!-- extra chars -->
         </div>
       </div>
       <form class="absolute opacity-0" @submit.prevent>
@@ -221,6 +222,20 @@ const wpm = computed(() => {
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
+const bestResult = ref(0);
+const mistakesPercent = computed(() => {
+  return Math.round(
+    100 - (mistakes.value.length / writtenCharsAmount.value) * 100
+  );
+});
+const accuracy = computed(() => {
+  return isNaN(mistakesPercent.value) || !isFinite(mistakesPercent.value)
+    ? "100%"
+    : mistakesPercent.value < 0
+    ? "0%"
+    : `${mistakesPercent.value}%`;
+});
+const finalAccuracy = ref(0);
 
 const wordsQueue = computed(() => {
   return text.value.split(" ");
@@ -243,10 +258,10 @@ const isExtraLetters = computed(() => {
 });
 
 function reset() {
+  setCaretCoordinates();
   clearCurrentInput();
   currentWordIndex.value = 0;
   writtenWords.value = [];
-  setCaretCoordinates();
   stopTimer();
 }
 
@@ -399,9 +414,12 @@ const isTestEnded = computed(() => {
 
 watchEffect(() => {
   if (isTestEnded.value) {
+    bestResult.value = displayedWpm.value;
+    finalAccuracy.value = accuracy.value;
     stopTimer();
     setResultTime();
     writtenWords.value.push(currentWord.value);
+    reset();
   } else if (isCurrentInputCorrect.value && space.value) {
     writtenWords.value.push(currentWord.value);
     clearCurrentInput();
@@ -417,6 +435,7 @@ onMounted(() => {
 </script>
 
 <style>
-/* 
+/*
+ 
 */
 </style>

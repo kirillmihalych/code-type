@@ -5,32 +5,40 @@
       >/{{ props.totalWordsAmount }}
     </div>
     <div>{{ props.wpm }}</div>
-    <div>{{ accuracy }}</div>
+    <div>{{ props.accuracy }}</div>
+    <div class="flex gap-2">
+      [
+      <span>WPM {{ props.finalResultWpm }}</span>
+      
+      <span>ACC {{ props.finalAccuracy }}</span>
+      ]
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
-
 const props = defineProps([
   "totalWordsAmount",
   "writtenCharsAmount",
   "writtenWordsAmount",
   "totalChars",
   "wpm",
+  "accuracy",
+  "finalAccuracy",
   "mistakes",
+  "finalResultWpm",
 ]);
 
-const mistakesPercent = computed(() => {
-  return Math.round(100 - (props.mistakes / props.writtenCharsAmount) * 100);
-});
-const accuracy = computed(() => {
-  return isNaN(mistakesPercent.value) || !isFinite(mistakesPercent.value)
-    ? "100%"
-    : mistakesPercent.value < 0
-    ? "0%"
-    : `${mistakesPercent.value}%`;
-});
+// const mistakesPercent = computed(() => {
+//   return Math.round(100 - (props.mistakes / props.writtenCharsAmount) * 100);
+// });
+// const accuracy = computed(() => {
+//   return isNaN(mistakesPercent.value) || !isFinite(mistakesPercent.value)
+//     ? "100%"
+//     : mistakesPercent.value < 0
+//     ? "0%"
+//     : `${mistakesPercent.value}%`;
+// });
 </script>
 
 <style>

@@ -1,17 +1,16 @@
 <template>
-  <div class="px-10 opacity-75 flex gap-4 text-primary text-3xl">
-    <div>
-      <span> {{ props.writtenWordsAmount }}</span
-      >/{{ props.totalWordsAmount }}
-    </div>
-    <div>{{ props.wpm }}</div>
-    <div>{{ props.accuracy }}</div>
-    <div class="flex gap-2">
-      [
+  <div class="grid place-items-center opacity-75">
+    <div class="flex gap-2 text-helper">
       <span>WPM {{ props.finalResultWpm }}</span>
-      
       <span>ACC {{ props.finalAccuracy }}</span>
-      ]
+    </div>
+    <div class="flex gap-4 text-primary text-3xl">
+      <div>
+        <span> {{ props.writtenWordsAmount }}</span
+        >/{{ props.totalWordsAmount }}
+      </div>
+      <div>{{ props.wpm }}</div>
+      <div>{{ props.accuracy }}</div>
     </div>
   </div>
 </template>

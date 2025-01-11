@@ -19,12 +19,12 @@
       :mistakes="mistakes.length"
     />
     <div
-      ref="carret-parent"
+      ref="caret-parent"
       class="relative w-dvw flex p-10 gap-6 overflow-hidden"
       @click="setFocus"
     >
       <div
-        ref="carret"
+        ref="caret"
         v-show="isInputFocused"
         style="position: absolute; width: 4px; border-radius: 4px; height: 36px"
         :style="caretStyle"
@@ -125,8 +125,8 @@ function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
 const input = useTemplateRef("input");
-const carretParent = useTemplateRef("carret-parent");
-const { left, top, width } = useElementBounding(carretParent);
+const caretParent = useTemplateRef("caret-parent");
+const { left, top, width } = useElementBounding(caretParent);
 
 const caretCoordinates = ref({
   left: 0,
@@ -376,7 +376,7 @@ function moveCaretForward() {
   tapeMarginLeft.value += 24;
 }
 
-// движение carret по слову
+// движение caret по слову
 watchEffect(() => {
   if (isInputGetsBigger.value === null) {
     console.log("hi there");
@@ -433,9 +433,3 @@ onMounted(() => {
   defineTotalWordsAmount();
 });
 </script>
-
-<style>
-/*
- 
-*/
-</style>

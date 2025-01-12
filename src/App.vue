@@ -1,6 +1,7 @@
 <template>
   <main
-    class="bg-secondary font-jet-brains grid place-content-center place-items-center py-10 h-dvh transition-colors"
+    ref="main"
+    class="bg-secondary font-jet-brains grid place-content-center place-items-center py-10 min-h-dvh transition-colors"
     :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']"
   >
     <CountdownTimer
@@ -86,7 +87,6 @@
       </form>
     </div>
     <KeymapLayout />
-
     <div>
       <p class="text-text text-smallest xl:text-xs mt-10">
         <button
@@ -133,6 +133,8 @@ import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
 
 const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
+const mainDiv = useTemplateRef("main");
+const { width: mainDivWidth } = useElementBounding(mainDiv);
 
 const words = useTemplateRef("words");
 const totalWords = ref(null);
@@ -140,8 +142,9 @@ function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
 const letters = useTemplateRef("letter");
-const letterWidth = computed(() => {
-  return letters.value[0].getBoundingClientRect().width;
+const widthLetter = ref(null);
+onMounted(() => {
+  widthLetter.value = useElementBounding(letters.value[0]);
 });
 const input = useTemplateRef("input");
 const caretParent = useTemplateRef("caret-parent");
@@ -154,7 +157,9 @@ const caretCoordinates = ref({
 const tapeMarginLeft = ref(0);
 const testMarginLeft = computed(() => {
   return currentMode.value === "tape"
-    ? { marginLeft: width.value / 2 - tapeMarginLeft.value + "px" }
+    ? {
+        marginLeft: width.value / 2 - tapeMarginLeft.value + "px",
+      }
     : {
         marginLeft: 0,
         flexWrap: "wrap",
@@ -330,7 +335,7 @@ function setCaretCoordinates() {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
-      letterWidth.value;
+      widthLetter.value.width;
   }
   if (isClassicMode.value) {
     caretCoordinates.value.left =
@@ -384,8 +389,23 @@ watchEffect(() => {
   }
 });
 
+let currMainDivWidth = mainDivWidth.value;
+function onMainDivResize() {
+  if (currMainDivWidth !== mainDivWidth.value) {
+    currMainDivWidth = mainDivWidth.value;
+    return true;
+  }
+  return false;
+}
+
+watchEffect(() => {
+  if (onMainDivResize()) {
+    reset();
+  }
+});
+
 function moveCaretForward() {
-  tapeMarginLeft.value += letterWidth.value;
+  tapeMarginLeft.value += widthLetter.value.width;
 }
 
 // движение caret по слову
@@ -397,14 +417,14 @@ watchEffect(() => {
     if (isTapeMode.value) {
       moveCaretForward();
     } else if (isClassicMode.value) {
-      caretCoordinates.value.left += letterWidth.value;
+      caretCoordinates.value.left += widthLetter.value.width;
     }
   } else if (!isInputGetsBigger.value) {
     if (trimmedInput.value.length > 0) {
       if (isTapeMode.value) {
-        tapeMarginLeft.value -= letterWidth.value;
+        tapeMarginLeft.value -= widthLetter.value.width;
       } else if (isClassicMode.value) {
-        caretCoordinates.value.left -= letterWidth.value;
+        caretCoordinates.value.left -= widthLetter.value.width;
       }
     }
     if (trimmedInput.value.length === 0) {

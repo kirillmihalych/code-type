@@ -32,7 +32,7 @@
       ></div>
       <div
         v-show="!isInputFocused"
-        class="absolute top-1/2 w-full text-center text-helper"
+        class="text-smallest xl:text-sm absolute top-1/2 w-full text-center text-helper"
       >
         Клик здесь для фокуса или нажмите любую кнопку
       </div>
@@ -86,18 +86,34 @@
       </form>
     </div>
     <KeymapLayout />
+
     <div>
-      <p class="text-text text-xs mt-10">
-        <span class="bg-bg p-1">enter</span> - начать заново
+      <p class="text-text text-smallest xl:text-xs mt-10">
+        <button
+          @click="reset"
+          class="size-6 rounded-sm bg-bg hover:bg-helper transition-colors"
+        >
+          <i class="fa-solid fa-repeat text-text"></i>
+        </button>
+        или <span class="bg-bg p-1">enter</span> - начать заново
       </p>
-      <p class="text-text text-xs mt-4">
-        <span class="bg-bg p-1">ctrl + x</span> - отображать строкой
+      <p class="text-text text-smallest xl:text-xs mt-4">
+        <button
+          @click="toggleMode"
+          class="size-6 rounded-sm bg-bg hover:bg-helper transition-colors"
+        >
+          <i class="fa-regular fa-keyboard text-text"></i>
+        </button>
+        или <span class="bg-bg p-1">ctrl + z</span> - изменить отображение
       </p>
-      <p class="text-text text-xs mt-4">
-        <span class="bg-bg p-1">ctrl + z</span> - отображать параграфом
-      </p>
-      <p class="text-text text-xs mt-4">
-        <span class="bg-bg p-1">ctrl + a</span> - сменить цветовую тему
+      <p class="text-text text-smallest xl:text-xs mt-4">
+        <button
+          @click="toggleColorTheme"
+          class="size-6 rounded-sm bg-bg hover:bg-helper transition-colors"
+        >
+          <i class="fa-solid fa-palette text-text"></i>
+        </button>
+        или <span class="bg-bg p-1">ctrl + a</span> - сменить цветовую тему
       </p>
     </div>
   </main>
@@ -116,8 +132,7 @@ import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
 
-const { space, enter, current, ControlLeft_z, ControlLeft_x, ControlLeft_a } =
-  useMagicKeys();
+const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
 
 const words = useTemplateRef("words");
 const totalWords = ref(null);
@@ -154,9 +169,9 @@ const caretStyle = computed(() => {
       };
 });
 
-// "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
+// "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
 const text = ref(
-  "Мы писали, мы писали. Наши пальчики устали. А теперь мы отдохнем и опять писать пойдём."
+  "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
 );
 const totalChars = computed(() => {
   return text.value.split("").length;
@@ -169,14 +184,8 @@ const isTapeMode = computed(() => {
 const isClassicMode = computed(() => {
   return currentMode.value === "classic";
 });
-function setTapeMode() {
-  currentMode.value = "tape";
-  setTimeout(() => {
-    reset();
-  }, 150);
-}
-function setClassicMode() {
-  currentMode.value = "classic";
+function toggleMode() {
+  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
   setTimeout(() => {
     reset();
   }, 150);
@@ -191,8 +200,7 @@ function toggleColorTheme() {
   }
 }
 
-whenever(ControlLeft_z, () => setTapeMode());
-whenever(ControlLeft_x, () => setClassicMode());
+whenever(ControlLeft_z, () => toggleMode());
 whenever(ControlLeft_a, () => toggleColorTheme());
 
 const mistakes = ref([]);

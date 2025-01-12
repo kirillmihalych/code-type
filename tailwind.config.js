@@ -7,6 +7,9 @@ export default {
         golos: ["Golos text", "serif"],
         "jet-brains": ["JetBrains Mono", "serif"],
       },
+      fontSize: {
+        smallest: "0.5rem",
+      },
       animation: {
         blink: "blink 1s linear infinite",
       },

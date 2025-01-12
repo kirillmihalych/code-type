@@ -125,9 +125,9 @@ function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
 const letters = useTemplateRef("letter");
-// const letterWidth = computed(() => {
-//   return letters.value[0].getBoundingClientRect().width;
-// });
+const letterWidth = computed(() => {
+  return letters.value[0].getBoundingClientRect().width;
+});
 const input = useTemplateRef("input");
 const caretParent = useTemplateRef("caret-parent");
 const { left, top, width } = useElementBounding(caretParent);
@@ -322,7 +322,7 @@ function setCaretCoordinates() {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
-      letters.value[0].getBoundingClientRect().width;
+      letterWidth.value;
   }
   if (isClassicMode.value) {
     caretCoordinates.value.left =
@@ -377,7 +377,7 @@ watchEffect(() => {
 });
 
 function moveCaretForward() {
-  tapeMarginLeft.value += letters.value[0].getBoundingClientRect().width;
+  tapeMarginLeft.value += letterWidth.value;
 }
 
 // движение caret по слову
@@ -389,16 +389,14 @@ watchEffect(() => {
     if (isTapeMode.value) {
       moveCaretForward();
     } else if (isClassicMode.value) {
-      caretCoordinates.value.left +=
-        letters.value[0].getBoundingClientRect().width;
+      caretCoordinates.value.left += letterWidth.value;
     }
   } else if (!isInputGetsBigger.value) {
     if (trimmedInput.value.length > 0) {
       if (isTapeMode.value) {
-        tapeMarginLeft.value -= letters.value[0].getBoundingClientRect().width;
+        tapeMarginLeft.value -= letterWidth.value;
       } else if (isClassicMode.value) {
-        caretCoordinates.value.left -=
-          letters.value[0].getBoundingClientRect().width;
+        caretCoordinates.value.left -= letterWidth.value;
       }
     }
     if (trimmedInput.value.length === 0) {

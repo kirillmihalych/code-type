@@ -1,6 +1,6 @@
 <template>
   <main
-    class="bg-secondary font-jet-brains grid place-content-center place-items-center h-dvh transition-colors"
+    class="bg-secondary font-jet-brains grid place-content-center place-items-center py-10 h-dvh transition-colors"
     :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']"
   >
     <CountdownTimer
@@ -37,7 +37,7 @@
         Клик здесь для фокуса или нажмите любую кнопку
       </div>
       <div
-        class="words-wrapper text-3xl text-primary flex gap-6 transition-all"
+        class="words-wrapper text-2xl xl:text-3xl text-primary flex gap-4 xl:gap-6 transition-all"
         :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
         :style="testMarginLeft"
       >
@@ -51,7 +51,7 @@
             v-for="(letter, idx) in word"
             ref="letter"
             :key="idx"
-            class="w-6 flex place-content-center"
+            class="w-4 xl:w-6 flex place-content-center"
             :class="[
               isInputedCharCorrect(idx) && isCurrentWord(i)
                 ? 'text-helper'
@@ -70,7 +70,7 @@
             v-show="isCurrentWord(i)"
             v-for="(extra, index) in extraLetters"
             :key="index"
-            class="w-6 flex place-content-center text-error"
+            class="w-4 xl:w-6 flex place-content-center text-error"
           >
             {{ extra }}
           </span>
@@ -124,6 +124,10 @@ const totalWords = ref(null);
 function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
+const letters = useTemplateRef("letter");
+// const letterWidth = computed(() => {
+//   return letters.value[0].getBoundingClientRect().width;
+// });
 const input = useTemplateRef("input");
 const caretParent = useTemplateRef("caret-parent");
 const { left, top, width } = useElementBounding(caretParent);
@@ -158,7 +162,7 @@ const totalChars = computed(() => {
   return text.value.split("").length;
 });
 
-const currentMode = ref("classic");
+const currentMode = ref("tape");
 const isTapeMode = computed(() => {
   return currentMode.value === "tape";
 });
@@ -318,7 +322,7 @@ function setCaretCoordinates() {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
-      24;
+      letters.value[0].getBoundingClientRect().width;
   }
   if (isClassicMode.value) {
     caretCoordinates.value.left =
@@ -373,7 +377,7 @@ watchEffect(() => {
 });
 
 function moveCaretForward() {
-  tapeMarginLeft.value += 24;
+  tapeMarginLeft.value += letters.value[0].getBoundingClientRect().width;
 }
 
 // движение caret по слову
@@ -385,14 +389,16 @@ watchEffect(() => {
     if (isTapeMode.value) {
       moveCaretForward();
     } else if (isClassicMode.value) {
-      caretCoordinates.value.left += 24;
+      caretCoordinates.value.left +=
+        letters.value[0].getBoundingClientRect().width;
     }
   } else if (!isInputGetsBigger.value) {
     if (trimmedInput.value.length > 0) {
       if (isTapeMode.value) {
-        tapeMarginLeft.value -= 24;
+        tapeMarginLeft.value -= letters.value[0].getBoundingClientRect().width;
       } else if (isClassicMode.value) {
-        caretCoordinates.value.left -= 24;
+        caretCoordinates.value.left -=
+          letters.value[0].getBoundingClientRect().width;
       }
     }
     if (trimmedInput.value.length === 0) {

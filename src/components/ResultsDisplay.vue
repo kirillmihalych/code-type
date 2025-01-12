@@ -1,6 +1,7 @@
 <template>
   <div class="grid place-items-center opacity-75">
     <div class="flex gap-2 text-helper">
+      <span>Results</span>
       <span>WPM {{ props.finalResultWpm }}</span>
       <span>ACC {{ props.finalAccuracy }}</span>
     </div>

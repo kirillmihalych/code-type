@@ -1,6 +1,6 @@
 <template>
   <div class="grid place-content-center place-items-center">
-    <div class="row-first flex gap-2 mb-2">
+    <div class="row-first flex gap-1 mb-1 xl:gap-2 xl:mb-2">
       <KeyLayout :value="q"> q </KeyLayout>
       <KeyLayout :value="w"> w </KeyLayout>
       <KeyLayout :value="e"> e </KeyLayout>
@@ -14,7 +14,7 @@
       <KeyLayout :value="BracketLeft"> [ </KeyLayout>
       <KeyLayout :value="BracketRight"> ] </KeyLayout>
     </div>
-    <div class="row-second flex gap-2 mb-2">
+    <div class="row-second flex gap-1 mb-1 xl:gap-2 xl:mb-2">
       <KeyLayout :value="a"> a </KeyLayout>
       <KeyLayout :value="s"> s </KeyLayout>
       <KeyLayout :value="d"> d </KeyLayout>
@@ -27,7 +27,7 @@
       <KeyLayout :value="Semicolon"> ; </KeyLayout>
       <KeyLayout :value="Quote"> ' </KeyLayout>
     </div>
-    <div class="row-second flex gap-2 mb-2">
+    <div class="row-second flex gap-1 mb-1 xl:gap-2 xl:mb-2">
       <KeyLayout :value="z"> z </KeyLayout>
       <KeyLayout :value="x"> x </KeyLayout>
       <KeyLayout :value="c"> c </KeyLayout>
@@ -39,7 +39,7 @@
       <KeyLayout :value="Period"> . </KeyLayout>
       <KeyLayout :value="Slash"> / </KeyLayout>
     </div>
-    <KeyLayout :value="Space" class="w-80"> default </KeyLayout>
+    <KeyLayout :value="Space" class="w-24 xl:w-52"> default </KeyLayout>
   </div>
 </template>
 

@@ -9,15 +9,12 @@
       @result-time="(seconds) => setResultTime(seconds)"
     />
     <ResultsDisplay
-      :total-words-amount="totalWords"
-      :written-chars-amount="writtenCharsAmount"
-      :written-words-amount="writtenWordsAmount"
-      :total-chars="totalChars"
-      :wpm="displayedWpm"
       :accuracy="accuracy"
+      :wpm="displayedWpm"
+      :total-words-amount="totalWords"
+      :written-words-amount="writtenWordsAmount"
       :final-accuracy="finalAccuracy"
       :final-result-wpm="bestResult"
-      :mistakes="mistakes.length"
     />
     <div
       ref="caret-parent"
@@ -178,9 +175,6 @@ const caretStyle = computed(() => {
 const text = ref(
   "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
 );
-const totalChars = computed(() => {
-  return text.value.split("").length;
-});
 
 const currentMode = ref("tape");
 const isTapeMode = computed(() => {

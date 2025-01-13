@@ -18,30 +18,11 @@
 
 <script setup>
 const props = defineProps([
-  "totalWordsAmount",
-  "writtenCharsAmount",
-  "writtenWordsAmount",
-  "totalChars",
-  "wpm",
   "accuracy",
+  "wpm",
+  "totalWordsAmount",
+  "writtenWordsAmount",
   "finalAccuracy",
-  "mistakes",
   "finalResultWpm",
 ]);
-
-// const mistakesPercent = computed(() => {
-//   return Math.round(100 - (props.mistakes / props.writtenCharsAmount) * 100);
-// });
-// const accuracy = computed(() => {
-//   return isNaN(mistakesPercent.value) || !isFinite(mistakesPercent.value)
-//     ? "100%"
-//     : mistakesPercent.value < 0
-//     ? "0%"
-//     : `${mistakesPercent.value}%`;
-// });
 </script>
-
-<style>
-/*
-*/
-</style>

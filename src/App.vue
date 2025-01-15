@@ -29,10 +29,9 @@
         class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
       ></div>
       <FocusWarning :is-input-focused="isInputFocused" />
-      <div
-        class="words-wrapper text-2xl xl:text-3xl text-primary flex gap-4 xl:gap-6 transition-all"
-        :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
-        :style="testMarginLeft"
+      <WordsWrapper
+        :is-input-focused="isInputFocused"
+        :words-wrapper-style="wordsWrapperStyle"
       >
         <div
           v-for="(word, i) in wordsQueue"
@@ -68,7 +67,7 @@
             {{ extra }}
           </span>
         </div>
-      </div>
+      </WordsWrapper>
       <form class="absolute opacity-0" @submit.prevent>
         <input
           ref="input"
@@ -124,6 +123,7 @@ import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
 import FocusWarning from "./components/FocusWarning.vue";
+import WordsWrapper from "./components/WordsWrapper.vue";
 
 const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
@@ -148,7 +148,7 @@ const caretCoordinates = ref({
   top: 0,
 });
 const tapeMarginLeft = ref(0);
-const testMarginLeft = computed(() => {
+const wordsWrapperStyle = computed(() => {
   return currentMode.value === "tape"
     ? {
         marginLeft: width.value / 2 - tapeMarginLeft.value + "px",

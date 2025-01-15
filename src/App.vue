@@ -28,12 +28,7 @@
         :style="caretStyle"
         class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
       ></div>
-      <div
-        v-show="!isInputFocused"
-        class="text-smallest xl:text-sm absolute top-1/2 w-full text-center text-helper"
-      >
-        Клик здесь для фокуса или нажмите любую кнопку
-      </div>
+      <FocusWarning :is-input-focused="isInputFocused" />
       <div
         class="words-wrapper text-2xl xl:text-3xl text-primary flex gap-4 xl:gap-6 transition-all"
         :class="[isInputFocused ? 'blur-none' : 'blur-sm']"
@@ -128,6 +123,7 @@ import {
 import KeymapLayout from "./components/KeymapLayout.vue";
 import CountdownTimer from "./components/CountdownTimer.vue";
 import ResultsDisplay from "./components/ResultsDisplay.vue";
+import FocusWarning from "./components/FocusWarning.vue";
 
 const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
 const mainDiv = useTemplateRef("main");

@@ -22,6 +22,16 @@
   --text: #6d0f19;
 }
 
+.honey {
+  --primary: #fff546;
+  --secondary: #f2aa00;
+  --caret: #a66b00;
+  --error: #ce1226;
+  --bg: #e19e00;
+  --helper: #fff546;
+  --text: #a66b00;
+}
+
 .bushido {
   --primary: #ec4c56;
   --secondary: #242933;

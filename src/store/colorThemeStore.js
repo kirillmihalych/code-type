@@ -31,6 +31,9 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     return selectedColorTheme.value.isAnimated;
   });
 
+  function selectTheme(index) {
+    currentThemeIndex.value = index;
+  }
   function setRandomTheme() {
     currentThemeIndex.value = Math.floor(
       Math.random() * colorThemes.value.length
@@ -41,5 +44,12 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     setRandomTheme();
   });
 
-  return { colorThemes, colorThemeName, isColorThemeAnimated, setRandomTheme };
+  return {
+    colorThemes,
+    colorThemeName,
+    currentThemeIndex,
+    isColorThemeAnimated,
+    setRandomTheme,
+    selectTheme,
+  };
 });

@@ -3,10 +3,16 @@
     class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-[1440px] mx-auto"
   >
     <div
-      v-for="theme in colorThemeStore.colorThemes"
+      v-for="(theme, index) in colorThemeStore.colorThemes"
       :key="theme.name"
-      class="flex justify-between items-center w-full uppercase text-center text-helper bg-secondary p-2 rounded-md border-2 border-helper hover:scale-105 cursor-pointer origin-center transition-transform"
-      :class="[theme.name]"
+      class="flex justify-between items-center w-full uppercase text-center text-helper bg-secondary p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
+      :class="[
+        theme.name,
+        colorThemeStore.currentThemeIndex === index
+          ? 'border-4 border-helper'
+          : 'border-4 border-transparent',
+      ]"
+      @click="colorThemeStore.selectTheme(index)"
     >
       <button>
         <i class="fa-solid fa-star text-helper"></i>

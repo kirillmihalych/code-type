@@ -33,6 +33,7 @@ export default {
         bg: "var(--bg)",
         error: "var(--error)",
         caret: "var(--caret)",
+        sub: "var(--sub)",
       },
     },
   },

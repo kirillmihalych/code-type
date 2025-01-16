@@ -17,7 +17,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     },
     {
       name: "honey",
-      isAnimated: false,
+      isAnimated: true,
     },
   ]);
   const currentThemeIndex = ref(0);

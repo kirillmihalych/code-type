@@ -41,7 +41,7 @@
             :key="idx"
             class="w-4 xl:w-6 flex place-content-center"
             :class="[
-              isColorThemeAnimated &&
+              colorThemeStore.isColorThemeAnimated &&
               isInputedCharCorrect(idx) &&
               isCurrentWord(i)
                 ? 'motion-safe:animate-colorChange'
@@ -51,7 +51,7 @@
                   !isInputedCharCorrect(idx) &&
                   isCurrentWord(i)
                 ? 'text-error'
-                : isColorThemeAnimated && isWordTyped(i)
+                : colorThemeStore.isColorThemeAnimated && isWordTyped(i)
                 ? 'motion-safe:animate-colorChange'
                 : isWordTyped(i)
                 ? 'text-helper'
@@ -112,13 +112,14 @@ import {
   useElementBounding,
   whenever,
 } from "@vueuse/core";
+import { useColorThemeStore } from "@/store/colorThemeStore";
 import KeymapLayout from "../components/KeymapLayout.vue";
 import CountdownTimer from "../components/CountdownTimer.vue";
 import ResultsDisplay from "../components/ResultsDisplay.vue";
 import FocusWarning from "../components/FocusWarning.vue";
 import WordsWrapper from "../components/WordsWrapper.vue";
 
-const emits = defineEmits(["colorThemeName"]);
+const colorThemeStore = useColorThemeStore();
 const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const { width: mainDivWidth } = useElementBounding(mainDiv);
@@ -179,44 +180,6 @@ function toggleMode() {
     reset();
   }, 150);
 }
-
-const colorThemes = ref([
-  {
-    name: "matrix",
-    isAnimated: false,
-  },
-  {
-    name: "fire",
-    isAnimated: true,
-  },
-  {
-    name: "iron-man",
-    isAnimated: false,
-  },
-  {
-    name: "honey",
-    isAnimated: false,
-  },
-]);
-function setRandomTheme() {
-  currentThemeIndex.value = Math.floor(
-    Math.random() * colorThemes.value.length
-  );
-  emits("colorThemeName", colorThemeName.value);
-}
-const currentThemeIndex = ref(0);
-const selectedColorTheme = computed(() => {
-  return colorThemes.value[currentThemeIndex.value];
-});
-const colorThemeName = computed(() => {
-  return selectedColorTheme.value.name;
-});
-onMounted(() => {
-  emits("colorThemeName", colorThemeName.value);
-});
-const isColorThemeAnimated = computed(() => {
-  return selectedColorTheme.value.isAnimated;
-});
 
 const colorTheme = ref("bushido");
 function toggleColorTheme() {
@@ -302,7 +265,7 @@ function reset() {
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopTimer();
-  setRandomTheme();
+  colorThemeStore.setRandomTheme();
 }
 
 whenever(enter, () => reset());

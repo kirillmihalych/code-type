@@ -1,0 +1,45 @@
+<template>
+  <div
+    class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-[1440px] mx-auto"
+  >
+    <div
+      v-for="theme in colorThemes"
+      :key="theme.name"
+      class="flex justify-between items-center w-full uppercase text-center text-helper bg-secondary p-2 rounded-md border-2 border-helper hover:scale-105 cursor-pointer origin-center transition-transform"
+      :class="[theme.name]"
+    >
+      <button>
+        <i class="fa-solid fa-star text-helper"></i>
+      </button>
+      <h2>{{ theme.name }}</h2>
+      <div class="flex gap-1">
+        <div class="size-4 rounded-full bg-helper"></div>
+        <div class="size-4 rounded-full bg-primary"></div>
+        <div class="size-4 rounded-full bg-text"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+
+const colorThemes = ref([
+  {
+    name: "matrix",
+    isAnimated: false,
+  },
+  {
+    name: "fire",
+    isAnimated: true,
+  },
+  {
+    name: "iron-man",
+    isAnimated: false,
+  },
+  {
+    name: "honey",
+    isAnimated: false,
+  },
+]);
+</script>

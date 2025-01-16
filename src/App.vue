@@ -1,11 +1,15 @@
 <template>
+  <!--  place-content-center place-items-center -->
   <main
     ref="main"
-    class="bg-secondary grid place-content-center place-items-center font-jet-brains py-10 min-h-dvh transition-colors"
+    class="grid grid-rows-12 bg-secondary font-jet-brains py-10 min-h-dvh transition-colors"
     :class="[colorTheme]"
   >
-    <MainNavigation />
-    <RouterView @color-theme-name="(name) => setColorTheme(name)" />
+    <MainNavigation class="row-span-1 place-self-center" />
+    <RouterView
+      @color-theme-name="(name) => setColorTheme(name)"
+      class="row-start-4 row-span-8"
+    />
   </main>
 </template>
 

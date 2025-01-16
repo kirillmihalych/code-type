@@ -197,14 +197,6 @@ const colorThemes = ref([
     name: "honey",
     isAnimated: false,
   },
-  // {
-  //   name: "bushido",
-  //   isAnimated: false,
-  // },
-  // {
-  //   name: "lil-dragon",
-  //   isAnimated: false,
-  // },
 ]);
 function setRandomTheme() {
   currentThemeIndex.value = Math.floor(

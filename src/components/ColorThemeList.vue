@@ -3,7 +3,7 @@
     class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-[1440px] mx-auto"
   >
     <div
-      v-for="theme in colorThemes"
+      v-for="theme in colorThemeStore.colorThemes"
       :key="theme.name"
       class="flex justify-between items-center w-full uppercase text-center text-helper bg-secondary p-2 rounded-md border-2 border-helper hover:scale-105 cursor-pointer origin-center transition-transform"
       :class="[theme.name]"
@@ -22,24 +22,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { useColorThemeStore } from "@/store/colorThemeStore";
 
-const colorThemes = ref([
-  {
-    name: "matrix",
-    isAnimated: false,
-  },
-  {
-    name: "fire",
-    isAnimated: true,
-  },
-  {
-    name: "iron-man",
-    isAnimated: false,
-  },
-  {
-    name: "honey",
-    isAnimated: false,
-  },
-]);
+const colorThemeStore = useColorThemeStore();
 </script>

@@ -1,9 +1,9 @@
 <template>
   <div class="grid place-items-center">
-    <div class="flex gap-2 text-helper uppercase">
-      <span>Результаты</span>
-      <span>WPM {{ props.finalResultWpm }}</span>
-      <span>ACC {{ props.finalAccuracy }}</span>
+    <div class="flex gap-2 text-sub uppercase">
+      <span class="transition-colors">Результаты</span>
+      <span class="transition-colors">WPM {{ props.finalResultWpm }}</span>
+      <span class="m transition-colors">ACC {{ props.finalAccuracy }}</span>
     </div>
     <div class="flex gap-4 text-primary text-3xl">
       <div>

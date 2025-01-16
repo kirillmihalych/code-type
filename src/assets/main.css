@@ -10,6 +10,7 @@
   --error: #0d00c6;
   --bg: #200a0a;
   --text: #5f342c;
+  --sub: #ffffff;
   --animation-color-1: #feb90c;
   --animation-color-2: #b31313;
 }
@@ -22,7 +23,7 @@
   --helper: #15ff00;
   --text: rgba(21, 255, 0, 0.25);
   --bg: rgba(0, 101, 0, 0.25);
-
+  --sub: #d1ffcd;
   --animation-color-1: #15ff00;
   --animation-color-2: #19196f;
 }
@@ -35,7 +36,7 @@
   --bg: #9f1020;
   --helper: #fcd116;
   --text: #6d0f19;
-
+  --sub: #ffffff;
   --animation-color-1: #fcd116;
   --animation-color-2: #6d0f19;
 }
@@ -48,7 +49,7 @@
   --bg: #e19e00;
   --helper: #fff546;
   --text: #a66b00;
-
+  --sub: #f3eecb;
   --animation-color-1: #fff546;
   --animation-color-2: #ffffff;
 }

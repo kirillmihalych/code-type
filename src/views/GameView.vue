@@ -80,25 +80,21 @@
       </form>
     </div>
     <KeymapLayout />
-    <footer class="grid place-content-center">
-      <p class="text-text text-smallest xl:text-xs mt-10">
+    <footer class="grid place-content-center place-items-center">
+      <div class="grid gap-1 btns mt-6">
         <button
           @click="reset"
-          class="size-6 rounded-sm bg-bg hover:bg-helper transition-colors"
+          class="size-7 rounded-sm transition-colors text-text hover:text-white"
         >
-          <i class="fa-solid fa-repeat text-text"></i>
+          <i class="fa-solid fa-repeat"></i>
         </button>
-        или <span class="bg-bg p-1">enter</span> - начать заново
-      </p>
-      <p class="text-text text-smallest xl:text-xs mt-4">
         <button
           @click="toggleMode"
-          class="size-6 rounded-sm bg-bg hover:bg-helper transition-colors"
+          class="size-7 rounded-sm transition-colors text-text hover:text-white"
         >
-          <i class="fa-regular fa-keyboard text-text"></i>
+          <i class="fa-regular fa-keyboard"></i>
         </button>
-        или <span class="bg-bg p-1">ctrl + z</span> - изменить отображение
-      </p>
+      </div>
     </footer>
   </div>
 </template>

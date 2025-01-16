@@ -12,6 +12,16 @@
   --bg: rgba(0, 101, 0, 0.25);
 }
 
+.iron-man {
+  --primary: #fcd116;
+  --secondary: #ce1226;
+  --caret: #fcd116;
+  --error: #0068c6;
+  --bg: #9f1020;
+  --helper: #fcd116;
+  --text: #6d0f19;
+}
+
 .bushido {
   --primary: #ec4c56;
   --secondary: #242933;

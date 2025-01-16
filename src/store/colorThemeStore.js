@@ -5,7 +5,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   const colorThemes = ref([
     {
       name: "matrix",
-      isAnimated: false,
+      isAnimated: true,
     },
     {
       name: "fire",

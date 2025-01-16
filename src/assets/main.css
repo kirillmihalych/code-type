@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+.fire {
+  --primary: #b31313;
+  --secondary: #0f0000;
+  --caret: #683434;
+  --helper: #683434;
+  --error: #0d00c6;
+  --bg: #200a0a;
+  --text: #5f342c;
+  --animation-color-1: #feb90c;
+  --animation-color-2: #b31313;
+}
+
 .matrix {
   --primary: #006500;
   --secondary: #000000;

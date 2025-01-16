@@ -1,9 +1,9 @@
 <template>
   <main
     ref="main"
-    class="bg-secondary font-jet-brains grid place-content-center place-items-center py-10 min-h-dvh transition-colors"
-    :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']"
+    class="fire bg-secondary font-jet-brains grid place-content-center place-items-center py-10 min-h-dvh transition-colors"
   >
+    <!-- :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']" -->
     <CountdownTimer
       :start="isTimerStarted"
       @result-time="(seconds) => setResultTime(seconds)"
@@ -45,12 +45,18 @@
             :key="idx"
             class="w-4 xl:w-6 flex place-content-center"
             :class="[
-              isInputedCharCorrect(idx) && isCurrentWord(i)
+              isColorThemeAnimated &&
+              isInputedCharCorrect(idx) &&
+              isCurrentWord(i)
+                ? 'motion-safe:animate-colorChange'
+                : isInputedCharCorrect(idx) && isCurrentWord(i)
                 ? 'text-helper'
                 : isInputExist(idx) &&
                   !isInputedCharCorrect(idx) &&
                   isCurrentWord(i)
                 ? 'text-error'
+                : isColorThemeAnimated && isWordTyped(i)
+                ? 'motion-safe:animate-colorChange'
                 : isWordTyped(i)
                 ? 'text-helper'
                 : 'text-text',
@@ -185,6 +191,23 @@ function toggleMode() {
     reset();
   }, 150);
 }
+
+const colorThemes = ref([
+  {
+    name: "matrix",
+    isAnimated: false,
+  },
+  {
+    name: "fire",
+    isAnimated: true,
+  },
+]);
+const selectedColorTheme = computed(() => {
+  return colorThemes.value[1];
+});
+const isColorThemeAnimated = computed(() => {
+  return selectedColorTheme.value.isAnimated;
+});
 
 const colorTheme = ref("bushido");
 function toggleColorTheme() {

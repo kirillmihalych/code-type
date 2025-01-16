@@ -1,9 +1,9 @@
 <template>
   <main
     ref="main"
-    class="fire bg-secondary font-jet-brains grid place-content-center place-items-center py-10 min-h-dvh transition-colors"
+    class="bg-secondary font-jet-brains grid place-content-center place-items-center py-10 min-h-dvh transition-colors"
+    :class="[colorThemeName]"
   >
-    <!-- :class="[colorTheme === 'bushido' ? 'bushido' : 'lil-dragon']" -->
     <CountdownTimer
       :start="isTimerStarted"
       @result-time="(seconds) => setResultTime(seconds)"
@@ -201,9 +201,34 @@ const colorThemes = ref([
     name: "fire",
     isAnimated: true,
   },
+  {
+    name: "iron-man",
+    isAnimated: false,
+  },
+  {
+    name: "honey",
+    isAnimated: false,
+  },
+  // {
+  //   name: "bushido",
+  //   isAnimated: false,
+  // },
+  // {
+  //   name: "lil-dragon",
+  //   isAnimated: false,
+  // },
 ]);
+function setRandomTheme() {
+  currentThemeIndex.value = Math.floor(
+    Math.random() * colorThemes.value.length
+  );
+}
+const currentThemeIndex = ref(0);
 const selectedColorTheme = computed(() => {
-  return colorThemes.value[1];
+  return colorThemes.value[currentThemeIndex.value];
+});
+const colorThemeName = computed(() => {
+  return selectedColorTheme.value.name;
 });
 const isColorThemeAnimated = computed(() => {
   return selectedColorTheme.value.isAnimated;
@@ -293,6 +318,7 @@ function reset() {
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopTimer();
+  setRandomTheme();
 }
 
 whenever(enter, () => reset());

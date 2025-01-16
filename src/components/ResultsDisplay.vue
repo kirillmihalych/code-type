@@ -1,5 +1,5 @@
 <template>
-  <div class="grid place-items-center opacity-75">
+  <div class="grid place-items-center">
     <div class="flex gap-2 text-helper uppercase">
       <span>Результаты</span>
       <span>WPM {{ props.finalResultWpm }}</span>

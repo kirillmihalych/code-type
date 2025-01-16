@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+.matrix {
+  --primary: #006500;
+  --secondary: #000000;
+  --caret: #15ff00;
+  --error: #ec4c56;
+  --helper: #15ff00;
+  --text: rgba(21, 255, 0, 0.25);
+  --bg: rgba(0, 101, 0, 0.25);
+}
+
 .bushido {
   --primary: #ec4c56;
   --secondary: #242933;

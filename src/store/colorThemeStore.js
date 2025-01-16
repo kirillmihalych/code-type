@@ -13,7 +13,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     },
     {
       name: "iron-man",
-      isAnimated: false,
+      isAnimated: true,
     },
     {
       name: "honey",

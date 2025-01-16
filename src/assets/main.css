@@ -32,6 +32,9 @@
   --bg: #9f1020;
   --helper: #fcd116;
   --text: #6d0f19;
+
+  --animation-color-1: #fcd116;
+  --animation-color-2: #6d0f19;
 }
 
 .honey {

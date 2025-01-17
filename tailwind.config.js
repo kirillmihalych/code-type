@@ -27,7 +27,7 @@ export default {
       },
       colors: {
         primary: "var(--primary)",
-        secondary: "var(--secondary)",
+        background: "var(--background)",
         helper: "var(--helper)",
         text: "var(--text)",
         bg: "var(--bg)",

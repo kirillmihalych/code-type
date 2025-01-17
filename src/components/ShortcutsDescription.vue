@@ -1,11 +1,11 @@
 <template>
   <div class="shortcuts grid gap-1 place-content-center place-items-center">
     <p class="text-xs text-text">
-      <span class="text-secondary bg-text px-2 rounded-sm">enter</span> - начать
-      заново
+      <span class="text-background bg-text px-2 rounded-sm">enter</span> -
+      начать заново
     </p>
     <p class="text-xs text-text">
-      <span class="text-secondary bg-text px-2 rounded-sm">ctrl + z</span> -
+      <span class="text-background bg-text px-2 rounded-sm">ctrl + z</span> -
       изменить отображение
     </p>
   </div>

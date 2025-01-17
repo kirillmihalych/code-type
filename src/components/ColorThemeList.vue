@@ -4,7 +4,7 @@
       <div
         v-for="(theme, index) in colorThemeStore.colorThemes"
         :key="theme.name"
-        class="flex justify-between items-center w-full uppercase text-center text-helper bg-secondary p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
+        class="flex justify-between items-center w-full uppercase text-center text-helper bg-background p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
         :class="[
           theme.name,
           colorThemeStore.currentThemeIndex === index
@@ -29,12 +29,7 @@
 
 <script setup>
 import { useColorThemeStore } from "@/store/colorThemeStore";
-import { ref, watchEffect } from "vue";
+// import { ref, watchEffect } from "vue";
 
-const color = ref(null);
 const colorThemeStore = useColorThemeStore();
-
-watchEffect(() => {
-  console.log(color.value);
-});
 </script>

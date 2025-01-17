@@ -1,7 +1,6 @@
 <template>
   <main
-    ref="main"
-    class="grid grid-rows-12 bg-secondary font-jet-brains py-10 min-h-dvh transition-colors"
+    class="grid grid-rows-12 bg-background font-jet-brains py-10 min-h-dvh transition-colors"
     :class="[colorThemeStore.colorThemeName]"
   >
     <MainNavigation class="row-span-1 place-self-center" />

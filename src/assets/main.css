@@ -3,73 +3,57 @@
 @tailwind utilities;
 
 .fire {
+  --background: #0f0000;
   --primary: #b31313;
-  --secondary: #0f0000;
-  --caret: #683434;
-  --helper: #683434;
   --error: #0d00c6;
-  --bg: #200a0a;
+  --caret: #683434;
   --text: #5f342c;
   --sub: #ffffff;
+
+  --bg: #200a0a;
+  --helper: #683434;
   --animation-color-1: #feb90c;
   --animation-color-2: #b31313;
 }
 
 .matrix {
   --primary: #006500;
-  --secondary: #000000;
+  --background: #000000;
   --caret: #15ff00;
   --error: #ec4c56;
-  --helper: #15ff00;
   --text: rgba(21, 255, 0, 0.25);
-  --bg: rgba(0, 101, 0, 0.25);
   --sub: #d1ffcd;
+
+  --helper: #15ff00;
+  --bg: rgba(0, 101, 0, 0.25);
   --animation-color-1: #15ff00;
   --animation-color-2: #19196f;
 }
 
 .iron-man {
+  --background: #ce1226;
   --primary: #fcd116;
-  --secondary: #ce1226;
   --caret: #fcd116;
   --error: #0068c6;
-  --bg: #9f1020;
-  --helper: #fcd116;
   --text: #6d0f19;
   --sub: #ffffff;
+
   --animation-color-1: #fcd116;
   --animation-color-2: #6d0f19;
+  --helper: #fcd116;
+  --bg: #9f1020;
 }
 
 .honey {
   --primary: #fff546;
-  --secondary: #f2aa00;
+  --background: #f2aa00;
   --caret: #a66b00;
   --error: #ce1226;
-  --bg: #e19e00;
-  --helper: #fff546;
   --text: #a66b00;
   --sub: #f3eecb;
+
+  --helper: #fff546;
+  --bg: #e19e00;
   --animation-color-1: #fff546;
-  --animation-color-2: #ffffff;
-}
-
-.bushido {
-  --primary: #ec4c56;
-  --secondary: #242933;
-  --helper: #f6f0e9;
-  --text: #596172;
-  --bg: #1c222d;
-  --error: #ec4c56;
-  --caret: #ec4c56;
-}
-
-.lil-dragon {
-  --primary: #8a5bd6;
-  --secondary: #ebe1ef;
-  --helper: #212b43;
-  --text: #a293c6;
-  --bg: #dac7e2;
-  --error: #f794ca;
-  --caret: #212b43;
+  --animation-color-2: #f3eecb;
 }

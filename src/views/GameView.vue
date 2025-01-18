@@ -1,5 +1,8 @@
 <template>
-  <div :class="isTestStarted ? 'cursor-none' : 'cursor-default'">
+  <div
+    class="select-none"
+    :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
+  >
     <CountdownTimer
       :start="isTestStarted"
       @result-time="(seconds) => setResultTime(seconds)"

@@ -10,9 +10,23 @@
 </template>
 
 <script setup>
+import { onMounted, watchEffect } from "vue";
+import { useFavicon } from "@vueuse/core";
+import { useColorThemeStore } from "./store/colorThemeStore";
 import MainNavigation from "./components/MainNavigation.vue";
 import ShortcutsDescription from "./components/ShortcutsDescription.vue";
-import { useColorThemeStore } from "./store/colorThemeStore";
 
 const colorThemeStore = useColorThemeStore();
+
+const icon = useFavicon();
+
+onMounted(() => {
+  icon.value = `${colorThemeStore.colorThemeName}-favicon.svg`;
+});
+
+watchEffect(() => {
+  if (colorThemeStore.colorThemeName) {
+    icon.value = `${colorThemeStore.colorThemeName}-favicon.svg`;
+  }
+});
 </script>

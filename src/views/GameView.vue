@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div :class="isTestStarted ? 'cursor-none' : 'cursor-default'">
     <CountdownTimer
-      :start="isTimerStarted"
+      :start="isTestStarted"
       @result-time="(seconds) => setResultTime(seconds)"
     />
     <ResultsDisplay
@@ -336,14 +336,14 @@ const isInputGetsBigger = computed(() => {
   return inputGetsBigger ? true : inputGetsSmaller ? false : null;
 });
 
-const isTimerStarted = ref(false);
+const isTestStarted = ref(false);
 
 function startTimer() {
-  isTimerStarted.value = true;
+  isTestStarted.value = true;
 }
 
 function stopTimer() {
-  isTimerStarted.value = false;
+  isTestStarted.value = false;
 }
 
 function handleExtraChars() {

@@ -1,6 +1,6 @@
 <template>
   <main
-    class="grid grid-rows-12 bg-background font-jet-brains py-10 min-h-dvh transition-colors overflow-y-scroll scrollbar scrollbar-thumb-primary scrollbar-track-background h-32"
+    class="grid grid-rows-12 bg-background font-jet-brains py-10 min-h-dvh transition-colors overflow-auto scrollbar scrollbar-thumb-primary scrollbar-track-background h-32"
     :class="[colorThemeStore.colorThemeName]"
   >
     <MainNavigation class="row-span-1 place-self-center" />

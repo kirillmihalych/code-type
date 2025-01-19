@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="!props.isInputFocused"
-    class="text-smallest xl:text-sm absolute top-1/2 w-full text-center text-helper"
+    class="text-smallest xl:text-sm absolute top-1/2 w-full text-center text-sub"
   >
     Клик здесь для фокуса или нажмите любую кнопку
   </div>

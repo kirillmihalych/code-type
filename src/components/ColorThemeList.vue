@@ -4,7 +4,7 @@
       <div
         v-for="(theme, index) in colorThemeStore.colorThemes"
         :key="theme.name"
-        class="flex justify-between items-center w-full uppercase text-center text-helper bg-background p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
+        class="flex justify-between items-center w-full uppercase text-center text-primary bg-background p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
         :class="[
           theme.name,
           colorThemeStore.currentThemeIndex === index
@@ -14,9 +14,9 @@
         @click="colorThemeStore.selectTheme(index)"
       >
         <button>
-          <i class="fa-solid fa-star text-helper"></i>
+          <i class="fa-solid fa-star text-primary"></i>
         </button>
-        <h2>{{ theme.name }}</h2>
+        <h2 class="">{{ theme.name }}</h2>
         <div class="flex gap-1">
           <div class="size-4 rounded-full bg-helper"></div>
           <div class="size-4 rounded-full bg-primary"></div>

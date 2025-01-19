@@ -1,28 +1,49 @@
 <template>
-  <div class="grid md:grid-cols-2 md:grid-rows-3">
+  <div class="grid gap-4 md:grid-cols-2 md:grid-rows-3">
     <div
       v-for="(color, index) in selectedThemeValues"
       :key="index"
       class="grid grid-cols-2"
     >
-      <label :for="color.name">{{ color.name }}</label>
-      <div class="flex">
-        <i class="fa-solid fa-palette"></i>
+      <label :for="color.name" class="text-sub">{{ color.name }}</label>
+      <div class="flex items-center gap-2">
+        <i
+          class="fa-solid fa-palette h-full text-xl flex items-center justify-center aspect-square rounded-md"
+          :class="
+            color.name === 'background'
+              ? 'text-sub bg-text'
+              : color.name === 'primary'
+              ? 'text-background bg-primary'
+              : color.name === 'caret'
+              ? 'text-background bg-caret'
+              : color.name === 'text'
+              ? 'text-background bg-text'
+              : color.name === 'sub'
+              ? 'text-background bg-sub'
+              : 'text-background bg-error'
+          "
+        ></i>
         <input
           v-model="color.value"
           :name="color.name"
           :id="color.name"
-          class="w-full"
+          class="w-full rounded-md p-1 bg-text text-sub outline-sub selection:text-text"
         />
       </div>
-      <button @click="colorThemeStore.setValue(`--${color.name}`, color.value)">
+      <!-- <button @click="colorThemeStore.setValue(`--${color.name}`, color.value)">
         change
-      </button>
+      </button> -->
     </div>
-    <button @click="colorThemeStore.usePropertyValue" class="border-2">
+    <button
+      @click="colorThemeStore.usePropertyValue"
+      class="text-sub bg-text p-1 rounded-md hover:text-background hover:bg-sub transition-colors"
+    >
       Загрузить текущую
     </button>
-    <button class="border-2" @click="saveCustomTheme">
+    <button
+      @click="saveCustomTheme"
+      class="text-sub bg-text p-1 rounded-md hover:text-background hover:bg-sub transition-colors"
+    >
       Сохранить в браузере
     </button>
 
@@ -108,26 +129,6 @@ onMounted(() => {
 
 <style>
 /* 
-- [x] показывать значение по нажатию на лоад пресет
-- [x] создать объект кастомный темы, который принадлежит пользователю (пользователь может его настраивать)-
-- [x] изменить значение css переменной 
-- [x] изменить значение css переменной через input
-- [x] создавать classObject через vue, чтобы стиль не переписывал пресет классы
-- [-] ставить его как тему
-- [x] ставить тему через style
-- [x] функции установки темы должна сбрасывать поставленные стили
-=====
-- [x] preset не мешается с custom themes,
-потому что custom всегда будет переписывать preset, из-за style
-- [x] есть 2 режима, это preset и custom
-custom же загружает объекты из локального хранилища, что применяются к style
-preset меняет встроенные классы
-======
-- [x] ставить значения текущей темы в custom theme
-- [x] применять кастомные значения
-- [x] сохранить тему в локальное хранилище
-- [x] достать тему из локального хранилища
-- [x] сохранять любое количество
-- [x] ставить тему по нажатию 
+- [ ]  
 */
 </style>

@@ -113,5 +113,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     setPresetMode,
     isPresetMode,
     setCurrentThemeValues,
+    themeSettingsMode,
   };
 });

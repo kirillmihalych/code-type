@@ -17,7 +17,7 @@
     />
     <div
       ref="caret-parent"
-      class="relative w-dvw flex p-10 gap-6 overflow-hidden"
+      class="relative w-dvw flex p-10 gap-6 overflow-hidden tape-mask-image"
       @click="setFocus"
     >
       <div
@@ -264,7 +264,9 @@ function reset() {
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopTimer();
-  colorThemeStore.setRandomTheme();
+  if (colorThemeStore.isPresetMode) {
+    colorThemeStore.setRandomTheme();
+  }
 }
 
 whenever(enter, () => reset());

@@ -25,7 +25,12 @@
         v-show="isInputFocused"
         style="position: absolute; width: 4px; border-radius: 4px; height: 36px"
         :style="caretStyle"
-        class="transition-[left,top] motion-reduce:transition-none motion-safe:animate-blink bg-caret"
+        class="transition-[left,top] duration-75 bg-caret"
+        :class="[
+          isTestStarted
+            ? ''
+            : 'motion-reduce:transition-none motion-safe:animate-blink',
+        ]"
       ></div>
       <FocusWarning :is-input-focused="isInputFocused" />
       <WordsWrapper

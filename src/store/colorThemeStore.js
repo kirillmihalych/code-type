@@ -37,14 +37,65 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     {
       name: "fire",
       isAnimated: true,
+      properties: [
+        { name: "background", value: "#0f0000" },
+        { name: "primary", value: "#b31313" },
+        { name: "error", value: "#0d00c6" },
+        { name: "caret", value: "#683434" },
+        { name: "text", value: "#5f342c" },
+        { name: "sub", value: " #ffffff" },
+      ],
     },
     {
       name: "iron-man",
       isAnimated: true,
+      properties: [
+        { name: "background", value: "#ce1226" },
+        { name: "primary", value: "#fcd116" },
+        {
+          name: "caret",
+          value: "#fcd116",
+        },
+        {
+          name: "error",
+          value: "#0068c6",
+        },
+        {
+          name: "text",
+          value: "#6d0f19",
+        },
+        {
+          name: "sub",
+          vvalue: "#ffffff",
+        },
+      ],
     },
     {
       name: "honey",
       isAnimated: true,
+      properties: [
+        {
+          name: "background",
+          value: "#f2aa00",
+        },
+        { name: "primary", value: "#fff546" },
+        {
+          name: "caret",
+          value: "#a66b00",
+        },
+        {
+          name: "error",
+          value: "ce1226",
+        },
+        {
+          name: "text",
+          value: "#a66b00",
+        },
+        {
+          name: "sub",
+          value: "#f3eecb",
+        },
+      ],
     },
   ]);
   const currentThemeIndex = ref(0);
@@ -87,6 +138,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     setCurrentThemeValues(properties);
   }
   function setCurrentThemeValues(selectedTheme) {
+    console.log(selectedTheme);
     currentThemeValues.value = selectedTheme;
     selectedTheme.forEach(({ name, value }) => {
       el.value.style.setProperty(`--${name}`, value);

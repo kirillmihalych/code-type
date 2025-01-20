@@ -36,9 +36,6 @@
             class="w-full rounded-md p-1 bg-text text-sub outline-sub selection:text-text"
           />
         </div>
-        <!-- <button @click="colorThemeStore.setValue(`--${color.name}`, color.value)">
-          change
-        </button> -->
       </div>
       <button
         @click="colorThemeStore.usePropertyValue"

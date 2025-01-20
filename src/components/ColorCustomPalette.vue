@@ -57,10 +57,38 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { useColorThemeStore } from "@/store/colorThemeStore";
 import CustomThemeList from "./CustomThemeList.vue";
 
 const colorThemeStore = useColorThemeStore();
+
+const customPaletteInputs = ref([
+  {
+    name: "background",
+    value: "#0e0e0e",
+  },
+  {
+    name: "primary",
+    value: "#ff9900",
+  },
+  {
+    name: "caret",
+    value: "#ff9900",
+  },
+  {
+    name: "error",
+    value: "#e44545",
+  },
+  {
+    name: "text",
+    value: "#555555",
+  },
+  {
+    name: "sub",
+    value: "#c6c6c6",
+  },
+]);
 </script>
 
 <style>

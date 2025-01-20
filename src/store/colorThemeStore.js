@@ -1,7 +1,6 @@
 import { ref, onMounted, computed } from "vue";
 import { useCurrentElement } from "@vueuse/core";
 import { defineStore } from "pinia";
-import { useStorage } from "@vueuse/core";
 
 export const useColorThemeStore = defineStore("colorThemes", () => {
   const colorThemes = ref([
@@ -114,7 +113,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     });
   }
   // ====================================
-  const savedThemes = ref([]);
   const customTheme = ref([
     {
       name: "background",
@@ -151,32 +149,50 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     el.value.style = null;
   }
 
-  const customThemes = ref([]);
-  const colorThemesStorage = useStorage(
-    "custom-themes",
-    customThemes,
-    localStorage,
-    {
-      mergeDefaults: true,
-    }
-  );
+  // handle custom themes in local storage
+  const savedThemes = ref([]);
   function saveCustomTheme() {
-    colorThemesStorage.value.push({
+    savedThemes.value.push({
       id: Date.now(),
       name: "custom",
       properties: selectedThemeValues.value,
     });
+    localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+  }
+  function getCustomThemes() {
+    const data = localStorage.getItem("custom-themes");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return [];
+    }
   }
   function deleteCustomTheme(themeId) {
-    colorThemesStorage.value = colorThemesStorage.value.filter((custom) => {
+    savedThemes.value = savedThemes.value.filter((custom) => {
       return custom.id !== themeId;
     });
+    localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+  }
+  const isUpdateOpen = ref(false);
+  function openUpdateModal() {
+    isUpdateOpen.value = true;
+  }
+  function closeUpdateModal() {
+    isUpdateOpen.value = false;
+  }
+  function updateCustomTheme(id, name, isPropertiesUpdated) {
+    const currentTheme = savedThemes.value.find((theme) => theme.id === id);
+    currentTheme.name = name;
+    if (isPropertiesUpdated) {
+      currentTheme.properties = selectedThemeValues.value;
+    }
+    localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
   }
 
-  // =====================================
   onMounted(() => {
     isUserSetHisTheme.value = false;
     setRandomTheme();
+    savedThemes.value = getCustomThemes();
   });
 
   return {
@@ -201,7 +217,10 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     customTheme,
     saveCustomTheme,
     selectedThemeValues,
-    colorThemesStorage,
     deleteCustomTheme,
+    isUpdateOpen,
+    openUpdateModal,
+    closeUpdateModal,
+    updateCustomTheme,
   };
 });

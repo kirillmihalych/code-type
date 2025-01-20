@@ -10,7 +10,7 @@
     <p>
       {{ props.name }}
     </p>
-    <button @click="colorThemeStore.deleteCustomTheme(props.id)">
+    <button @click.stop="colorThemeStore.deleteCustomTheme(props.id)">
       <i class="fa-solid fa-trash text-text"></i>
     </button>
   </div>

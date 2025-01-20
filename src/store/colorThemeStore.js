@@ -1,11 +1,38 @@
 import { ref, onMounted, computed } from "vue";
 import { useCurrentElement } from "@vueuse/core";
 import { defineStore } from "pinia";
+import { useStorage } from "@vueuse/core";
 
 export const useColorThemeStore = defineStore("colorThemes", () => {
   const colorThemes = ref([
     {
       name: "matrix",
+      properties: [
+        {
+          name: "background",
+          value: "#000000",
+        },
+        {
+          name: "primary",
+          value: "#15ff00",
+        },
+        {
+          name: "caret",
+          value: "#15ff00",
+        },
+        {
+          name: "error",
+          value: "#da3333",
+        },
+        {
+          name: "text",
+          value: "#006500",
+        },
+        {
+          name: "sub",
+          value: "#d1ffcd",
+        },
+      ],
       isAnimated: true,
     },
     {
@@ -38,9 +65,11 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
 
   function setCustomMode() {
     themeSettingsMode.value = "custom";
+    setCustomTheme();
   }
   function setPresetMode() {
     themeSettingsMode.value = "preset";
+    styleReset();
   }
   function selectTheme(index) {
     currentThemeIndex.value = index;
@@ -53,22 +82,10 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   }
 
   const el = useCurrentElement();
-  const cssVarNameList = ref([
-    "--background",
-    "--primary",
-    "--caret",
-    "--error",
-    "--text",
-    "--sub",
-  ]);
   const currentThemeValues = ref([]);
   function usePropertyValue() {
-    currentThemeValues.value = cssVarNameList.value.map((cssVar) => {
-      return {
-        name: `${cssVar.slice(2)}`,
-        value: getComputedStyle(el.value).getPropertyValue(cssVar),
-      };
-    });
+    const properties = colorThemes.value[currentThemeIndex.value].properties;
+    setCurrentThemeValues(properties);
   }
   function setCurrentThemeValues(selectedTheme) {
     currentThemeValues.value = selectedTheme;
@@ -91,7 +108,72 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     isUserSetHisTheme.value = true;
     el.value.style.setProperty(property, value);
   }
+  function setCustomTheme() {
+    selectedThemeValues.value.map(({ name, value }) => {
+      el.value.style.setProperty(`--${name}`, value);
+    });
+  }
+  // ====================================
+  const savedThemes = ref([]);
+  const customTheme = ref([
+    {
+      name: "background",
+      value: "#0e0e0e",
+    },
+    {
+      name: "primary",
+      value: "#ff9900",
+    },
+    {
+      name: "caret",
+      value: "#ff9900",
+    },
+    {
+      name: "error",
+      value: "#e44545",
+    },
+    {
+      name: "text",
+      value: "#555555",
+    },
+    {
+      name: "sub",
+      value: "#c6c6c6",
+    },
+  ]);
+  const selectedThemeValues = computed(() => {
+    return currentThemeValues.value.length > 0
+      ? currentThemeValues.value
+      : customTheme.value;
+  });
 
+  function styleReset() {
+    el.value.style = null;
+  }
+
+  const customThemes = ref([]);
+  const colorThemesStorage = useStorage(
+    "custom-themes",
+    customThemes,
+    localStorage,
+    {
+      mergeDefaults: true,
+    }
+  );
+  function saveCustomTheme() {
+    colorThemesStorage.value.push({
+      id: Date.now(),
+      name: "custom",
+      properties: selectedThemeValues.value,
+    });
+  }
+  function deleteCustomTheme(themeId) {
+    colorThemesStorage.value = colorThemesStorage.value.filter((custom) => {
+      return custom.id !== themeId;
+    });
+  }
+
+  // =====================================
   onMounted(() => {
     isUserSetHisTheme.value = false;
     setRandomTheme();
@@ -114,5 +196,12 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     isPresetMode,
     setCurrentThemeValues,
     themeSettingsMode,
+    setCustomTheme,
+    savedThemes,
+    customTheme,
+    saveCustomTheme,
+    selectedThemeValues,
+    colorThemesStorage,
+    deleteCustomTheme,
   };
 });

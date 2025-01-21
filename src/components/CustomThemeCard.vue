@@ -43,15 +43,31 @@
         </button>
       </div>
     </ModalUi>
-    <button @click.stop="colorThemeStore.openUpdateModal">
-      <i class="fa-solid fa-pen text-text"></i>
+    <button
+      @click.stop="colorThemeStore.openUpdateModal"
+      class="text-text hover:text-primary transition-colors"
+    >
+      <i class="fa-solid fa-pen"></i>
     </button>
     <p>
       {{ props.name }}
     </p>
-    <button @click.stop="colorThemeStore.deleteCustomTheme(props.id)">
-      <i class="fa-solid fa-trash text-text"></i>
-    </button>
+    <div class="flex gap-2">
+      <button
+        @click.stop="colorThemeStore.deleteCustomTheme(props.id)"
+        class="text-text hover:text-primary transition-colors"
+      >
+        <i class="fa-solid fa-trash"></i>
+      </button>
+      <div>
+        <button v-if="colorThemeStore.isThemeFavorite(props.id)">
+          <i class="fa-solid fa-heart"></i>
+        </button>
+        <button v-if="!colorThemeStore.isThemeFavorite(props.id)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 

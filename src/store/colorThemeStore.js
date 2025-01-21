@@ -1,4 +1,4 @@
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watchEffect } from "vue";
 import { useCurrentElement } from "@vueuse/core";
 import { defineStore } from "pinia";
 
@@ -220,10 +220,22 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     }
   }
   function deleteCustomTheme(themeId) {
-    savedThemes.value = savedThemes.value.filter((custom) => {
-      return custom.id !== themeId;
-    });
-    localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+    if (isThemeFavorite(themeId)) {
+      favoriteCustomThemes.value = favoriteCustomThemes.value.filter(
+        (custom) => {
+          return custom.id !== themeId;
+        }
+      );
+      localStorage.setItem(
+        "favorite-themes",
+        JSON.stringify(favoriteCustomThemes.value)
+      );
+    } else {
+      savedThemes.value = savedThemes.value.filter((custom) => {
+        return custom.id !== themeId;
+      });
+      localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+    }
   }
   const isUpdateOpen = ref(false);
   function openUpdateModal() {
@@ -233,18 +245,84 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     isUpdateOpen.value = false;
   }
   function updateCustomTheme(id, name, isPropertiesUpdated) {
-    const currentTheme = savedThemes.value.find((theme) => theme.id === id);
+    let currentTheme;
+    const isFavorite = isThemeFavorite(id);
+    if (isFavorite) {
+      currentTheme = favoriteCustomThemes.value.find(
+        (theme) => theme.id === id
+      );
+    } else {
+      currentTheme = savedThemes.value.find((theme) => theme.id === id);
+    }
     currentTheme.name = name;
     if (isPropertiesUpdated) {
       currentTheme.properties = selectedThemeValues.value;
     }
-    localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+    if (isFavorite) {
+      localStorage.setItem(
+        "favorite-themes",
+        JSON.stringify(favoriteCustomThemes.value)
+      );
+    } else {
+      localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+    }
+    closeUpdateModal();
+  }
+  const favoriteCustomThemes = ref([]);
+  function getCustomFavorites() {
+    const data = localStorage.getItem("favorite-themes");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return [];
+    }
+  }
+  let favoriteLength = favoriteCustomThemes.value.length;
+  function isFavoritesChanged() {
+    if (favoriteCustomThemes.value.length > favoriteLength) {
+      favoriteLength = favoriteCustomThemes.value.length;
+      return true;
+    } else if (favoriteCustomThemes.value.length < favoriteLength) {
+      favoriteLength = favoriteCustomThemes.value.length;
+      return true;
+    } else {
+      return false;
+    }
+  }
+  watchEffect(() => {
+    if (isFavoritesChanged()) {
+      localStorage.setItem(
+        "favorite-themes",
+        JSON.stringify(favoriteCustomThemes.value)
+      );
+    }
+  });
+  let savedThemesLength = savedThemes.value.length;
+  function isThemesArrChanged() {
+    if (savedThemes.value.length > savedThemesLength) {
+      savedThemesLength = savedThemes.value.length;
+      return true;
+    } else if (savedThemes.value.length < savedThemesLength) {
+      savedThemesLength = savedThemes.value.length;
+      return true;
+    } else {
+      return false;
+    }
+  }
+  watchEffect(() => {
+    if (isThemesArrChanged()) {
+      localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
+    }
+  });
+  function isThemeFavorite(id) {
+    return favoriteCustomThemes.value.find((theme) => theme.id === id);
   }
 
   onMounted(() => {
     isUserSetHisTheme.value = false;
     setRandomTheme();
     savedThemes.value = getCustomThemes();
+    favoriteCustomThemes.value = getCustomFavorites();
   });
 
   return {
@@ -274,5 +352,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     openUpdateModal,
     closeUpdateModal,
     updateCustomTheme,
+    favoriteCustomThemes,
+    isThemeFavorite,
   };
 });

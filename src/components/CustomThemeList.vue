@@ -1,29 +1,55 @@
 <template>
-  <div class="flex gap-2">
-    <CustomThemeCard
-      v-for="(customTheme, index) in colorThemeStore.savedThemes"
-      :key="index"
-      :properties="customTheme.properties"
-      :name="customTheme.name"
-      :id="customTheme.id"
-    />
+  <div class="text-sub">
+    <div>
+      <h2>Фавориты</h2>
+      <draggable
+        group="custom-themes"
+        :list="colorThemeStore.favoriteCustomThemes"
+        @start="drag = true"
+        @end="drag = false"
+        item-key="id"
+        class="flex flex-col md:flex-row gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+      >
+        <template #item="{ element }">
+          <CustomThemeCard
+            :name="element.name"
+            :properties="element.properties"
+            :id="element.id"
+          />
+        </template>
+      </draggable>
+    </div>
+    <div>
+      <h2>Созданные темы</h2>
+      <draggable
+        :list="colorThemeStore.savedThemes"
+        group="custom-themes"
+        @start="drag = true"
+        @end="drag = false"
+        item-key="id"
+        class="flex flex-col md:flex-row gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+      >
+        <template #item="{ element }">
+          <CustomThemeCard
+            :name="element.name"
+            :properties="element.properties"
+            :id="element.id"
+          />
+        </template>
+      </draggable>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useColorThemeStore } from "@/store/colorThemeStore";
 import CustomThemeCard from "./CustomThemeCard.vue";
+import draggable from "vuedraggable";
 
 const colorThemeStore = useColorThemeStore();
 </script>
 
 <style>
 /* 
-- [ ] пофиксить ошибку, при создании новой кастомной темы, обновляется значение уже созданной
-===
-- [ ] когда я меняю значение в инпуте, реактивно меняется значение во всех темах, почему-то
-===
-пробую разделить логику значений привязанных к форме и момент, что сохраняет эти значения
-- [ ]
-*/
+ */
 </style>

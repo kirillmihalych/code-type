@@ -32,15 +32,16 @@
         </button>
       </div>
     </div>
-    <ColorThemeList v-if="colorThemeStore.isPresetMode" />
+    <PresetThemeList v-if="colorThemeStore.isPresetMode" />
     <ColorCustomPalette v-if="!colorThemeStore.isPresetMode" />
   </div>
 </template>
 
 <script setup>
-import ColorThemeList from "./ColorThemeList.vue";
+import PresetThemeList from "./PresetThemeList.vue";
 import ColorCustomPalette from "./ColorCustomPalette.vue";
 import { useColorThemeStore } from "@/store/colorThemeStore";
+
 
 const colorThemeStore = useColorThemeStore();
 </script>

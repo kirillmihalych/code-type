@@ -1,8 +1,8 @@
 <template>
   <Teleport to="#modal">
     <div
+      v-if="props.isOpen"
       class="bg-gray-800/30 fixed top-0 left-0 w-dvw h-dvh flex items-center justify-center"
-      v-if="colorThemeStore.isUpdateOpen"
     >
       <div
         ref="modal-content"
@@ -16,12 +16,11 @@
 
 <script setup>
 import { useTemplateRef } from "vue";
-import { useColorThemeStore } from "@/store/colorThemeStore";
 import { onClickOutside } from "@vueuse/core";
 
+const props = defineProps(["isOpen"]);
+const emits = defineEmits(["modal-close"]);
+
 const modalContent = useTemplateRef("modal-content");
-
-const colorThemeStore = useColorThemeStore();
-
-onClickOutside(modalContent, () => colorThemeStore.closeUpdateModal());
+onClickOutside(modalContent, () => emits("modal-close"));
 </script>

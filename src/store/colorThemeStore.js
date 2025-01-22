@@ -5,6 +5,7 @@ import { defineStore } from "pinia";
 export const useColorThemeStore = defineStore("colorThemes", () => {
   const colorThemes = ref([
     {
+      id: "0",
       name: "matrix",
       properties: [
         {
@@ -35,6 +36,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       isAnimated: true,
     },
     {
+      id: "1",
       name: "fire",
       isAnimated: true,
       properties: [
@@ -47,6 +49,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       ],
     },
     {
+      id: "2",
       name: "iron-man",
       isAnimated: true,
       properties: [
@@ -71,6 +74,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       ],
     },
     {
+      id: "3",
       name: "honey",
       isAnimated: true,
       properties: [
@@ -201,6 +205,63 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     el.value.style = null;
   }
 
+  // preset thems dragndrop
+  const presetThemes = ref([]);
+  let presetThemeLength = presetThemes.value.length;
+  function isPresetThemesChanged() {
+    if (presetThemes.value.length > presetThemeLength) {
+      presetThemeLength = presetThemes.value.length;
+      return true;
+    } else if (presetThemes.value.length < presetThemeLength) {
+      presetThemeLength = presetThemes.value.length;
+      return true;
+    } else {
+      return false;
+    }
+  }
+  watchEffect(() => {
+    if (isPresetThemesChanged()) {
+      localStorage.setItem("preset-themes", JSON.stringify(presetThemes.value));
+    }
+  });
+  const selectedPresetThemes = ref([]);
+  let selectedPresetThemesLength = selectedPresetThemes.value.length;
+  function isSelectedPresetThemesChanged() {
+    if (selectedPresetThemes.value.length > selectedPresetThemesLength) {
+      selectedPresetThemesLength = selectedPresetThemes.value.length;
+      return true;
+    } else if (selectedPresetThemes.value.length < selectedPresetThemesLength) {
+      selectedPresetThemesLength = selectedPresetThemes.value.length;
+      return true;
+    } else {
+      return false;
+    }
+  }
+  watchEffect(() => {
+    if (isSelectedPresetThemesChanged()) {
+      localStorage.setItem(
+        "selected-preset-themes",
+        JSON.stringify(selectedPresetThemes.value)
+      );
+    }
+  });
+  function getPresetThemes() {
+    const data = localStorage.getItem("preset-themes");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return colorThemes.value;
+    }
+  }
+  function getSelectedPresetThemes() {
+    const data = localStorage.getItem("selected-preset-themes");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return [];
+    }
+  }
+
   // handle custom themes in local storage
   const savedThemes = ref([]);
   function saveCustomTheme() {
@@ -323,6 +384,8 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     setRandomTheme();
     savedThemes.value = getCustomThemes();
     favoriteCustomThemes.value = getCustomFavorites();
+    presetThemes.value = getPresetThemes();
+    selectedPresetThemes.value = getSelectedPresetThemes();
   });
 
   return {
@@ -354,5 +417,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     updateCustomTheme,
     favoriteCustomThemes,
     isThemeFavorite,
+    presetThemes,
+    selectedPresetThemes,
   };
 });

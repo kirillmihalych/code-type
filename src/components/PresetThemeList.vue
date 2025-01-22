@@ -1,12 +1,28 @@
 <template>
   <div>
     <div>
+      <h2>Избранные</h2>
       <draggable
-        group="custom-themes"
-        v-model="colorThemeStore.colorThemes"
+        group="preset-themes"
+        :list="colorThemeStore.selectedPresetThemes"
         @start="drag = true"
         @end="drag = false"
-        item-key="id"
+        item-key="name"
+        class="flex flex-col md:flex-row gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+      >
+        <template #item="{ element: theme }">
+          <PresetThemeCard :theme="theme" />
+        </template>
+      </draggable>
+    </div>
+    <div>
+      <h2>Встроенные темы</h2>
+      <draggable
+        group="preset-themes"
+        :list="colorThemeStore.presetThemes"
+        @start="drag = true"
+        @end="drag = false"
+        item-key="name"
         class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4"
       >
         <template #item="{ element: theme }">

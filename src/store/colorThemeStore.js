@@ -128,7 +128,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   function selectTheme(index) {
     currentThemeIndex.value = index;
   }
-  const playOnlyFavorites = ref(true);
+  const playOnlyFavorites = ref(false);
   function setPlayOnlyFavorites() {
     playOnlyFavorites.value = true;
   }
@@ -140,7 +140,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   function setRandomTheme() {
     const currentQueueTheme = indexes.value.pop();
     const currentQueueAllTheme = allThemeIndexes.value.pop();
-    if (playOnlyFavorites.value) {
+    if (playOnlyFavorites.value && currentQueueTheme) {
       currentThemeIndex.value = currentQueueTheme;
     } else {
       currentThemeIndex.value = currentQueueAllTheme;

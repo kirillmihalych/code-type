@@ -16,6 +16,9 @@
               : 'text-sub bg-text',
           ]"
           @click="colorThemeStore.setPlayOnlyFavorites"
+          :disabled="[
+            colorThemeStore.selectedPresetThemes.length <= 0 ? true : false,
+          ]"
         >
           Избранные
         </button>
@@ -49,6 +52,12 @@
     </div>
     <div>
       <h2>Встроенные темы</h2>
+      <!-- tag="transition-group"
+        :component-data="{
+          tag: 'ul',
+          type: 'transition-group',
+          name: !drag ? 'flip-list' : null,
+        }" -->
       <draggable
         group="preset-themes"
         :list="colorThemeStore.presetThemes"

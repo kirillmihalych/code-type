@@ -1,6 +1,38 @@
 <template>
   <div>
     <div>
+      <h2 class="text-2xl text-primary">Воспроизводить только выбранные</h2>
+      <p class="text-sm text-sub mb-4">
+        По умолчанию на каждый новый тест ставится случайная тема. Опция
+        избранные будет воспроизводить темы только из избранных. Опция все будет
+        воспроизводить все темы из пресета.
+      </p>
+      <div class="flex gap-2">
+        <button
+          class="px-2 py-1 rounded-md hover:text-background hover:bg-sub transition-colors"
+          :class="[
+            colorThemeStore.playOnlyFavorites
+              ? 'text-background bg-primary'
+              : 'text-sub bg-text',
+          ]"
+          @click="colorThemeStore.setPlayOnlyFavorites"
+        >
+          Избранные
+        </button>
+        <button
+          class="px-2 py-1 rounded-md hover:text-background hover:bg-sub transition-colors"
+          :class="[
+            !colorThemeStore.playOnlyFavorites
+              ? 'text-background bg-primary'
+              : 'text-sub bg-text',
+          ]"
+          @click="colorThemeStore.setPlayAllThemes"
+        >
+          Все
+        </button>
+      </div>
+    </div>
+    <div>
       <h2>Избранные</h2>
       <draggable
         group="preset-themes"

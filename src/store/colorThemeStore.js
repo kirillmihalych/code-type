@@ -128,10 +128,25 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   function selectTheme(index) {
     currentThemeIndex.value = index;
   }
+  const playOnlyFavorites = ref(true);
+  function setPlayOnlyFavorites() {
+    playOnlyFavorites.value = true;
+  }
+  function setPlayAllThemes() {
+    playOnlyFavorites.value = false;
+  }
+  const indexes = ref([]);
+  const allThemeIndexes = ref([0, 1, 2, 3]);
   function setRandomTheme() {
-    currentThemeIndex.value = Math.floor(
-      Math.random() * colorThemes.value.length
-    );
+    const currentQueueTheme = indexes.value.pop();
+    const currentQueueAllTheme = allThemeIndexes.value.pop();
+    if (playOnlyFavorites.value) {
+      currentThemeIndex.value = currentQueueTheme;
+    } else {
+      currentThemeIndex.value = currentQueueAllTheme;
+    }
+    indexes.value.unshift(currentQueueTheme);
+    allThemeIndexes.value.unshift(currentQueueAllTheme);
     el.value.style = "";
   }
 
@@ -380,12 +395,13 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   }
 
   onMounted(() => {
-    isUserSetHisTheme.value = false;
-    setRandomTheme();
     savedThemes.value = getCustomThemes();
     favoriteCustomThemes.value = getCustomFavorites();
     presetThemes.value = getPresetThemes();
     selectedPresetThemes.value = getSelectedPresetThemes();
+    isUserSetHisTheme.value = false;
+    indexes.value = selectedPresetThemes.value.map((item) => item.id);
+    setRandomTheme();
   });
 
   return {
@@ -419,5 +435,8 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     isThemeFavorite,
     presetThemes,
     selectedPresetThemes,
+    playOnlyFavorites,
+    setPlayAllThemes,
+    setPlayOnlyFavorites,
   };
 });

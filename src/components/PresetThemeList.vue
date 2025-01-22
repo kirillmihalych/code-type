@@ -38,13 +38,12 @@
       <draggable
         group="preset-themes"
         :list="colorThemeStore.selectedPresetThemes"
-        ghost-class="moving-card"
-        :animation="200"
+        :animation="75"
         item-key="name"
-        class="flex flex-col md:flex-row gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
       >
         <template #item="{ element: theme }">
-          <div class="w-full">
+          <div>
             <PresetThemeCard :theme="theme" />
           </div>
         </template>
@@ -55,7 +54,6 @@
       <draggable
         group="preset-themes"
         :list="colorThemeStore.presetThemes"
-        ghost-class="moving-card"
         :animation="200"
         item-key="name"
         class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4"
@@ -82,9 +80,3 @@ const selectedThemesDisabled = computed(() => {
   return colorThemeStore.selectedPresetThemes.length <= 0 ? true : false;
 });
 </script>
-
-<style>
-.moving-card {
-  @apply w-full opacity-50 bg-background;
-}
-</style>

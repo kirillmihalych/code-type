@@ -117,3 +117,9 @@ onMounted(() => {
   });
 });
 </script>
+
+<style>
+.sortable-ghost {
+  @apply opacity-100;
+}
+</style>

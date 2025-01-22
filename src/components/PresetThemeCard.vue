@@ -1,6 +1,7 @@
 <template>
+  <!-- w-full -->
   <div
-    class="flex justify-between items-center w-full uppercase text-center text-primary bg-background p-2 rounded-md cursor-pointer"
+    class="flex justify-between items-center uppercase text-center text-primary bg-background p-2 rounded-md cursor-pointer"
     :class="[
       props.theme.name,
       colorThemeStore.currentThemeIndex === props.theme.id
@@ -28,3 +29,9 @@ const props = defineProps(["theme"]);
 
 const colorThemeStore = useColorThemeStore();
 </script>
+
+<style>
+.sortable-ghost {
+  @apply opacity-100;
+}
+</style>

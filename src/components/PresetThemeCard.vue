@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex justify-between items-center w-full uppercase text-center text-primary bg-background p-2 rounded-md hover:scale-105 cursor-pointer origin-center transition-transform"
+    class="flex justify-between items-center w-full uppercase text-center text-primary bg-background p-2 rounded-md cursor-pointer"
     :class="[
       props.theme.name,
       colorThemeStore.currentThemeIndex === props.theme.id

@@ -16,9 +16,7 @@
               : 'text-sub bg-text',
           ]"
           @click="colorThemeStore.setPlayOnlyFavorites"
-          :disabled="[
-            colorThemeStore.selectedPresetThemes.length <= 0 ? true : false,
-          ]"
+          :disabled="selectedThemesDisabled"
         >
           Избранные
         </button>
@@ -40,34 +38,32 @@
       <draggable
         group="preset-themes"
         :list="colorThemeStore.selectedPresetThemes"
-        @start="drag = true"
-        @end="drag = false"
+        ghost-class="moving-card"
+        :animation="200"
         item-key="name"
         class="flex flex-col md:flex-row gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
       >
         <template #item="{ element: theme }">
-          <PresetThemeCard :theme="theme" />
+          <div class="w-full">
+            <PresetThemeCard :theme="theme" />
+          </div>
         </template>
       </draggable>
     </div>
     <div>
       <h2>Встроенные темы</h2>
-      <!-- tag="transition-group"
-        :component-data="{
-          tag: 'ul',
-          type: 'transition-group',
-          name: !drag ? 'flip-list' : null,
-        }" -->
       <draggable
         group="preset-themes"
         :list="colorThemeStore.presetThemes"
-        @start="drag = true"
-        @end="drag = false"
+        ghost-class="moving-card"
+        :animation="200"
         item-key="name"
         class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4"
       >
         <template #item="{ element: theme }">
-          <PresetThemeCard :theme="theme" />
+          <div>
+            <PresetThemeCard :theme="theme" />
+          </div>
         </template>
       </draggable>
     </div>
@@ -75,9 +71,20 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useColorThemeStore } from "@/store/colorThemeStore";
 import draggable from "vuedraggable";
 import PresetThemeCard from "./PresetThemeCard.vue";
 
 const colorThemeStore = useColorThemeStore();
+
+const selectedThemesDisabled = computed(() => {
+  return colorThemeStore.selectedPresetThemes.length <= 0 ? true : false;
+});
 </script>
+
+<style>
+.moving-card {
+  @apply w-full opacity-50 bg-background;
+}
+</style>

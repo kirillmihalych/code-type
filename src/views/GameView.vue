@@ -17,9 +17,10 @@
     />
     <div
       ref="caret-parent"
-      class="relative w-dvw flex p-10 gap-6 overflow-hidden tape-mask-image"
+      class="relative w-dvw flex gap-6 overflow-hidden tape-mask-image"
       @click="setFocus"
     >
+      <FocusWarning :is-input-focused="isInputFocused" />
       <div
         ref="caret"
         v-show="isInputFocused"
@@ -32,7 +33,6 @@
             : 'motion-reduce:transition-none motion-safe:animate-blink',
         ]"
       ></div>
-      <FocusWarning :is-input-focused="isInputFocused" />
       <WordsWrapper
         :is-input-focused="isInputFocused"
         :words-wrapper-style="wordsWrapperStyle"
@@ -158,8 +158,9 @@ const wordsWrapperStyle = computed(() => {
       };
 });
 const caretStyle = computed(() => {
+  // calc(50% + 40px)
   return currentMode.value === "tape"
-    ? { left: "calc(50% + 40px)" }
+    ? { left: "calc(50%)" }
     : {
         left: caretCoordinates.value.left + "px",
         top: caretCoordinates.value.top + "px",

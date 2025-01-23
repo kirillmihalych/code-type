@@ -4,8 +4,8 @@ import GameView from "@/views/GameView.vue";
 import SettingsView from "@/views/SettingsView.vue";
 
 const routes = [
-  { path: "/", component: GameView },
-  { path: "/settings", component: SettingsView },
+  { name: "game", path: "/", component: GameView },
+  { name: "settings", path: "/settings", component: SettingsView },
 ];
 
 const router = createRouter({
@@ -13,4 +13,4 @@ const router = createRouter({
   routes,
 });
 
-export { router };
+export { router, routes };

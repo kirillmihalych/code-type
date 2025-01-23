@@ -1,94 +1,103 @@
 <template>
   <div
-    class="select-none"
+    class="select-none h-[85vh] grid place-content-center place-items-center grid-rows-[1fr_auto_1fr] px-4"
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
-    <CountdownTimer
-      :start="isTestStarted"
-      @result-time="(seconds) => setResultTime(seconds)"
-    />
-    <ResultsDisplay
-      :accuracy="accuracy"
-      :wpm="displayedWpm"
-      :total-words-amount="totalWords"
-      :written-words-amount="writtenWordsAmount"
-      :final-accuracy="finalAccuracy"
-      :final-result-wpm="bestResult"
-    />
-    <div
-      ref="caret-parent"
-      class="relative w-dvw flex gap-6 overflow-hidden tape-mask-image"
-      @click="setFocus"
-    >
-      <FocusWarning :is-input-focused="isInputFocused" />
-      <div
-        ref="caret"
-        v-show="isInputFocused"
-        style="position: absolute; width: 4px; border-radius: 4px; height: 36px"
-        :style="caretStyle"
-        class="transition-[left,top] duration-75 bg-caret"
-        :class="[
-          isTestStarted
-            ? ''
-            : 'motion-reduce:transition-none motion-safe:animate-blink',
-        ]"
-      ></div>
-      <WordsWrapper
-        :is-input-focused="isInputFocused"
-        :words-wrapper-style="wordsWrapperStyle"
-      >
-        <div
-          v-for="(word, i) in wordsQueue"
-          ref="words"
-          :key="i"
-          class="word flex"
-        >
-          <span
-            v-for="(letter, idx) in word"
-            ref="letter"
-            :key="idx"
-            class="w-4 xl:w-6 flex place-content-center"
-            :class="[
-              colorThemeStore.isColorThemeAnimated &&
-              isInputedCharCorrect(idx) &&
-              isCurrentWord(i)
-                ? 'motion-safe:animate-colorChange'
-                : isInputedCharCorrect(idx) && isCurrentWord(i)
-                ? 'text-helper'
-                : isInputExist(idx) &&
-                  !isInputedCharCorrect(idx) &&
-                  isCurrentWord(i)
-                ? 'text-error'
-                : colorThemeStore.isColorThemeAnimated && isWordTyped(i)
-                ? 'motion-safe:animate-colorChange'
-                : isWordTyped(i)
-                ? 'text-helper'
-                : 'text-text',
-            ]"
-          >
-            {{ letter }}
-          </span>
-          <span
-            v-show="isCurrentWord(i)"
-            v-for="(extra, index) in extraLetters"
-            :key="index"
-            class="w-4 xl:w-6 flex place-content-center text-error"
-          >
-            {{ extra }}
-          </span>
-        </div>
-      </WordsWrapper>
-      <form class="absolute opacity-0" @submit.prevent>
-        <input
-          ref="input"
-          type="text"
-          v-model="currentInput"
-          placeholder="Начни писать, чтобы начать тест"
-        />
-      </form>
+    <div>
+      <CountdownTimer
+        :start="isTestStarted"
+        @result-time="(seconds) => setResultTime(seconds)"
+      />
+      <ResultsDisplay
+        :accuracy="accuracy"
+        :wpm="displayedWpm"
+        :total-words-amount="totalWords"
+        :written-words-amount="writtenWordsAmount"
+        :final-accuracy="finalAccuracy"
+        :final-result-wpm="bestResult"
+      />
     </div>
-    <KeymapLayout />
-    <footer class="grid place-content-center place-items-center">
+    <div :class="isTapeMode ? 'tape-mask-image w-dvw' : ''">
+      <div
+        ref="caret-parent"
+        class="relative flex gap-6 overflow-hidden py-10"
+        @click="setFocus"
+      >
+        <FocusWarning :is-input-focused="isInputFocused" />
+        <div
+          ref="caret"
+          v-show="isInputFocused"
+          style="
+            position: absolute;
+            width: 4px;
+            border-radius: 4px;
+            height: 36px;
+          "
+          :style="caretStyle"
+          class="transition-[left,top] duration-75 bg-caret"
+          :class="[
+            isTestStarted
+              ? ''
+              : 'motion-reduce:transition-none motion-safe:animate-blink',
+          ]"
+        ></div>
+        <WordsWrapper
+          :is-input-focused="isInputFocused"
+          :words-wrapper-style="wordsWrapperStyle"
+        >
+          <div
+            v-for="(word, i) in wordsQueue"
+            ref="words"
+            :key="i"
+            class="word flex"
+          >
+            <span
+              v-for="(letter, idx) in word"
+              ref="letter"
+              :key="idx"
+              class="w-4 xl:w-6 flex place-content-center"
+              :class="[
+                colorThemeStore.isColorThemeAnimated &&
+                isInputedCharCorrect(idx) &&
+                isCurrentWord(i)
+                  ? 'motion-safe:animate-colorChange'
+                  : isInputedCharCorrect(idx) && isCurrentWord(i)
+                  ? 'text-helper'
+                  : isInputExist(idx) &&
+                    !isInputedCharCorrect(idx) &&
+                    isCurrentWord(i)
+                  ? 'text-error'
+                  : colorThemeStore.isColorThemeAnimated && isWordTyped(i)
+                  ? 'motion-safe:animate-colorChange'
+                  : isWordTyped(i)
+                  ? 'text-helper'
+                  : 'text-text',
+              ]"
+            >
+              {{ letter }}
+            </span>
+            <span
+              v-show="isCurrentWord(i)"
+              v-for="(extra, index) in extraLetters"
+              :key="index"
+              class="w-4 xl:w-6 flex place-content-center text-error"
+            >
+              {{ extra }}
+            </span>
+          </div>
+        </WordsWrapper>
+        <form class="absolute opacity-0" @submit.prevent>
+          <input
+            ref="input"
+            type="text"
+            v-model="currentInput"
+            placeholder="Начни писать, чтобы начать тест"
+          />
+        </form>
+      </div>
+      <KeymapLayout />
+    </div>
+    <footer>
       <div class="grid gap-1 btns mt-6">
         <button
           @click="reset"

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid place-content-center place-items-center">
+  <div class="grid place-content-center place-items-center scale-100">
     <div class="row-first flex gap-1 mb-1 xl:gap-2 xl:mb-2">
       <KeyLayout :value="q"> q </KeyLayout>
       <KeyLayout :value="w"> w </KeyLayout>

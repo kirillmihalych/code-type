@@ -135,19 +135,19 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   function setPlayAllThemes() {
     playOnlyFavorites.value = false;
   }
-  const indexes = ref([]);
+  const computedIndexes = computed(() => {
+    return selectedPresetThemes.value.map((item) => item.id);
+  });
   const allThemeIndexes = ref([0, 1, 2, 3]);
   function setRandomTheme() {
-    console.log(indexes.value);
-    const currentQueueTheme = indexes.value.pop();
+    const currentQueueTheme = computedIndexes.value.pop();
     const currentQueueAllTheme = allThemeIndexes.value.pop();
     if (playOnlyFavorites.value && currentQueueTheme) {
       currentThemeIndex.value = currentQueueTheme;
     } else {
       currentThemeIndex.value = currentQueueAllTheme;
     }
-    indexes.value.unshift(currentQueueTheme);
-    console.log(indexes.value);
+    computedIndexes.value.unshift(currentQueueTheme);
     allThemeIndexes.value.unshift(currentQueueAllTheme);
     el.value.style = "";
   }
@@ -403,7 +403,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     presetThemes.value = getPresetThemes();
     selectedPresetThemes.value = getSelectedPresetThemes();
     isUserSetHisTheme.value = false;
-    indexes.value = selectedPresetThemes.value.map((item) => item.id);
     setRandomTheme();
   });
 

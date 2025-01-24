@@ -3,7 +3,7 @@
     class="select-none h-[85vh] grid place-content-center place-items-center grid-rows-[1fr_auto_1fr] px-4"
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
-    <div>
+    <div class="place-self-end justify-self-center">
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -97,22 +97,26 @@
       </div>
       <KeymapLayout />
     </div>
-    <footer>
-      <div class="grid gap-1 btns mt-6">
+    <!-- mt-6 -->
+    <foote
+      class="place-self-start justify-self-center grid gap-2 place-items-center py-2"
+    >
+      <div class="flex">
         <button
           @click="reset"
-          class="size-7 rounded-sm transition-colors text-text hover:text-white"
+          class="size-7 rounded-sm transition-colors text-text hover:text-sub"
         >
           <i class="fa-solid fa-repeat"></i>
         </button>
         <button
           @click="toggleMode"
-          class="size-7 rounded-sm transition-colors text-text hover:text-white"
+          class="size-7 rounded-sm transition-colors text-text hover:text-sub"
         >
           <i class="fa-regular fa-keyboard"></i>
         </button>
       </div>
-    </footer>
+      <ShortcutsDescription />
+    </foote>
   </div>
 </template>
 
@@ -131,6 +135,7 @@ import CountdownTimer from "../components/CountdownTimer.vue";
 import ResultsDisplay from "../components/ResultsDisplay.vue";
 import FocusWarning from "../components/FocusWarning.vue";
 import WordsWrapper from "../components/WordsWrapper.vue";
+import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
 const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();

@@ -1,13 +1,14 @@
 <template>
-  <div class="text-sub">
-    <div>
-      <h2>Фавориты</h2>
+  <div class="grid gap-2">
+    <div class="grid gap-2">
+      <h2 class="text-xl text-sub">Фавориты</h2>
       <draggable
         group="custom-themes"
         :list="colorThemeStore.favoriteCustomThemes"
         item-key="id"
         :animation="75"
-        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 bg-text rounded-md p-2"
+        
       >
         <template #item="{ element }">
           <div>
@@ -20,14 +21,15 @@
         </template>
       </draggable>
     </div>
-    <div>
-      <h2>Созданные темы</h2>
+    <div class="grid gap-2">
+      <h2 class="text-xl text-sub">Созданные темы</h2>
       <draggable
         group="custom-themes"
         :list="colorThemeStore.savedThemes"
         :animation="75"
+        handle=".handle"
         item-key="id"
-        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
+        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 bg-text rounded-md p-2"
       >
         <template #item="{ element }">
           <div>

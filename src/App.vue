@@ -1,8 +1,6 @@
 <template>
-  <!-- py-10 h-32 h-[500px] grid grid-rows-12
-  - [ ] fix h-32 
-  -->
   <main
+    ref="app"
     class="bg-background font-jet-brains h-dvh transition-colors overflow-y-auto scrollbar scrollbar-thumb-primary scrollbar-track-background"
     :class="[colorThemeStore.colorThemeName]"
   >

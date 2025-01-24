@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <div>
-      <h2 class="text-2xl text-primary">Воспроизводить только выбранные</h2>
-      <p class="text-sm text-sub mb-4">
+  <div class="grid gap-2">
+    <div class="grid gap-2">
+      <h2 class="text-2xl text-text">Воспроизводить только выбранные</h2>
+      <p class="text-sm text-sub">
         По умолчанию на каждый новый тест ставится случайная тема. Опция
         избранные будет воспроизводить темы только из избранных. Опция все будет
         воспроизводить все темы из пресета.
@@ -33,37 +33,40 @@
         </button>
       </div>
     </div>
-    <div>
-      <h2>Избранные</h2>
-      <draggable
-        group="preset-themes"
-        :list="colorThemeStore.selectedPresetThemes"
-        :animation="75"
-        item-key="name"
-        class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 border-2 border-sub rounded-md p-2"
-      >
-        <template #item="{ element: theme }">
-          <div>
-            <PresetThemeCard :theme="theme" />
-          </div>
-        </template>
-      </draggable>
-    </div>
-    <div>
-      <h2>Встроенные темы</h2>
-      <draggable
-        group="preset-themes"
-        :list="colorThemeStore.presetThemes"
-        :animation="200"
-        item-key="name"
-        class="grid gap-2 md:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4"
-      >
-        <template #item="{ element: theme }">
-          <div>
-            <PresetThemeCard :theme="theme" />
-          </div>
-        </template>
-      </draggable>
+    <div class="select-none">
+      <div class="grid gap-2">
+        <h2 class="text-xl text-text">Избранные</h2>
+        <draggable
+          group="preset-themes"
+          :list="colorThemeStore.selectedPresetThemes"
+          :animation="75"
+          item-key="name"
+          class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 bg-text rounded-md p-2"
+        >
+          <template #item="{ element: theme }">
+            <div>
+              <PresetThemeCard :theme="theme" />
+            </div>
+          </template>
+        </draggable>
+      </div>
+      <div class="grid gap-2">
+        <h2 class="text-xl text-text">Встроенные темы</h2>
+        <draggable
+          group="preset-themes"
+          :list="colorThemeStore.presetThemes"
+          :animation="200"
+          item-key="name"
+          handle=".handle"
+          class="flex flex-col md:grid md:grid-cols-4 gap-2 w-full min-h-16 bg-text rounded-md p-2"
+        >
+          <template #item="{ element: theme }">
+            <div>
+              <PresetThemeCard :theme="theme" />
+            </div>
+          </template>
+        </draggable>
+      </div>
     </div>
   </div>
 </template>

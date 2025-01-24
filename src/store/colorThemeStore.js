@@ -1,4 +1,4 @@
-import { ref, onMounted, computed, watchEffect } from "vue";
+import { ref, onMounted, computed, watchEffect, useTemplateRef } from "vue";
 import { useCurrentElement } from "@vueuse/core";
 import { defineStore } from "pinia";
 
@@ -102,7 +102,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       ],
     },
   ]);
-  const currentThemeIndex = ref(0);
+  const currentThemeIndex = ref("0");
   const themeSettingsMode = ref("preset");
   const isPresetMode = computed(() => {
     return themeSettingsMode.value === "preset";
@@ -138,6 +138,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   const indexes = ref([]);
   const allThemeIndexes = ref([0, 1, 2, 3]);
   function setRandomTheme() {
+    console.log(indexes.value);
     const currentQueueTheme = indexes.value.pop();
     const currentQueueAllTheme = allThemeIndexes.value.pop();
     if (playOnlyFavorites.value && currentQueueTheme) {
@@ -146,11 +147,13 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       currentThemeIndex.value = currentQueueAllTheme;
     }
     indexes.value.unshift(currentQueueTheme);
+    console.log(indexes.value);
     allThemeIndexes.value.unshift(currentQueueAllTheme);
     el.value.style = "";
   }
 
-  const el = useCurrentElement();
+  const appEl = useTemplateRef("app");
+  const el = useCurrentElement(appEl);
   const currentThemeValues = ref([]);
   function usePropertyValue() {
     const properties = colorThemes.value[currentThemeIndex.value].properties;
@@ -179,9 +182,9 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     el.value.style.setProperty(property, value);
   }
   function setCustomTheme() {
-    selectedThemeValues.value.map(({ name, value }) => {
-      el.value.style.setProperty(`--${name}`, value);
-    });
+    selectedThemeValues.value.forEach(({ name, value }) =>
+      el.value.style.setProperty(`--${name}`, value)
+    );
   }
   // ====================================
   const customTheme = ref([

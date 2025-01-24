@@ -98,7 +98,7 @@
       <KeymapLayout />
     </div>
     <!-- mt-6 -->
-    <foote
+    <footer
       class="place-self-start justify-self-center grid gap-2 place-items-center py-2"
     >
       <div class="flex">
@@ -116,7 +116,7 @@
         </button>
       </div>
       <ShortcutsDescription />
-    </foote>
+    </footer>
   </div>
 </template>
 

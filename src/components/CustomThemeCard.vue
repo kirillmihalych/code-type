@@ -1,7 +1,7 @@
 <template>
   <div
     ref="theme-card"
-    class="flex justify-between w-full p-2 md:px-4 rounded-md cursor-pointer bg-background border-2 border-primary text-primary hover:bg-sub transition-colors"
+    class="flex justify-between p-2 md:px-4 rounded-md cursor-pointer bg-background text-primary transition-colors hover:border-sub border-2 border-transparent"
     @click="colorThemeStore.setCurrentThemeValues(props.properties)"
   >
     <ModalUi
@@ -70,12 +70,9 @@
         </button>
       </div>
     </ModalUi>
-    <button
-      @click.stop="isUpdateModalOpen = true"
-      class="text-text hover:text-primary transition-colors"
-    >
-      <i class="fa-solid fa-pen"></i>
-    </button>
+    <div>
+      <i class="fa-solid fa-grip handle text-sub hover:cursor-grab"></i>
+    </div>
     <p>
       {{ props.name }}
     </p>
@@ -86,14 +83,12 @@
       >
         <i class="fa-solid fa-trash"></i>
       </button>
-      <div>
-        <button v-if="colorThemeStore.isThemeFavorite(props.id)">
-          <i class="fa-solid fa-heart"></i>
-        </button>
-        <button v-if="!colorThemeStore.isThemeFavorite(props.id)">
-          <i class="fa-regular fa-heart"></i>
-        </button>
-      </div>
+      <button
+        @click.stop="isUpdateModalOpen = true"
+        class="text-text hover:text-primary transition-colors"
+      >
+        <i class="fa-solid fa-pen"></i>
+      </button>
     </div>
   </div>
 </template>

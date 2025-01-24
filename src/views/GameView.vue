@@ -130,6 +130,7 @@ import {
   whenever,
 } from "@vueuse/core";
 import { useColorThemeStore } from "@/store/colorThemeStore";
+import { quotes } from "@/assets/quotes";
 import KeymapLayout from "../components/KeymapLayout.vue";
 import CountdownTimer from "../components/CountdownTimer.vue";
 import ResultsDisplay from "../components/ResultsDisplay.vue";
@@ -182,7 +183,13 @@ const caretStyle = computed(() => {
 });
 
 // "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
-const text = ref("It's a dangerous business, Frodo.");
+const text = ref("B");
+const quotesArr = [...quotes];
+function getQueueQoute() {
+  const currQuote = quotesArr.pop();
+  quotesArr.unshift(currQuote);
+  return currQuote.text;
+}
 
 const currentMode = ref("tape");
 const isTapeMode = computed(() => {
@@ -277,6 +284,7 @@ const isExtraLetters = computed(() => {
 });
 
 function reset() {
+  text.value = getQueueQoute();
   setCaretCoordinates();
   clearCurrentInput();
   currentWordIndex.value = 0;
@@ -442,10 +450,13 @@ watchEffect(() => {
   }
 });
 
-const lastWordIndex = wordsQueue.value.length - 1;
+const lastWordIndex = computed(() => {
+  return wordsQueue.value.length - 1;
+});
 const isTestEnded = computed(() => {
   return (
-    lastWordIndex === currentWordIndex.value && isCurrentInputCorrect.value
+    lastWordIndex.value === currentWordIndex.value &&
+    isCurrentInputCorrect.value
   );
 });
 
@@ -468,5 +479,6 @@ watchEffect(() => {
 onMounted(() => {
   setCaretCoordinates();
   defineTotalWordsAmount();
+  text.value = getQueueQoute();
 });
 </script>

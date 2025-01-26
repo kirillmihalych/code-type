@@ -139,7 +139,8 @@ import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
-const { space, enter, current, ControlLeft_z, ControlLeft_a } = useMagicKeys();
+const { space, ControlLeft_Enter, current, ControlLeft_z, ControlLeft_a } =
+  useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const { width: mainDivWidth } = useElementBounding(mainDiv);
 
@@ -299,7 +300,7 @@ function reset() {
   }
 }
 
-whenever(enter, () => reset());
+whenever(ControlLeft_Enter, () => reset());
 
 const { focused: isInputFocused } = useFocus(input, { initialValue: false });
 

@@ -11,7 +11,7 @@
       <ResultsDisplay
         :accuracy="accuracy"
         :wpm="displayedWpm"
-        :total-words-amount="totalWords"
+        :total-words-amount="totalWordsAmount"
         :written-words-amount="writtenWordsAmount"
         :final-accuracy="finalAccuracy"
         :final-result-wpm="bestResult"
@@ -148,6 +148,9 @@ const totalWords = ref(null);
 function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
+const totalWordsAmount = computed(() => {
+  return text.value.split(" ").length;
+});
 const letters = useTemplateRef("letter");
 const widthLetter = ref(null);
 onMounted(() => {
@@ -182,8 +185,9 @@ const caretStyle = computed(() => {
       };
 });
 
-// "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
-const text = ref("B");
+const text = ref(
+  "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
+);
 const quotesArr = [...quotes];
 function getQueueQoute() {
   const currQuote = quotesArr.pop();
@@ -476,9 +480,15 @@ watchEffect(() => {
   }
 });
 
+// watchEffect(() => {
+//   if (words.value.length) {
+//     defineTotalWordsAmount();
+//   }
+// });
+
 onMounted(() => {
-  setCaretCoordinates();
   defineTotalWordsAmount();
+  setCaretCoordinates();
   text.value = getQueueQoute();
 });
 </script>

@@ -21,7 +21,7 @@ export const quotes = [
   },
   {
     id: 6,
-    text: "If the only thing keeping a person decent is the expectation of divine reward then, brother, that person is a piece of shit. And I’d like to get as many of them out in the open as possible. You gotta get together and tell yourself stories that violate every law of the universe just to get through the goddamn day? What’s that say about your reality?",
+    text: "If the only thing keeping a person decent is the expectation of divine reward then, brother, that person is a piece of shit. And I'd like to get as many of them out in the open as possible. You gotta get together and tell yourself stories that violate every law of the universe just to get through the goddamn day? What's that say about your reality?",
   },
   {
     id: 7,
@@ -29,7 +29,7 @@ export const quotes = [
   },
   {
     id: 8,
-    text: "To realize that all your life—you know, all your love, all your hate, all your memory, all your pain—it was all the same thing. It was all the same dream. A dream that you had inside a locked room. A dream about being a person. And like a lot of dreams there's a monster at the end of it.",
+    text: "To realize that all your life, you know, all your love, all your hate, all your memory, all your pain, it was all the same thing. It was all the same dream. A dream that you had inside a locked room. A dream about being a person. And like a lot of dreams there's a monster at the end of it.",
   },
   {
     id: 9,

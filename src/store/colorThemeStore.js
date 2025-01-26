@@ -131,10 +131,30 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   const playOnlyFavorites = ref(false);
   function setPlayOnlyFavorites() {
     playOnlyFavorites.value = true;
+    localStorage.setItem(
+      "chosen-theme-list",
+      JSON.stringify(playOnlyFavorites.value)
+    );
   }
   function setPlayAllThemes() {
     playOnlyFavorites.value = false;
+    localStorage.setItem(
+      "chosen-theme-list",
+      JSON.stringify(playOnlyFavorites.value)
+    );
   }
+  function getPlayOnlyFavorites() {
+    const data = localStorage.getItem("chosen-theme-list");
+    console.log(data);
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return null;
+    }
+  }
+  // watchEffect(() => {
+
+  // });
   const computedIndexes = computed(() => {
     return selectedPresetThemes.value.map((item) => item.id);
   });
@@ -402,6 +422,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     favoriteCustomThemes.value = getCustomFavorites();
     presetThemes.value = getPresetThemes();
     selectedPresetThemes.value = getSelectedPresetThemes();
+    playOnlyFavorites.value = getPlayOnlyFavorites();
     isUserSetHisTheme.value = false;
     setRandomTheme();
   });

@@ -1,11 +1,13 @@
 <template>
   <div class="grid place-items-center">
-    <div class="flex gap-2 text-sub uppercase">
-      <span class="transition-colors">Результаты</span>
-      <span class="transition-colors">WPM {{ props.finalResultWpm }}</span>
-      <span class="m transition-colors">ACC {{ props.finalAccuracy }}</span>
+    <!-- last test results -->
+    <div v-if="!props.isTestStarted" class="flex gap-2 text-text">
+      <span><i class="fa-solid fa-chart-column"></i></span>
+      <span>wpm {{ props.finalResultWpm }}</span>
+      <span>acc {{ props.finalAccuracy }}</span>
     </div>
-    <div class="flex gap-4 text-primary text-3xl">
+    <!-- current results -->
+    <div v-if="props.isTestStarted" class="flex gap-4 text-primary text-3xl">
       <div>
         <span> {{ props.writtenWordsAmount }}</span
         >/{{ props.totalWordsAmount }}
@@ -24,5 +26,6 @@ const props = defineProps([
   "writtenWordsAmount",
   "finalAccuracy",
   "finalResultWpm",
+  "isTestStarted",
 ]);
 </script>

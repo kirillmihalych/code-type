@@ -15,6 +15,7 @@
         :written-words-amount="writtenWordsAmount"
         :final-accuracy="finalAccuracy"
         :final-result-wpm="bestResult"
+        :is-test-started="isTestStarted"
       />
     </div>
     <div :class="isTapeMode ? 'tape-mask-image w-dvw' : ''">

@@ -482,12 +482,6 @@ watchEffect(() => {
   }
 });
 
-// watchEffect(() => {
-//   if (words.value.length) {
-//     defineTotalWordsAmount();
-//   }
-// });
-
 onMounted(() => {
   defineTotalWordsAmount();
   setCaretCoordinates();

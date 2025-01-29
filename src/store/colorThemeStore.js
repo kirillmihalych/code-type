@@ -145,16 +145,13 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   }
   function getPlayOnlyFavorites() {
     const data = localStorage.getItem("chosen-theme-list");
-    console.log(data);
     if (data) {
       return JSON.parse(data);
     } else {
       return null;
     }
   }
-  // watchEffect(() => {
 
-  // });
   const computedIndexes = computed(() => {
     return selectedPresetThemes.value.map((item) => item.id);
   });
@@ -180,7 +177,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     setCurrentThemeValues(properties);
   }
   function setCurrentThemeValues(selectedTheme) {
-    console.log(selectedTheme);
     currentThemeValues.value = selectedTheme;
     selectedTheme.forEach(({ name, value }) => {
       el.value.style.setProperty(`--${name}`, value);
@@ -206,7 +202,7 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       el.value.style.setProperty(`--${name}`, value)
     );
   }
-  // ====================================
+
   const customTheme = ref([
     {
       name: "background",

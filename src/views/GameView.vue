@@ -8,8 +8,6 @@
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
-      <p>input {{ trimmedInput }}</p>
-      <p>extra {{ extraLetters }}</p>
       <ResultsDisplay
         :accuracy="accuracy"
         :wpm="displayedWpm"
@@ -141,33 +139,38 @@ import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
-const { space, ControlLeft_Enter, current, ControlLeft_z, ControlLeft_a } =
-  useMagicKeys();
+const { space, ControlLeft_Enter, current, ControlLeft_z } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
-const { width: mainDivWidth } = useElementBounding(mainDiv);
-
 const words = useTemplateRef("words");
-const totalWords = ref(null);
-function defineTotalWordsAmount() {
-  totalWords.value = words.value.length;
-}
-const totalWordsAmount = computed(() => {
-  return text.value.split(" ").length;
-});
 const letters = useTemplateRef("letter");
-const widthLetter = ref(null);
-function setWidthLetter() {
-  widthLetter.value = useElementBounding(letters.value[0]);
-}
 const input = useTemplateRef("input");
 const caretParent = useTemplateRef("caret-parent");
 const { left, top, width } = useElementBounding(caretParent);
+const { width: mainDivWidth } = useElementBounding(mainDiv);
+const currentWordIndex = ref(0);
+const currentInput = ref("");
+const finalAccuracy = ref(0);
+const widthLetter = ref(null);
+const totalWords = ref(null);
+const currentMode = ref("tape");
+const resultTime = ref(0);
+const { focused: isInputFocused } = useFocus(input, { initialValue: false });
+const bestResult = ref(0);
+const writtenWords = ref([]);
+const inputDiff = ref(null);
+const isTestStarted = ref(false);
+const extraLetters = ref([]);
+const text = ref(
+  "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
+);
+const mistakes = ref([]);
+function defineTotalWordsAmount() {
+  totalWords.value = words.value.length;
+}
 
-const caretCoordinates = ref({
-  left: 0,
-  top: 0,
+const totalWordsAmount = computed(() => {
+  return text.value.split(" ").length;
 });
-const tapeMarginLeft = ref(0);
 const wordsWrapperStyle = computed(() => {
   return currentMode.value === "tape"
     ? {
@@ -178,6 +181,15 @@ const wordsWrapperStyle = computed(() => {
         flexWrap: "wrap",
       };
 });
+function setWidthLetter() {
+  widthLetter.value = useElementBounding(letters.value[0]);
+}
+
+const caretCoordinates = ref({
+  left: 0,
+  top: 0,
+});
+const tapeMarginLeft = ref(0);
 const caretStyle = computed(() => {
   // calc(50% + 40px)
   return currentMode.value === "tape"
@@ -187,48 +199,15 @@ const caretStyle = computed(() => {
         top: caretCoordinates.value.top + "px",
       };
 });
-
-const text = ref(
-  "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
-);
-const quotesArr = [...quotes];
-function getQueueQoute() {
-  const currQuote = quotesArr.pop();
-  quotesArr.unshift(currQuote);
-  return currQuote.text;
-}
-
-const currentMode = ref("tape");
 const isTapeMode = computed(() => {
   return currentMode.value === "tape";
 });
 const isClassicMode = computed(() => {
   return currentMode.value === "classic";
 });
-function toggleMode() {
-  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
-  setTimeout(() => {
-    reset();
-  }, 150);
-}
-
-const colorTheme = ref("bushido");
-function toggleColorTheme() {
-  if (colorTheme.value === "bushido") {
-    colorTheme.value = "lil-dragon";
-  } else {
-    colorTheme.value = "bushido";
-  }
-}
-
-whenever(ControlLeft_z, () => toggleMode());
-whenever(ControlLeft_a, () => toggleColorTheme());
-
-const mistakes = ref([]);
 const lastWrittenChar = computed(() => {
   return trimmedInput.value[trimmedInput.value.length - 1];
 });
-const writtenWords = ref([]);
 const writtenCharsAmount = computed(() => {
   return writtenWords.value.join("").split("").length;
 });
@@ -241,11 +220,6 @@ const totalCharsAmount = computed(() => {
 const normalizedWordsAmount = computed(() => {
   return totalCharsAmount.value / 5;
 });
-
-const resultTime = ref(0);
-function setResultTime(seconds) {
-  resultTime.value = seconds;
-}
 const normalizedTime = computed(() => {
   return resultTime.value / 60;
 });
@@ -255,7 +229,6 @@ const wpm = computed(() => {
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
-const bestResult = ref(0);
 const mistakesPercent = computed(() => {
   return Math.round(
     100 - (mistakes.value.length / writtenCharsAmount.value) * 100
@@ -268,28 +241,61 @@ const accuracy = computed(() => {
     ? "0%"
     : `${mistakesPercent.value}%`;
 });
-const finalAccuracy = ref(0);
-
 const wordsQueue = computed(() => {
   return text.value.split(" ");
 });
-const currentWordIndex = ref(0);
+
+const quotesArr = [...quotes];
+function getQueueQoute() {
+  const currQuote = quotesArr.pop();
+  quotesArr.unshift(currQuote);
+  return currQuote.text;
+}
+function toggleMode() {
+  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
+  setTimeout(() => {
+    reset();
+  }, 150);
+}
+function setResultTime(seconds) {
+  resultTime.value = seconds;
+}
+
 const currentWord = computed(() => {
   return wordsQueue.value[currentWordIndex.value];
 });
-const currentInput = ref("");
 const trimmedInput = computed(() => {
   let formatedInput = currentInput.value.trimStart();
 
   return formatedInput.split(" ").join("_");
 });
-let trimmedInputLength = trimmedInput.value.length;
 const isCurrentInputCorrect = computed(() => {
   return currentWord.value === trimmedInput.value;
 });
-const extraLetters = ref([]);
 const isExtraLetters = computed(() => {
   return trimmedInput.value.length > currentWord.value.length;
+});
+const lastWordIndex = computed(() => {
+  return wordsQueue.value.length - 1;
+});
+const isTestEnded = computed(() => {
+  return (
+    lastWordIndex.value === currentWordIndex.value &&
+    isCurrentInputCorrect.value
+  );
+});
+let trimmedInputLength = trimmedInput.value.length;
+const isInputGetsBigger = computed(() => {
+  const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
+  const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
+  getInputDiff(trimmedInputLength);
+  trimmedInputLength = trimmedInput.value.length;
+  return inputGetsBigger ? true : inputGetsSmaller ? false : null;
+});
+const isCharMistake = computed(() => {
+  return (
+    currentWord.value[trimmedInput.value.length - 1] !== lastWrittenChar.value
+  );
 });
 
 function reset() {
@@ -298,60 +304,29 @@ function reset() {
   clearCurrentInput();
   currentWordIndex.value = 0;
   writtenWords.value = [];
-  stopTimer();
+  stopWpmTest();
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
   }
 }
-
-whenever(ControlLeft_Enter, () => reset());
-
-const { focused: isInputFocused } = useFocus(input, { initialValue: false });
-
 function setFocus() {
   isInputFocused.value = true;
 }
-
-watchEffect(() => {
-  if (current.size > 0 && !isInputFocused.value) {
-    setFocus();
-    setTimeout(() => {
-      clearCurrentInput();
-    }, 1);
-  }
-});
-
 function clearCurrentInput() {
   currentInput.value = "";
 }
-
 function isWordTyped(index) {
   return index < currentWordIndex.value;
 }
-
 function isInputedCharCorrect(index) {
   return currentWord.value[index] === trimmedInput.value[index];
 }
-
 function isCurrentWord(index) {
   return currentWordIndex.value === index;
 }
-
 function isInputExist(index) {
   return trimmedInput.value[index];
 }
-
-const isCharMistake = computed(() => {
-  return (
-    currentWord.value[trimmedInput.value.length - 1] !== lastWrittenChar.value
-  );
-});
-
-watchEffect(() => {
-  if (isCharMistake.value) {
-    mistakes.value.push("mistake");
-  }
-});
 function setCaretCoordinates() {
   if (isTapeMode.value) {
     tapeMarginLeft.value =
@@ -368,29 +343,15 @@ function setCaretCoordinates() {
       top.value;
   }
 }
-
-const isInputGetsBigger = computed(() => {
-  const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
-  const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
-  getInputDiff(trimmedInputLength);
-  trimmedInputLength = trimmedInput.value.length;
-  return inputGetsBigger ? true : inputGetsSmaller ? false : null;
-});
-const inputDiff = ref(null);
 function getInputDiff(inputSize) {
   inputDiff.value = Math.abs(trimmedInput.value.length - inputSize);
 }
-
-const isTestStarted = ref(false);
-
-function startTimer() {
+function startWpmTest() {
   isTestStarted.value = true;
 }
-
-function stopTimer() {
+function stopWpmTest() {
   isTestStarted.value = false;
 }
-
 function handleAddExtra() {
   if (isExtraLetters.value) {
     const diff = trimmedInput.value.length - currentWord.value.length;
@@ -418,13 +379,6 @@ function handleDeleteExtras(diff) {
     moveTapeBackward();
   }
 }
-
-watchEffect(() => {
-  if (trimmedInput.value.length > 0) {
-    startTimer();
-  }
-});
-
 let currMainDivWidth = mainDivWidth.value;
 function onMainDivResize() {
   if (currMainDivWidth !== mainDivWidth.value) {
@@ -433,13 +387,6 @@ function onMainDivResize() {
   }
   return false;
 }
-
-watchEffect(() => {
-  if (onMainDivResize()) {
-    reset();
-  }
-});
-
 function moveTapeForward() {
   tapeMarginLeft.value += widthLetter.value.width;
 }
@@ -453,17 +400,31 @@ function moveCaretBackward() {
   caretCoordinates.value.left -= widthLetter.value.width;
 }
 
-
-const lastWordIndex = computed(() => {
-  return wordsQueue.value.length - 1;
+whenever(ControlLeft_Enter, () => reset());
+whenever(ControlLeft_z, () => toggleMode());
+watchEffect(() => {
+  if (current.size > 0 && !isInputFocused.value) {
+    setFocus();
+    setTimeout(() => {
+      clearCurrentInput();
+    }, 1);
+  }
 });
-const isTestEnded = computed(() => {
-  return (
-    lastWordIndex.value === currentWordIndex.value &&
-    isCurrentInputCorrect.value
-  );
+watchEffect(() => {
+  if (isCharMistake.value) {
+    mistakes.value.push("mistake");
+  }
 });
-
+watchEffect(() => {
+  if (trimmedInput.value.length > 0) {
+    startWpmTest();
+  }
+});
+watchEffect(() => {
+  if (onMainDivResize()) {
+    reset();
+  }
+});
 watchEffect(() => {
   if (isInputGetsBigger.value) {
     handleAddExtra();
@@ -500,7 +461,7 @@ watchEffect(() => {
   if (isTestEnded.value) {
     bestResult.value = displayedWpm.value;
     finalAccuracy.value = accuracy.value;
-    stopTimer();
+    stopWpmTest();
     setResultTime();
     writtenWords.value.push(currentWord.value);
     reset();

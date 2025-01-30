@@ -104,105 +104,10 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   ]);
   const currentThemeIndex = ref("0");
   const themeSettingsMode = ref("preset");
-  const isPresetMode = computed(() => {
-    return themeSettingsMode.value === "preset";
-  });
-  const selectedColorTheme = computed(() => {
-    return colorThemes.value[currentThemeIndex.value];
-  });
-  const colorThemeName = computed(() => {
-    return selectedColorTheme.value.name;
-  });
-  const isColorThemeAnimated = computed(() => {
-    return selectedColorTheme.value.isAnimated;
-  });
-
-  function setCustomMode() {
-    themeSettingsMode.value = "custom";
-    setCustomTheme();
-  }
-  function setPresetMode() {
-    themeSettingsMode.value = "preset";
-    styleReset();
-  }
-  function selectTheme(index) {
-    currentThemeIndex.value = index;
-  }
   const playOnlyFavorites = ref(false);
-  function setPlayOnlyFavorites() {
-    playOnlyFavorites.value = true;
-    localStorage.setItem(
-      "chosen-theme-list",
-      JSON.stringify(playOnlyFavorites.value)
-    );
-  }
-  function setPlayAllThemes() {
-    playOnlyFavorites.value = false;
-    localStorage.setItem(
-      "chosen-theme-list",
-      JSON.stringify(playOnlyFavorites.value)
-    );
-  }
-  function getPlayOnlyFavorites() {
-    const data = localStorage.getItem("chosen-theme-list");
-    if (data) {
-      return JSON.parse(data);
-    } else {
-      return null;
-    }
-  }
-
-  const computedIndexes = computed(() => {
-    return selectedPresetThemes.value.map((item) => item.id);
-  });
   const allThemeIndexes = ref([0, 1, 2, 3]);
-  function setRandomTheme() {
-    const currentQueueTheme = computedIndexes.value.pop();
-    const currentQueueAllTheme = allThemeIndexes.value.pop();
-    if (playOnlyFavorites.value && currentQueueTheme) {
-      currentThemeIndex.value = currentQueueTheme;
-    } else {
-      currentThemeIndex.value = currentQueueAllTheme;
-    }
-    computedIndexes.value.unshift(currentQueueTheme);
-    allThemeIndexes.value.unshift(currentQueueAllTheme);
-    el.value.style = "";
-  }
-
-  const appEl = useTemplateRef("app");
-  const el = useCurrentElement(appEl);
-  const currentThemeValues = ref([]);
-  function usePropertyValue() {
-    const properties = colorThemes.value[currentThemeIndex.value].properties;
-    setCurrentThemeValues(properties);
-  }
-  function setCurrentThemeValues(selectedTheme) {
-    currentThemeValues.value = selectedTheme;
-    selectedTheme.forEach(({ name, value }) => {
-      el.value.style.setProperty(`--${name}`, value);
-    });
-  }
-
   const isUserSetHisTheme = ref(false);
-  const themeClassObject = ref({
-    "--background": "#ce1226",
-    "--primary": "#fcd116",
-    "--caret": "#fcd116",
-    "--error": "#1672fc",
-    "--text": "#6d0f19",
-    "--sub": "#9f1020",
-  });
-
-  function setValue(property, value) {
-    isUserSetHisTheme.value = true;
-    el.value.style.setProperty(property, value);
-  }
-  function setCustomTheme() {
-    selectedThemeValues.value.forEach(({ name, value }) =>
-      el.value.style.setProperty(`--${name}`, value)
-    );
-  }
-
+  const currentThemeValues = ref([]);
   const customTheme = ref([
     {
       name: "background",
@@ -229,18 +134,105 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       value: "#c6c6c6",
     },
   ]);
+  const presetThemes = ref([]);
+  const selectedPresetThemes = ref([]);
+  const savedThemes = ref([]);
+  const favoriteCustomThemes = ref([]);
+  const isUpdateOpen = ref(false);
+  const appEl = useTemplateRef("app");
+  const el = useCurrentElement(appEl);
+
+  const isPresetMode = computed(() => {
+    return themeSettingsMode.value === "preset";
+  });
+  const selectedColorTheme = computed(() => {
+    return colorThemes.value[currentThemeIndex.value];
+  });
+  const colorThemeName = computed(() => {
+    return selectedColorTheme.value.name;
+  });
+  const isColorThemeAnimated = computed(() => {
+    return selectedColorTheme.value.isAnimated;
+  });
+  const computedIndexes = computed(() => {
+    return selectedPresetThemes.value.map((item) => item.id);
+  });
   const selectedThemeValues = computed(() => {
     return currentThemeValues.value.length > 0
       ? currentThemeValues.value
       : customTheme.value;
   });
 
+  function setCustomMode() {
+    themeSettingsMode.value = "custom";
+    setCustomTheme();
+  }
+  function setPresetMode() {
+    themeSettingsMode.value = "preset";
+    styleReset();
+  }
+  function selectTheme(index) {
+    currentThemeIndex.value = index;
+  }
+  function setPlayOnlyFavorites() {
+    playOnlyFavorites.value = true;
+    localStorage.setItem(
+      "chosen-theme-list",
+      JSON.stringify(playOnlyFavorites.value)
+    );
+  }
+  function setPlayAllThemes() {
+    playOnlyFavorites.value = false;
+    localStorage.setItem(
+      "chosen-theme-list",
+      JSON.stringify(playOnlyFavorites.value)
+    );
+  }
+  function getPlayOnlyFavorites() {
+    const data = localStorage.getItem("chosen-theme-list");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return null;
+    }
+  }
+  function setRandomTheme() {
+    const currentQueueTheme = computedIndexes.value.pop();
+    const currentQueueAllTheme = allThemeIndexes.value.pop();
+    if (playOnlyFavorites.value && currentQueueTheme) {
+      currentThemeIndex.value = currentQueueTheme;
+    } else {
+      currentThemeIndex.value = currentQueueAllTheme;
+    }
+    computedIndexes.value.unshift(currentQueueTheme);
+    allThemeIndexes.value.unshift(currentQueueAllTheme);
+    el.value.style = "";
+  }
+  function usePropertyValue() {
+    const properties = colorThemes.value[currentThemeIndex.value].properties;
+    setCurrentThemeValues(properties);
+  }
+  function setCurrentThemeValues(selectedTheme) {
+    currentThemeValues.value = selectedTheme;
+    selectedTheme.forEach(({ name, value }) => {
+      el.value.style.setProperty(`--${name}`, value);
+    });
+  }
+  function setValue(property, value) {
+    isUserSetHisTheme.value = true;
+    el.value.style.setProperty(property, value);
+  }
+  function setCustomTheme() {
+    selectedThemeValues.value.forEach(({ name, value }) =>
+      el.value.style.setProperty(`--${name}`, value)
+    );
+  }
+
   function styleReset() {
     el.value.style = null;
   }
 
   // preset thems dragndrop
-  const presetThemes = ref([]);
   let presetThemeLength = presetThemes.value.length;
   function isPresetThemesChanged() {
     if (presetThemes.value.length > presetThemeLength) {
@@ -258,7 +250,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       localStorage.setItem("preset-themes", JSON.stringify(presetThemes.value));
     }
   });
-  const selectedPresetThemes = ref([]);
   let selectedPresetThemesLength = selectedPresetThemes.value.length;
   function isSelectedPresetThemesChanged() {
     if (selectedPresetThemes.value.length > selectedPresetThemesLength) {
@@ -297,7 +288,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
   }
 
   // handle custom themes in local storage
-  const savedThemes = ref([]);
   function saveCustomTheme() {
     savedThemes.value.push({
       id: Date.now(),
@@ -332,7 +322,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
       localStorage.setItem("custom-themes", JSON.stringify(savedThemes.value));
     }
   }
-  const isUpdateOpen = ref(false);
   function openUpdateModal() {
     isUpdateOpen.value = true;
   }
@@ -363,7 +352,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     }
     closeUpdateModal();
   }
-  const favoriteCustomThemes = ref([]);
   function getCustomFavorites() {
     const data = localStorage.getItem("favorite-themes");
     if (data) {
@@ -434,7 +422,6 @@ export const useColorThemeStore = defineStore("colorThemes", () => {
     selectTheme,
     setValue,
     isUserSetHisTheme,
-    themeClassObject,
     setCustomMode,
     setPresetMode,
     isPresetMode,

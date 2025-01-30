@@ -8,6 +8,8 @@
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
       />
+      <p>input {{ trimmedInput }}</p>
+      <p>extra {{ extraLetters }}</p>
       <ResultsDisplay
         :accuracy="accuracy"
         :wpm="displayedWpm"
@@ -277,7 +279,9 @@ const currentWord = computed(() => {
 });
 const currentInput = ref("");
 const trimmedInput = computed(() => {
-  return currentInput.value.trimStart();
+  let formatedInput = currentInput.value.trimStart();
+
+  return formatedInput.split(" ").join("_");
 });
 let trimmedInputLength = trimmedInput.value.length;
 const isCurrentInputCorrect = computed(() => {
@@ -368,9 +372,14 @@ function setCaretCoordinates() {
 const isInputGetsBigger = computed(() => {
   const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
   const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
+  getInputDiff(trimmedInputLength);
   trimmedInputLength = trimmedInput.value.length;
   return inputGetsBigger ? true : inputGetsSmaller ? false : null;
 });
+const inputDiff = ref(null);
+function getInputDiff(inputSize) {
+  inputDiff.value = Math.abs(trimmedInput.value.length - inputSize);
+}
 
 const isTestStarted = ref(false);
 
@@ -382,7 +391,7 @@ function stopTimer() {
   isTestStarted.value = false;
 }
 
-function handleExtraChars() {
+function handleAddExtra() {
   if (isExtraLetters.value) {
     const diff = trimmedInput.value.length - currentWord.value.length;
     let extra = [
@@ -398,6 +407,15 @@ function handleExtraChars() {
       extraLetters.value.push(extra[extra.length - 1]);
       mistakes.value.push("extra");
     }
+  }
+}
+function handleDeleteExtras(diff) {
+  extraLetters.value = extraLetters.value.slice(
+    0,
+    extraLetters.value.length - diff
+  );
+  for (let i = 1; i < diff; i++) {
+    moveTapeBackward();
   }
 }
 
@@ -422,38 +440,19 @@ watchEffect(() => {
   }
 });
 
-function moveCaretForward() {
+function moveTapeForward() {
   tapeMarginLeft.value += widthLetter.value.width;
 }
+function moveTapeBackward() {
+  tapeMarginLeft.value -= widthLetter.value.width;
+}
+function moveCaretForward() {
+  caretCoordinates.value.left += widthLetter.value.width;
+}
+function moveCaretBackward() {
+  caretCoordinates.value.left -= widthLetter.value.width;
+}
 
-// движение caret по слову
-watchEffect(() => {
-  if (isInputGetsBigger.value === null) {
-    console.log("hi there");
-  } else if (isInputGetsBigger.value) {
-    handleExtraChars();
-    if (isTapeMode.value) {
-      moveCaretForward();
-    } else if (isClassicMode.value) {
-      caretCoordinates.value.left += widthLetter.value.width;
-    }
-  } else if (!isInputGetsBigger.value) {
-    if (trimmedInput.value.length > 0) {
-      if (isTapeMode.value) {
-        tapeMarginLeft.value -= widthLetter.value.width;
-      } else if (isClassicMode.value) {
-        caretCoordinates.value.left -= widthLetter.value.width;
-      }
-    }
-    if (trimmedInput.value.length === 0) {
-      extraLetters.value = [];
-      setCaretCoordinates();
-    }
-    if (extraLetters.value.length > 0) {
-      extraLetters.value.pop();
-    }
-  }
-});
 
 const lastWordIndex = computed(() => {
   return wordsQueue.value.length - 1;
@@ -466,6 +465,38 @@ const isTestEnded = computed(() => {
 });
 
 watchEffect(() => {
+  if (isInputGetsBigger.value) {
+    handleAddExtra();
+    if (isTapeMode.value) {
+      moveTapeForward();
+    }
+    if (isClassicMode.value) {
+      moveCaretForward();
+    }
+  }
+});
+watchEffect(() => {
+  if (isInputGetsBigger.value === null) {
+    return;
+  }
+  if (!isInputGetsBigger.value) {
+    if (trimmedInput.value.length > 0) {
+      if (isTapeMode.value) {
+        moveTapeBackward();
+      } else if (isClassicMode.value) {
+        moveCaretBackward();
+      }
+    }
+    if (trimmedInput.value.length === 0) {
+      extraLetters.value = [];
+      setCaretCoordinates();
+    }
+    if (extraLetters.value.length > 0) {
+      handleDeleteExtras(inputDiff.value);
+    }
+  }
+});
+watchEffect(() => {
   if (isTestEnded.value) {
     bestResult.value = displayedWpm.value;
     finalAccuracy.value = accuracy.value;
@@ -473,7 +504,10 @@ watchEffect(() => {
     setResultTime();
     writtenWords.value.push(currentWord.value);
     reset();
-  } else if (isCurrentInputCorrect.value && space.value) {
+  }
+});
+watchEffect(() => {
+  if (isCurrentInputCorrect.value && space.value) {
     writtenWords.value.push(currentWord.value);
     clearCurrentInput();
     currentWordIndex.value += 1;

@@ -98,7 +98,6 @@
       </div>
       <KeymapLayout />
     </div>
-    <!-- mt-6 -->
     <footer
       class="place-self-start justify-self-center grid gap-2 place-items-center py-2"
     >
@@ -155,9 +154,9 @@ const totalWordsAmount = computed(() => {
 });
 const letters = useTemplateRef("letter");
 const widthLetter = ref(null);
-onMounted(() => {
+function setWidthLetter() {
   widthLetter.value = useElementBounding(letters.value[0]);
-});
+}
 const input = useTemplateRef("input");
 const caretParent = useTemplateRef("caret-parent");
 const { left, top, width } = useElementBounding(caretParent);
@@ -483,6 +482,7 @@ watchEffect(() => {
 });
 
 onMounted(() => {
+  setWidthLetter();
   defineTotalWordsAmount();
   setCaretCoordinates();
   text.value = getQueueQoute();

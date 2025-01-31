@@ -22,9 +22,9 @@ export default {
           "50%": { opacity: 0 },
         },
         colorChange: {
-          "0%": { color: "var(--primary)" },
-          "50%": { color: "var(--sub)" },
-          "100%": { color: "var(--primary)" },
+          "0%": { color: "var(--animation-color-1)" },
+          "50%": { color: "var(--animation-color-2)" },
+          "100%": { color: "var(--animation-color-1)" },
         },
       },
       colors: {

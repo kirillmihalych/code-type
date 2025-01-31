@@ -58,7 +58,7 @@
               :key="idx"
               class="w-4 xl:w-6 flex place-content-center"
               :class="[
-                colorThemeStore.isColorThemeAnimated &&
+                colorThemeStore.isPresetMode &&
                 isInputedCharCorrect(idx) &&
                 isCurrentWord(i)
                   ? 'motion-safe:animate-colorChange'
@@ -68,7 +68,7 @@
                     !isInputedCharCorrect(idx) &&
                     isCurrentWord(i)
                   ? 'text-error'
-                  : colorThemeStore.isColorThemeAnimated && isWordTyped(i)
+                  : colorThemeStore.isPresetMode && isWordTyped(i)
                   ? 'motion-safe:animate-colorChange'
                   : isWordTyped(i)
                   ? 'text-helper'

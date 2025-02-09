@@ -139,7 +139,8 @@ import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
-const { space, ControlLeft_Enter, current, ControlLeft_z } = useMagicKeys();
+// ControlLeft_z
+const { space, ControlLeft_Enter, current } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -251,12 +252,12 @@ function getQueueQoute() {
   quotesArr.unshift(currQuote);
   return currQuote.text;
 }
-function toggleMode() {
-  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
-  setTimeout(() => {
-    reset();
-  }, 150);
-}
+// function toggleMode() {
+//   currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
+//   setTimeout(() => {
+//     reset();
+//   }, 150);
+// }
 function setResultTime(seconds) {
   resultTime.value = seconds;
 }
@@ -401,7 +402,7 @@ function moveCaretBackward() {
 }
 
 whenever(ControlLeft_Enter, () => reset());
-whenever(ControlLeft_z, () => toggleMode());
+// whenever(ControlLeft_z, () => toggleMode());
 watchEffect(() => {
   if (current.size > 0 && !isInputFocused.value) {
     setFocus();

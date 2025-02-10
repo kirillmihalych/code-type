@@ -504,7 +504,7 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-  if (isCurrentInputCorrect.value && space.value) {
+  if (isCurrentInputCorrect.value && (current.has(" ") || space.value)) {
     writtenWords.value.push(currentWord.value);
     clearCurrentInput();
     currentWordIndex.value += 1;

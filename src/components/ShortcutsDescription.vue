@@ -4,10 +4,10 @@
       <span class="text-background bg-text px-2 rounded-sm">ctrl + enter</span>
       - начать заново
     </p>
-    <!-- <p class="text-xs text-text">
+    <p class="text-xs text-text">
       <span class="text-background bg-text px-2 rounded-sm">ctrl + z</span> -
       изменить отображение
-    </p> -->
+    </p>
   </div>
 </template>
 

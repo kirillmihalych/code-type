@@ -50,7 +50,7 @@
             v-for="(word, i) in wordsQueue"
             ref="words"
             :key="i"
-            class="word flex"
+            class="flex"
           >
             <span
               v-for="(letter, idx) in word"
@@ -139,8 +139,7 @@ import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
-// ControlLeft_z
-const { space, ControlLeft_Enter, current } = useMagicKeys();
+const { space, ControlLeft_Enter, ControlLeft_z, current } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -178,8 +177,10 @@ const wordsWrapperStyle = computed(() => {
         marginLeft: width.value / 2 - tapeMarginLeft.value + "px",
       }
     : {
-        marginLeft: 0,
+        marginLeft: "unset",
         flexWrap: "wrap",
+        overflow: "clip",
+        height: 148 + "px",
       };
 });
 function setWidthLetter() {
@@ -252,12 +253,12 @@ function getQueueQoute() {
   quotesArr.unshift(currQuote);
   return currQuote.text;
 }
-// function toggleMode() {
-//   currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
-//   setTimeout(() => {
-//     reset();
-//   }, 150);
-// }
+function toggleMode() {
+  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
+  setTimeout(() => {
+    reset();
+  }, 150);
+}
 function setResultTime(seconds) {
   resultTime.value = seconds;
 }
@@ -401,8 +402,41 @@ function moveCaretBackward() {
   caretCoordinates.value.left -= widthLetter.value.width;
 }
 
+const upperRowLength = ref(0);
+const centerRow = ref(0);
+function setCenterRowCoordinate(y) {
+  centerRow.value = y;
+}
+function setUpperRowLength() {
+  upperRowLength.value = 0;
+  for (let i = 1; i < words.value.length; i++) {
+    const prev = words.value[i - 1].getBoundingClientRect().top;
+    const curr = words.value[i].getBoundingClientRect().top;
+    if (prev === curr) {
+      upperRowLength.value += 1;
+    } else {
+      upperRowLength.value += 1;
+      setCenterRowCoordinate(curr);
+      return;
+    }
+  }
+}
+watchEffect(() => {
+  if (currentMode.value === "classic") {
+    setTimeout(() => {
+      setUpperRowLength();
+    }, 175);
+  }
+});
+function deleteUpperRow() {
+  text.value = text.value
+    .split(" ")
+    .slice(upperRowLength.value, text.value.length)
+    .join(" ");
+  currentWordIndex.value -= upperRowLength.value;
+}
 whenever(ControlLeft_Enter, () => reset());
-// whenever(ControlLeft_z, () => toggleMode());
+whenever(ControlLeft_z, () => toggleMode());
 watchEffect(() => {
   if (current.size > 0 && !isInputFocused.value) {
     setFocus();
@@ -468,12 +502,23 @@ watchEffect(() => {
     reset();
   }
 });
+
 watchEffect(() => {
   if (isCurrentInputCorrect.value && space.value) {
     writtenWords.value.push(currentWord.value);
     clearCurrentInput();
     currentWordIndex.value += 1;
     setCaretCoordinates();
+    if (
+      caretCoordinates.value.top > centerRow.value - top.value &&
+      !isTapeMode.value
+    ) {
+      deleteUpperRow();
+      setTimeout(() => {
+        setCaretCoordinates();
+        setUpperRowLength();
+      }, 15);
+    }
   }
 });
 

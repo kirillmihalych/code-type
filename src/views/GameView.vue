@@ -139,7 +139,7 @@ import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
 
 const colorThemeStore = useColorThemeStore();
-const { space, ControlLeft_Enter, ControlLeft_z, current } = useMagicKeys();
+const { ControlLeft_Enter, ControlLeft_z, current } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -263,16 +263,17 @@ function setResultTime(seconds) {
   resultTime.value = seconds;
 }
 
+const isSpaceEntered = computed(() => {
+  return currentInput.value[currentInput.value.length - 1] === " ";
+});
 const currentWord = computed(() => {
   return wordsQueue.value[currentWordIndex.value];
 });
 const trimmedInput = computed(() => {
-  let formatedInput = currentInput.value.trimStart();
-
-  return formatedInput.split(" ").join("_");
+  return currentInput.value.trimStart();
 });
 const isCurrentInputCorrect = computed(() => {
-  return currentWord.value === trimmedInput.value;
+  return currentWord.value + " " === trimmedInput.value;
 });
 const isExtraLetters = computed(() => {
   return trimmedInput.value.length > currentWord.value.length;
@@ -283,7 +284,7 @@ const lastWordIndex = computed(() => {
 const isTestEnded = computed(() => {
   return (
     lastWordIndex.value === currentWordIndex.value &&
-    isCurrentInputCorrect.value
+    currentWord.value === trimmedInput.value
   );
 });
 let trimmedInputLength = trimmedInput.value.length;
@@ -435,6 +436,7 @@ function deleteUpperRow() {
     .join(" ");
   currentWordIndex.value -= upperRowLength.value;
 }
+
 whenever(ControlLeft_Enter, () => reset());
 whenever(ControlLeft_z, () => toggleMode());
 watchEffect(() => {
@@ -502,9 +504,12 @@ watchEffect(() => {
     reset();
   }
 });
-
 watchEffect(() => {
-  if (isCurrentInputCorrect.value && (current.has(" ") || space.value)) {
+  if (
+    isCurrentInputCorrect.value &&
+    isSpaceEntered.value &&
+    !isTestEnded.value
+  ) {
     writtenWords.value.push(currentWord.value);
     clearCurrentInput();
     currentWordIndex.value += 1;

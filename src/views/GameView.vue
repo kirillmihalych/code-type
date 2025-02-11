@@ -91,6 +91,9 @@
           <input
             ref="input"
             type="text"
+            autocapitalize="off"
+            autocorrect="off"
+            autocomplete="off"
             v-model="currentInput"
             placeholder="Начни писать, чтобы начать тест"
           />

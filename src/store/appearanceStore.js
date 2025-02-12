@@ -18,6 +18,12 @@ export const useAppearanceStore = defineStore("appearance", () => {
   function hideKeymap() {
     isKeymapShown.value = false;
   }
+  function setClassicMode() {
+    currentMode.value = "classic";
+  }
+  function setTapeMode() {
+    currentMode.value = "tape";
+  }
   function toggleMode() {
     currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
   }
@@ -26,6 +32,8 @@ export const useAppearanceStore = defineStore("appearance", () => {
     isTapeMode,
     isClassicMode,
     toggleMode,
+    setTapeMode,
+    setClassicMode,
     isKeymapShown,
     hideKeymap,
     showKeymap,

@@ -6,11 +6,7 @@
       :to="{ name: routeName }"
       class="hover:text-sub transition-colors duration-75"
     >
-      <i
-        :class="[
-          routeName === 'game' ? 'fa-regular fa-keyboard' : 'fa-solid fa-gear',
-        ]"
-      ></i>
+      <i :class="[selectRouteIcon(routeName)]"></i>
     </RouterLink>
   </nav>
 </template>
@@ -19,4 +15,13 @@
 import { routes } from "@/router";
 
 const routeNames = routes.map((route) => route.name);
+function selectRouteIcon(name) {
+  return name === "game"
+    ? "fa-regular fa-keyboard"
+    : name === "themes"
+    ? "fa-solid fa-palette"
+    : name === "appearance"
+    ? "fa-solid fa-eye"
+    : "fa-solid fa-gear";
+}
 </script>

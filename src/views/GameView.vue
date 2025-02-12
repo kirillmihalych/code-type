@@ -99,7 +99,7 @@
           />
         </form>
       </div>
-      <KeymapLayout />
+      <KeymapLayout v-if="appearanceStore.isKeymapShown" />
     </div>
     <footer
       class="place-self-start justify-self-center grid gap-2 place-items-center py-2"
@@ -250,12 +250,6 @@ function getQueueQoute() {
   quotesArr.unshift(currQuote);
   return currQuote.text;
 }
-// function toggleMode() {
-//   currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
-//   setTimeout(() => {
-//     reset();
-//   }, 150);
-// }
 function setResultTime(seconds) {
   resultTime.value = seconds;
 }

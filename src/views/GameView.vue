@@ -18,7 +18,7 @@
         :is-test-started="isTestStarted"
       />
     </div>
-    <div :class="isTapeMode ? 'tape-mask-image w-dvw' : ''">
+    <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
       <div
         ref="caret-parent"
         class="relative flex gap-6 overflow-hidden py-10"
@@ -140,8 +140,10 @@ import ResultsDisplay from "../components/ResultsDisplay.vue";
 import FocusWarning from "../components/FocusWarning.vue";
 import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
+import { useAppearanceStore } from "@/store/appearanceStore";
 
 const colorThemeStore = useColorThemeStore();
+const appearanceStore = useAppearanceStore();
 const { ControlLeft_Enter, ControlLeft_z, current } = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
@@ -155,7 +157,6 @@ const currentInput = ref("");
 const finalAccuracy = ref(0);
 const widthLetter = ref(null);
 const totalWords = ref(null);
-const currentMode = ref("tape");
 const resultTime = ref(0);
 const { focused: isInputFocused } = useFocus(input, { initialValue: false });
 const bestResult = ref(0);
@@ -175,7 +176,7 @@ const totalWordsAmount = computed(() => {
   return text.value.split(" ").length;
 });
 const wordsWrapperStyle = computed(() => {
-  return currentMode.value === "tape"
+  return appearanceStore.isTapeMode
     ? {
         marginLeft: width.value / 2 - tapeMarginLeft.value + "px",
       }
@@ -196,19 +197,12 @@ const caretCoordinates = ref({
 });
 const tapeMarginLeft = ref(0);
 const caretStyle = computed(() => {
-  // calc(50% + 40px)
-  return currentMode.value === "tape"
+  return appearanceStore.isTapeMode
     ? { left: "calc(50%)" }
     : {
         left: caretCoordinates.value.left + "px",
         top: caretCoordinates.value.top + "px",
       };
-});
-const isTapeMode = computed(() => {
-  return currentMode.value === "tape";
-});
-const isClassicMode = computed(() => {
-  return currentMode.value === "classic";
 });
 const lastWrittenChar = computed(() => {
   return trimmedInput.value[trimmedInput.value.length - 1];
@@ -256,12 +250,12 @@ function getQueueQoute() {
   quotesArr.unshift(currQuote);
   return currQuote.text;
 }
-function toggleMode() {
-  currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
-  setTimeout(() => {
-    reset();
-  }, 150);
-}
+// function toggleMode() {
+//   currentMode.value = currentMode.value === "tape" ? "classic" : "tape";
+//   setTimeout(() => {
+//     reset();
+//   }, 150);
+// }
 function setResultTime(seconds) {
   resultTime.value = seconds;
 }
@@ -334,13 +328,13 @@ function isInputExist(index) {
   return trimmedInput.value[index];
 }
 function setCaretCoordinates() {
-  if (isTapeMode.value) {
+  if (appearanceStore.isTapeMode) {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
         writtenWords.value.length) *
       widthLetter.value.width;
   }
-  if (isClassicMode.value) {
+  if (appearanceStore.isClassicMode) {
     caretCoordinates.value.left =
       words.value[currentWordIndex.value].getBoundingClientRect().left -
       left.value;
@@ -426,7 +420,7 @@ function setUpperRowLength() {
   }
 }
 watchEffect(() => {
-  if (currentMode.value === "classic") {
+  if (appearanceStore.isClassicMode) {
     setTimeout(() => {
       setUpperRowLength();
     }, 175);
@@ -441,7 +435,12 @@ function deleteUpperRow() {
 }
 
 whenever(ControlLeft_Enter, () => reset());
-whenever(ControlLeft_z, () => toggleMode());
+whenever(ControlLeft_z, () => {
+  appearanceStore.toggleMode();
+  setTimeout(() => {
+    reset();
+  }, 150);
+});
 watchEffect(() => {
   if (current.size > 0 && !isInputFocused.value) {
     setFocus();
@@ -468,10 +467,10 @@ watchEffect(() => {
 watchEffect(() => {
   if (isInputGetsBigger.value) {
     handleAddExtra();
-    if (isTapeMode.value) {
+    if (appearanceStore.isTapeMode) {
       moveTapeForward();
     }
-    if (isClassicMode.value) {
+    if (appearanceStore.isClassicMode) {
       moveCaretForward();
     }
   }
@@ -482,9 +481,9 @@ watchEffect(() => {
   }
   if (!isInputGetsBigger.value) {
     if (trimmedInput.value.length > 0) {
-      if (isTapeMode.value) {
+      if (appearanceStore.isTapeMode) {
         moveTapeBackward();
-      } else if (isClassicMode.value) {
+      } else if (appearanceStore.isClassicMode) {
         moveCaretBackward();
       }
     }
@@ -519,7 +518,7 @@ watchEffect(() => {
     setCaretCoordinates();
     if (
       caretCoordinates.value.top > centerRow.value - top.value &&
-      !isTapeMode.value
+      !appearanceStore.isTapeMode
     ) {
       deleteUpperRow();
       setTimeout(() => {

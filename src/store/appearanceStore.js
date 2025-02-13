@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
 export const useAppearanceStore = defineStore("appearance", () => {
-  const currentMode = ref("tape");
+  const currentMode = ref("classic");
   const isKeymapShown = ref(true);
 
   const isTapeMode = computed(() => {

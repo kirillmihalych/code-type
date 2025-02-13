@@ -4,6 +4,10 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
+      <div class="text-white flex gap-2">
+        <button @click="performAnimation">move</button>
+        <button @click="resetCaretPace">reset</button>
+      </div>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -21,7 +25,7 @@
     <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
       <div
         ref="caret-parent"
-        class="relative flex gap-6 overflow-hidden py-10"
+        class="relative flex overflow-x-hidden overflow-y-clip gap-6 py-4"
         @click="setFocus"
       >
         <FocusWarning :is-input-focused="isInputFocused" />
@@ -41,6 +45,17 @@
               ? ''
               : 'motion-reduce:transition-none motion-safe:animate-blink',
           ]"
+        ></div>
+        <div
+          ref="paceCaret"
+          style="
+            position: absolute;
+            width: 16px;
+            background-color: white;
+            opacity: 0.125;
+            height: 36px;
+          "
+          :style="{ left: `${caretPaceL}px`, top: `${caretPaceTop}px` }"
         ></div>
         <WordsWrapper
           :is-input-focused="isInputFocused"
@@ -130,6 +145,8 @@ import {
   useMagicKeys,
   useFocus,
   useElementBounding,
+  useTransition,
+  TransitionPresets,
   whenever,
 } from "@vueuse/core";
 import { useColorThemeStore } from "@/store/colorThemeStore";
@@ -164,10 +181,18 @@ const writtenWords = ref([]);
 const inputDiff = ref(null);
 const isTestStarted = ref(false);
 const extraLetters = ref([]);
+const upperRowLength = ref(0);
+const centerRow = ref(0);
 const text = ref(
   "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
 );
 const mistakes = ref([]);
+const caretCoordinates = ref({
+  left: 0,
+  top: 0,
+});
+const tapeMarginLeft = ref(0);
+const classicMarginTop = ref(0);
 function defineTotalWordsAmount() {
   totalWords.value = words.value.length;
 }
@@ -175,27 +200,35 @@ function defineTotalWordsAmount() {
 const totalWordsAmount = computed(() => {
   return text.value.split(" ").length;
 });
+const classicModeStyles = computed(() => {
+  return {
+    marginLeft: "unset",
+    marginTop: classicMarginTop.value + "px",
+    flexWrap: "wrap",
+    overflow: "hidden",
+    height: 148 + "px",
+  };
+});
+const rowNumber = computed(() => {
+  return caretCoordinates.value.top < rows.value[1]
+    ? "1"
+    : caretCoordinates.value.top < rows.value[2]
+    ? "2"
+    : caretCoordinates.value.top < rows.value[2] + 48
+    ? "3"
+    : "wrong calc";
+});
 const wordsWrapperStyle = computed(() => {
   return appearanceStore.isTapeMode
     ? {
         marginLeft: width.value / 2 - tapeMarginLeft.value + "px",
       }
-    : {
-        marginLeft: "unset",
-        flexWrap: "wrap",
-        overflow: "clip",
-        height: 148 + "px",
-      };
+    : classicModeStyles.value;
 });
 function setWidthLetter() {
   widthLetter.value = useElementBounding(letters.value[0]);
 }
 
-const caretCoordinates = ref({
-  left: 0,
-  top: 0,
-});
-const tapeMarginLeft = ref(0);
 const caretStyle = computed(() => {
   return appearanceStore.isTapeMode
     ? { left: "calc(50%)" }
@@ -299,6 +332,9 @@ function reset() {
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopWpmTest();
+  classicMarginTop.value = 0;
+  rows.value = getRowsCoords();
+  resetCaretPace();
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
   }
@@ -321,6 +357,15 @@ function isCurrentWord(index) {
 function isInputExist(index) {
   return trimmedInput.value[index];
 }
+function setPaceCaretCoords() {
+  const leftCoord =
+    words.value[currentWordIndex.value].getBoundingClientRect().left -
+    left.value;
+  const topCoord =
+    words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
+  caretPaceLeft.value = leftCoord;
+  caretPaceTop.value = topCoord;
+}
 function setCaretCoordinates() {
   if (appearanceStore.isTapeMode) {
     tapeMarginLeft.value =
@@ -329,12 +374,14 @@ function setCaretCoordinates() {
       widthLetter.value.width;
   }
   if (appearanceStore.isClassicMode) {
-    caretCoordinates.value.left =
+    const leftCoord =
       words.value[currentWordIndex.value].getBoundingClientRect().left -
       left.value;
-    caretCoordinates.value.top =
+    const topCoord =
       words.value[currentWordIndex.value].getBoundingClientRect().top -
       top.value;
+    caretCoordinates.value.left = leftCoord;
+    caretCoordinates.value.top = topCoord;
   }
 }
 function getInputDiff(inputSize) {
@@ -394,8 +441,6 @@ function moveCaretBackward() {
   caretCoordinates.value.left -= widthLetter.value.width;
 }
 
-const upperRowLength = ref(0);
-const centerRow = ref(0);
 function setCenterRowCoordinate(y) {
   centerRow.value = y;
 }
@@ -413,10 +458,83 @@ function setUpperRowLength() {
     }
   }
 }
+
+const rowEnds = ref([]);
+function getRowsCoords() {
+  console.log(words.value.length, words.value[words.value.length - 1]);
+  const result = [];
+  const ends = [];
+  for (let i = 1; i < words.value.length; i++) {
+    const prev = words.value[i - 1].getBoundingClientRect().top;
+    const curr = words.value[i].getBoundingClientRect().top;
+    if (prev !== curr) {
+      ends.push(
+        words.value[i - 1].getBoundingClientRect().left +
+          words.value[i - 1].getBoundingClientRect().width
+      );
+      result.push(prev - top.value);
+    }
+  }
+  ends.push(
+    words.value[words.value.length - 1].getBoundingClientRect().left +
+      words.value[words.value.length - 1].getBoundingClientRect().width
+  );
+  rowEnds.value = ends;
+  console.log(rowEnds.value);
+  return result;
+}
+
+const caretPaceLeft = ref(0);
+const caretPaceTop = ref(0);
+const duration = ref(0);
+const num = ref(0);
+const caretPaceL = useTransition(caretPaceLeft, {
+  duration,
+  transition: TransitionPresets.linear,
+});
+
+function resetCaretPace() {
+  setPaceCaretCoords();
+  num.value = 0;
+}
+function moveLeft() {
+  duration.value = 3500;
+  caretPaceLeft.value = rowEnds.value[num.value] - left.value;
+  return new Promise((resolve) => {
+    setTimeout(resolve, duration);
+  });
+}
+async function moveTop() {
+  if (num.value <= rows.value.length) {
+    duration.value = 0;
+    num.value += 1;
+    caretPaceTop.value = rows.value[num.value];
+    caretPaceLeft.value = 0;
+  }
+}
+function changeRowWithDelay() {
+  return new Promise((resolve) => {
+    moveLeft();
+    setTimeout(() => {
+      moveTop();
+      resolve();
+    }, duration.value);
+  });
+}
+async function performAnimation() {
+  while (num.value <= rows.value.length) {
+    await changeRowWithDelay();
+  }
+}
+
+// ===
+
+const rows = ref([]);
 watchEffect(() => {
   if (appearanceStore.isClassicMode) {
     setTimeout(() => {
       setUpperRowLength();
+      rows.value = getRowsCoords();
     }, 175);
   }
 });
@@ -510,15 +628,13 @@ watchEffect(() => {
     clearCurrentInput();
     currentWordIndex.value += 1;
     setCaretCoordinates();
-    if (
-      caretCoordinates.value.top > centerRow.value - top.value &&
-      !appearanceStore.isTapeMode
-    ) {
+    if (rowNumber.value === "3" && appearanceStore.isClassicMode) {
       deleteUpperRow();
+      rows.value = getRowsCoords();
       setTimeout(() => {
-        setCaretCoordinates();
         setUpperRowLength();
-      }, 15);
+        setCaretCoordinates();
+      }, 1);
     }
   }
 });
@@ -527,6 +643,7 @@ onMounted(() => {
   setWidthLetter();
   defineTotalWordsAmount();
   setCaretCoordinates();
+  getRowsCoords();
   text.value = getQueueQoute();
 });
 </script>

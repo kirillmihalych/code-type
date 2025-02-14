@@ -4,10 +4,6 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <div class="text-white flex gap-2">
-        <button @click="performAnimation">move</button>
-        <button @click="resetCaretPace">reset</button>
-      </div>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -25,7 +21,7 @@
     <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
       <div
         ref="caret-parent"
-        class="relative flex overflow-x-hidden overflow-y-clip gap-6 py-4"
+        class="relative flex overflow-x-hidden overflow-y-hidden gap-6 py-4 h-[164px]"
         @click="setFocus"
       >
         <FocusWarning :is-input-focused="isInputFocused" />
@@ -140,7 +136,7 @@
 
 <script setup>
 import { ref, useTemplateRef, onMounted } from "vue";
-import { computed, watchEffect } from "vue";
+import { computed, watchEffect, watch } from "vue";
 import {
   useMagicKeys,
   useFocus,
@@ -206,7 +202,7 @@ const classicModeStyles = computed(() => {
     marginTop: classicMarginTop.value + "px",
     flexWrap: "wrap",
     overflow: "hidden",
-    height: 148 + "px",
+    // height: 148 + "px",
   };
 });
 const rowNumber = computed(() => {
@@ -332,9 +328,9 @@ function reset() {
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopWpmTest();
+  resetCaretPace();
   classicMarginTop.value = 0;
   rows.value = getRowsCoords();
-  resetCaretPace();
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
   }
@@ -363,8 +359,9 @@ function setPaceCaretCoords() {
     left.value;
   const topCoord =
     words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
-  caretPaceLeft.value = leftCoord;
+  caretPaceLeft.value = 0;
   caretPaceTop.value = topCoord;
+  console.log("set caret pace coords", caretPaceLeft.value);
 }
 function setCaretCoordinates() {
   if (appearanceStore.isTapeMode) {
@@ -461,7 +458,6 @@ function setUpperRowLength() {
 
 const rowEnds = ref([]);
 function getRowsCoords() {
-  console.log(words.value.length, words.value[words.value.length - 1]);
   const result = [];
   const ends = [];
   for (let i = 1; i < words.value.length; i++) {
@@ -479,35 +475,40 @@ function getRowsCoords() {
     words.value[words.value.length - 1].getBoundingClientRect().left +
       words.value[words.value.length - 1].getBoundingClientRect().width
   );
+  result.push(
+    words.value[words.value.length - 1].getBoundingClientRect().top - top.value
+  );
   rowEnds.value = ends;
-  console.log(rowEnds.value);
+  rowsLength.value = ends.length;
   return result;
 }
 
 const caretPaceLeft = ref(0);
 const caretPaceTop = ref(0);
-const duration = ref(0);
+const duration = ref(3500);
 const num = ref(0);
+const rowsLength = ref(null);
 const caretPaceL = useTransition(caretPaceLeft, {
   duration,
   transition: TransitionPresets.linear,
 });
 
 function resetCaretPace() {
-  setPaceCaretCoords();
+  duration.value = 0;
   num.value = 0;
+  clearTimeout(caretPaceTimeout.value);
+  setPaceCaretCoords();
 }
+const caretPaceTimeout = ref(null);
 function moveLeft() {
   duration.value = 3500;
-  caretPaceLeft.value = rowEnds.value[num.value] - left.value;
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
+  caretPaceLeft.value = rowEnds.value[num.value] - left.value - 16;
 }
 async function moveTop() {
-  if (num.value <= rows.value.length) {
-    duration.value = 0;
-    num.value += 1;
+  console.log("вверх?", rows.value.length);
+  duration.value = 0;
+  num.value += 1;
+  if (num.value < rowsLength.value) {
     caretPaceTop.value = rows.value[num.value];
     caretPaceLeft.value = 0;
   }
@@ -515,19 +516,17 @@ async function moveTop() {
 function changeRowWithDelay() {
   return new Promise((resolve) => {
     moveLeft();
-    setTimeout(() => {
+    caretPaceTimeout.value = setTimeout(() => {
       moveTop();
       resolve();
     }, duration.value);
   });
 }
-async function performAnimation() {
-  while (num.value <= rows.value.length) {
+async function moveCaretPace() {
+  while (num.value < rowsLength.value && isTestStarted.value) {
     await changeRowWithDelay();
   }
 }
-
-// ===
 
 const rows = ref([]);
 watchEffect(() => {
@@ -564,6 +563,13 @@ watchEffect(() => {
 watchEffect(() => {
   if (isCharMistake.value) {
     mistakes.value.push("mistake");
+  }
+});
+watch(isTestStarted, (newValue) => {
+  if (newValue) {
+    // console.log("test started = caret pace moves");
+    rows.value = getRowsCoords();
+    moveCaretPace();
   }
 });
 watchEffect(() => {
@@ -630,7 +636,10 @@ watchEffect(() => {
     setCaretCoordinates();
     if (rowNumber.value === "3" && appearanceStore.isClassicMode) {
       deleteUpperRow();
-      rows.value = getRowsCoords();
+      rowEnds.value.shift();
+      num.value -= 1;
+      rowsLength.value -= 1;
+      caretPaceTop.value = rows.value[num.value];
       setTimeout(() => {
         setUpperRowLength();
         setCaretCoordinates();
@@ -643,6 +652,7 @@ onMounted(() => {
   setWidthLetter();
   defineTotalWordsAmount();
   setCaretCoordinates();
+  setPaceCaretCoords();
   getRowsCoords();
   text.value = getQueueQoute();
 });

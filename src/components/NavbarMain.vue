@@ -22,6 +22,8 @@ function selectRouteIcon(name) {
     ? "fa-solid fa-palette"
     : name === "appearance"
     ? "fa-solid fa-eye"
+    : name === "caret"
+    ? "fa-solid fa-i-cursor"
     : "fa-solid fa-gear";
 }
 </script>

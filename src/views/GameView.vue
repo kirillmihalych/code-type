@@ -492,6 +492,11 @@ function setDuration() {
     Math.round(
       (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
     ) / rows.value.length;
+  if (caretPaceIndex === rowEnds.value.length - 1) {
+    duration.value =
+      duration.value *
+      (rowEnds.value[rowEnds.value.length - 1] / Math.max(...rowEnds.value));
+  }
 }
 const duration = ref(null);
 const rowsLength = ref(null);
@@ -515,7 +520,6 @@ async function moveTop() {
   duration.value = 0;
   caretPaceTop.value += rows.value[1] - rows.value[0];
   caretPaceLeft.value = 0;
-  console.log("а вот и я");
 }
 function changeRowWithDelay(idx) {
   return new Promise((resolve) => {

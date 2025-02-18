@@ -145,7 +145,6 @@ import {
   TransitionPresets,
   whenever,
 } from "@vueuse/core";
-import { useColorThemeStore } from "@/store/colorThemeStore";
 import { quotes } from "@/assets/quotes";
 import KeymapLayout from "../components/KeymapLayout.vue";
 import CountdownTimer from "../components/CountdownTimer.vue";
@@ -153,11 +152,20 @@ import ResultsDisplay from "../components/ResultsDisplay.vue";
 import FocusWarning from "../components/FocusWarning.vue";
 import WordsWrapper from "../components/WordsWrapper.vue";
 import ShortcutsDescription from "@/components/ShortcutsDescription.vue";
+import { useColorThemeStore } from "@/store/colorThemeStore";
 import { useAppearanceStore } from "@/store/appearanceStore";
+import { useCaretStore } from "@/store/caretStore";
 
 const colorThemeStore = useColorThemeStore();
 const appearanceStore = useAppearanceStore();
-const { ControlLeft_Enter, ControlLeft_z, current } = useMagicKeys();
+const caretStore = useCaretStore();
+const {
+  ControlLeft_Enter,
+  ControlLeft_z,
+  ControlLeft_Backspace,
+  Backspace,
+  current,
+} = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -174,7 +182,6 @@ const resultTime = ref(0);
 const { focused: isInputFocused } = useFocus(input, { initialValue: false });
 const bestResult = ref(0);
 const writtenWords = ref([]);
-const inputDiff = ref(null);
 const isTestStarted = ref(false);
 const extraLetters = ref([]);
 const upperRowLength = ref(0);
@@ -206,11 +213,11 @@ const classicModeStyles = computed(() => {
   };
 });
 const rowNumber = computed(() => {
-  return caretCoordinates.value.top < rows.value[1]
+  return caretCoordinates.value.top === rows.value[0]
     ? "1"
-    : caretCoordinates.value.top < rows.value[2]
+    : caretCoordinates.value.top === rows.value[1]
     ? "2"
-    : caretCoordinates.value.top < rows.value[2] + 48
+    : caretCoordinates.value.top === rows.value[2]
     ? "3"
     : "wrong calc";
 });
@@ -307,14 +314,6 @@ const isTestEnded = computed(() => {
     currentWord.value === trimmedInput.value
   );
 });
-let trimmedInputLength = trimmedInput.value.length;
-const isInputGetsBigger = computed(() => {
-  const inputGetsBigger = trimmedInput.value.length > trimmedInputLength;
-  const inputGetsSmaller = trimmedInput.value.length < trimmedInputLength;
-  getInputDiff(trimmedInputLength);
-  trimmedInputLength = trimmedInput.value.length;
-  return inputGetsBigger ? true : inputGetsSmaller ? false : null;
-});
 const isCharMistake = computed(() => {
   return (
     currentWord.value[trimmedInput.value.length - 1] !== lastWrittenChar.value
@@ -323,7 +322,6 @@ const isCharMistake = computed(() => {
 
 function reset() {
   text.value = getQueueQoute();
-  setCaretCoordinates();
   clearCurrentInput();
   currentWordIndex.value = 0;
   writtenWords.value = [];
@@ -331,6 +329,9 @@ function reset() {
   resetCaretPace();
   classicMarginTop.value = 0;
   rows.value = getRowsCoords();
+  setTimeout(() => {
+    setCaretCoordinates();
+  }, 100);
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
   }
@@ -354,16 +355,13 @@ function isInputExist(index) {
   return trimmedInput.value[index];
 }
 function setPaceCaretCoords() {
-  const leftCoord =
-    words.value[currentWordIndex.value].getBoundingClientRect().left -
-    left.value;
-  const topCoord =
-    words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
+  // верхний ряд должен быть 0, но из-за паддинга это 16
+  // const topCoord =
+  //   words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
   caretPaceLeft.value = 0;
-  caretPaceTop.value = topCoord;
-  console.log("set caret pace coords", caretPaceLeft.value);
+  caretPaceTop.value = 16;
 }
-function setCaretCoordinates() {
+function setCaretCoordinates(leftArg, topArg) {
   if (appearanceStore.isTapeMode) {
     tapeMarginLeft.value =
       (writtenWords.value.join("").split("").length +
@@ -377,12 +375,9 @@ function setCaretCoordinates() {
     const topCoord =
       words.value[currentWordIndex.value].getBoundingClientRect().top -
       top.value;
-    caretCoordinates.value.left = leftCoord;
-    caretCoordinates.value.top = topCoord;
+    caretCoordinates.value.left = leftArg ? leftArg : leftCoord;
+    caretCoordinates.value.top = topArg ? topArg : topCoord;
   }
-}
-function getInputDiff(inputSize) {
-  inputDiff.value = Math.abs(trimmedInput.value.length - inputSize);
 }
 function startWpmTest() {
   isTestStarted.value = true;
@@ -390,6 +385,7 @@ function startWpmTest() {
 function stopWpmTest() {
   isTestStarted.value = false;
 }
+const maxExtras = 5;
 function handleAddExtra() {
   if (isExtraLetters.value) {
     const diff = trimmedInput.value.length - currentWord.value.length;
@@ -399,22 +395,16 @@ function handleAddExtra() {
         currentWord.value.length + diff
       ),
     ];
-    if (extra.length === 0) {
-      extraLetters.value.push(" ");
-      mistakes.value.push("extra");
-    } else {
-      extraLetters.value.push(extra[extra.length - 1]);
-      mistakes.value.push("extra");
+    if (extraLetters.value.length < maxExtras) {
+      if (extra.length === 0) {
+        extraLetters.value.push(" ");
+        mistakes.value.push("extra");
+      } else {
+        extraLetters.value.push(extra[extra.length - 1]);
+        mistakes.value.push("extra");
+      }
+      moveCaretForward();
     }
-  }
-}
-function handleDeleteExtras(diff) {
-  extraLetters.value = extraLetters.value.slice(
-    0,
-    extraLetters.value.length - diff
-  );
-  for (let i = 1; i < diff; i++) {
-    moveTapeBackward();
   }
 }
 let currMainDivWidth = mainDivWidth.value;
@@ -435,7 +425,14 @@ function moveCaretForward() {
   caretCoordinates.value.left += widthLetter.value.width;
 }
 function moveCaretBackward() {
-  caretCoordinates.value.left -= widthLetter.value.width;
+  const currWordStart =
+    words.value[currentWordIndex.value].getBoundingClientRect().left -
+    widthLetter.value.width;
+  const newCoords = caretCoordinates.value.left - widthLetter.value.width;
+  // проверка, что курсор не двигается влево за слово
+  if (newCoords >= currWordStart) {
+    caretCoordinates.value.left -= widthLetter.value.width;
+  }
 }
 
 function setCenterRowCoordinate(y) {
@@ -457,9 +454,11 @@ function setUpperRowLength() {
 }
 
 const rowEnds = ref([]);
+const rowTranslateIdxs = ref([]);
 function getRowsCoords() {
   const result = [];
   const ends = [];
+  const idxs = [];
   for (let i = 1; i < words.value.length; i++) {
     const prev = words.value[i - 1].getBoundingClientRect().top;
     const curr = words.value[i].getBoundingClientRect().top;
@@ -469,6 +468,7 @@ function getRowsCoords() {
           words.value[i - 1].getBoundingClientRect().width
       );
       result.push(prev - top.value);
+      idxs.push(i);
     }
   }
   ends.push(
@@ -480,13 +480,20 @@ function getRowsCoords() {
   );
   rowEnds.value = ends;
   rowsLength.value = ends.length;
+  rowTranslateIdxs.value = idxs.slice(1);
   return result;
 }
 
 const caretPaceLeft = ref(0);
 const caretPaceTop = ref(0);
-const duration = ref(3500);
-const num = ref(0);
+
+function setDuration() {
+  duration.value =
+    Math.round(
+      (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
+    ) / rows.value.length;
+}
+const duration = ref(null);
 const rowsLength = ref(null);
 const caretPaceL = useTransition(caretPaceLeft, {
   duration,
@@ -495,36 +502,38 @@ const caretPaceL = useTransition(caretPaceLeft, {
 
 function resetCaretPace() {
   duration.value = 0;
-  num.value = 0;
+  caretPaceIndex = 0;
   clearTimeout(caretPaceTimeout.value);
   setPaceCaretCoords();
 }
 const caretPaceTimeout = ref(null);
-function moveLeft() {
-  duration.value = 3500;
-  caretPaceLeft.value = rowEnds.value[num.value] - left.value - 16;
+function moveLeft(index) {
+  setDuration();
+  caretPaceLeft.value = rowEnds.value[index] - left.value - 16;
 }
 async function moveTop() {
-  console.log("вверх?", rows.value.length);
   duration.value = 0;
-  num.value += 1;
-  if (num.value < rowsLength.value) {
-    caretPaceTop.value = rows.value[num.value];
-    caretPaceLeft.value = 0;
-  }
+  caretPaceTop.value += rows.value[1] - rows.value[0];
+  caretPaceLeft.value = 0;
+  console.log("а вот и я");
 }
-function changeRowWithDelay() {
+function changeRowWithDelay(idx) {
   return new Promise((resolve) => {
-    moveLeft();
+    moveLeft(idx);
     caretPaceTimeout.value = setTimeout(() => {
-      moveTop();
-      resolve();
+      if (idx !== rowEnds.value.length - 1) {
+        moveTop();
+        resolve();
+      }
     }, duration.value);
   });
 }
+
+let caretPaceIndex = 0;
 async function moveCaretPace() {
-  while (num.value < rowsLength.value && isTestStarted.value) {
-    await changeRowWithDelay();
+  while (caretPaceIndex < rowEnds.value.length && isTestStarted.value) {
+    await changeRowWithDelay(caretPaceIndex);
+    caretPaceIndex++;
   }
 }
 
@@ -537,13 +546,6 @@ watchEffect(() => {
     }, 175);
   }
 });
-function deleteUpperRow() {
-  text.value = text.value
-    .split(" ")
-    .slice(upperRowLength.value, text.value.length)
-    .join(" ");
-  currentWordIndex.value -= upperRowLength.value;
-}
 
 whenever(ControlLeft_Enter, () => reset());
 whenever(ControlLeft_z, () => {
@@ -551,6 +553,9 @@ whenever(ControlLeft_z, () => {
   setTimeout(() => {
     reset();
   }, 150);
+});
+whenever(ControlLeft_Backspace, () => {
+  extraLetters.value = [];
 });
 watchEffect(() => {
   if (current.size > 0 && !isInputFocused.value) {
@@ -567,7 +572,6 @@ watchEffect(() => {
 });
 watch(isTestStarted, (newValue) => {
   if (newValue) {
-    // console.log("test started = caret pace moves");
     rows.value = getRowsCoords();
     moveCaretPace();
   }
@@ -582,35 +586,34 @@ watchEffect(() => {
     reset();
   }
 });
-watchEffect(() => {
-  if (isInputGetsBigger.value) {
+watch(currentInput, (newInputValue, oldInputValue) => {
+  if (newInputValue.length > oldInputValue.length) {
     handleAddExtra();
     if (appearanceStore.isTapeMode) {
       moveTapeForward();
     }
     if (appearanceStore.isClassicMode) {
-      moveCaretForward();
-    }
-  }
-});
-watchEffect(() => {
-  if (isInputGetsBigger.value === null) {
-    return;
-  }
-  if (!isInputGetsBigger.value) {
-    if (trimmedInput.value.length > 0) {
-      if (appearanceStore.isTapeMode) {
-        moveTapeBackward();
-      } else if (appearanceStore.isClassicMode) {
-        moveCaretBackward();
+      if (!isExtraLetters.value) {
+        moveCaretForward();
       }
     }
-    if (trimmedInput.value.length === 0) {
-      extraLetters.value = [];
-      setCaretCoordinates();
+  }
+  if (newInputValue.length < oldInputValue.length) {
+    if (appearanceStore.isTapeMode) {
+      moveTapeBackward();
     }
-    if (extraLetters.value.length > 0) {
-      handleDeleteExtras(inputDiff.value);
+    if (appearanceStore.isClassicMode) {
+      if (Backspace.value && !ControlLeft_Backspace.value) {
+        extraLetters.value.pop();
+        moveCaretBackward();
+      }
+      if (ControlLeft_Backspace.value) {
+        currentInput.value = "";
+        extraLetters.value = [];
+        caretCoordinates.value.left =
+          words.value[currentWordIndex.value].getBoundingClientRect().left -
+          widthLetter.value.width;
+      }
     }
   }
 });
@@ -621,7 +624,9 @@ watchEffect(() => {
     stopWpmTest();
     setResultTime();
     writtenWords.value.push(currentWord.value);
-    reset();
+    setTimeout(() => {
+      reset();
+    }, 75);
   }
 });
 watchEffect(() => {
@@ -635,19 +640,12 @@ watchEffect(() => {
     currentWordIndex.value += 1;
     setCaretCoordinates();
     if (rowNumber.value === "3" && appearanceStore.isClassicMode) {
-      deleteUpperRow();
-      rowEnds.value.shift();
-      num.value -= 1;
-      rowsLength.value -= 1;
-      caretPaceTop.value = rows.value[num.value];
-      setTimeout(() => {
-        setUpperRowLength();
-        setCaretCoordinates();
-      }, 1);
+      classicMarginTop.value -= rows.value[1] - rows.value[0];
+      caretPaceTop.value -= rows.value[1] - rows.value[0];
+      setCaretCoordinates(0, rows.value[1]);
     }
   }
 });
-
 onMounted(() => {
   setWidthLetter();
   defineTotalWordsAmount();

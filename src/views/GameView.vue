@@ -19,9 +19,11 @@
       />
     </div>
     <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
+      <!-- h-[164px] -->
       <div
         ref="caret-parent"
-        class="relative flex overflow-x-hidden overflow-y-hidden gap-6 py-4 h-[164px]"
+        class="relative flex overflow-x-hidden overflow-y-hidden gap-6 py-4"
+        :class="appearanceStore.isClassicMode ? 'h-[164px]' : ''"
         @click="setFocus"
       >
         <FocusWarning :is-input-focused="isInputFocused" />
@@ -33,6 +35,7 @@
             width: 4px;
             border-radius: 4px;
             height: 36px;
+            z-index: 9999;
           "
           :style="caretStyle"
           class="transition-[left,top] duration-75 bg-caret"
@@ -42,21 +45,22 @@
               : 'motion-reduce:transition-none motion-safe:animate-blink',
           ]"
         ></div>
-        <div
-          ref="paceCaret"
-          style="
-            position: absolute;
-            width: 16px;
-            background-color: white;
-            opacity: 0.125;
-            height: 36px;
-          "
-          :style="{ left: `${caretPaceL}px`, top: `${caretPaceTop}px` }"
-        ></div>
         <WordsWrapper
+          ref="wrapper"
           :is-input-focused="isInputFocused"
           :words-wrapper-style="wordsWrapperStyle"
         >
+          <div
+            ref="paceCaret"
+            style="
+              position: absolute;
+              width: 16px;
+              background-color: white;
+              opacity: 0.125;
+              height: 36px;
+            "
+            :style="{ left: `${caretPaceL}px`, top: `${caretPaceTop}px` }"
+          ></div>
           <div
             v-for="(word, i) in wordsQueue"
             ref="words"
@@ -105,6 +109,7 @@
             autocapitalize="off"
             autocorrect="off"
             autocomplete="off"
+            :maxLength="maxInputLength"
             v-model="currentInput"
             placeholder="Начни писать, чтобы начать тест"
           />
@@ -184,8 +189,6 @@ const bestResult = ref(0);
 const writtenWords = ref([]);
 const isTestStarted = ref(false);
 const extraLetters = ref([]);
-const upperRowLength = ref(0);
-const centerRow = ref(0);
 const text = ref(
   "It's a dangerous business, Frodo, going out your door. You step onto the road, and if you don't keep your feet, there's no knowing where you might be swept off to."
 );
@@ -232,6 +235,9 @@ function setWidthLetter() {
   widthLetter.value = useElementBounding(letters.value[0]);
 }
 
+const maxInputLength = computed(() => {
+  return currentWord.value.length + maxExtras;
+});
 const caretStyle = computed(() => {
   return appearanceStore.isTapeMode
     ? { left: "calc(50%)" }
@@ -303,7 +309,7 @@ const isCurrentInputCorrect = computed(() => {
   return currentWord.value + " " === trimmedInput.value;
 });
 const isExtraLetters = computed(() => {
-  return trimmedInput.value.length > currentWord.value.length;
+  return currentInput.value.length > currentWord.value.length;
 });
 const lastWordIndex = computed(() => {
   return wordsQueue.value.length - 1;
@@ -323,15 +329,18 @@ const isCharMistake = computed(() => {
 function reset() {
   text.value = getQueueQoute();
   clearCurrentInput();
+  extraLetters.value = [];
   currentWordIndex.value = 0;
   writtenWords.value = [];
   stopWpmTest();
-  resetCaretPace();
   classicMarginTop.value = 0;
   rows.value = getRowsCoords();
   setTimeout(() => {
     setCaretCoordinates();
   }, 100);
+  setTimeout(() => {
+    resetCaretPace();
+  }, 200);
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
   }
@@ -355,11 +364,8 @@ function isInputExist(index) {
   return trimmedInput.value[index];
 }
 function setPaceCaretCoords() {
-  // верхний ряд должен быть 0, но из-за паддинга это 16
-  // const topCoord =
-  //   words.value[currentWordIndex.value].getBoundingClientRect().top - top.value;
   caretPaceLeft.value = 0;
-  caretPaceTop.value = 16;
+  caretPaceTop.value = 0;
 }
 function setCaretCoordinates(leftArg, topArg) {
   if (appearanceStore.isTapeMode) {
@@ -403,7 +409,6 @@ function handleAddExtra() {
         extraLetters.value.push(extra[extra.length - 1]);
         mistakes.value.push("extra");
       }
-      moveCaretForward();
     }
   }
 }
@@ -416,7 +421,18 @@ function onMainDivResize() {
   return false;
 }
 function moveTapeForward() {
-  tapeMarginLeft.value += widthLetter.value.width;
+  if (
+    isCurrentInputCorrect.value &&
+    isSpaceEntered.value &&
+    !isTestEnded.value
+  ) {
+    currentInput.value = "";
+    currentWordIndex.value += 1;
+    extraLetters.value = [];
+    tapeMarginLeft.value += widthLetter.value.width;
+  } else {
+    tapeMarginLeft.value += widthLetter.value.width;
+  }
 }
 function moveTapeBackward() {
   tapeMarginLeft.value -= widthLetter.value.width;
@@ -432,24 +448,6 @@ function moveCaretBackward() {
   // проверка, что курсор не двигается влево за слово
   if (newCoords >= currWordStart) {
     caretCoordinates.value.left -= widthLetter.value.width;
-  }
-}
-
-function setCenterRowCoordinate(y) {
-  centerRow.value = y;
-}
-function setUpperRowLength() {
-  upperRowLength.value = 0;
-  for (let i = 1; i < words.value.length; i++) {
-    const prev = words.value[i - 1].getBoundingClientRect().top;
-    const curr = words.value[i].getBoundingClientRect().top;
-    if (prev === curr) {
-      upperRowLength.value += 1;
-    } else {
-      upperRowLength.value += 1;
-      setCenterRowCoordinate(curr);
-      return;
-    }
   }
 }
 
@@ -512,6 +510,16 @@ function resetCaretPace() {
   setPaceCaretCoords();
 }
 const caretPaceTimeout = ref(null);
+
+const wrapper = useTemplateRef("wrapper");
+function movePaceCaretOnTape() {
+  duration.value = Math.round(
+    (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
+  );
+  caretPaceLeft.value =
+    wrapper.value.wrapper.getBoundingClientRect().width - 16;
+  caretPaceTop.value = 0;
+}
 function moveLeft(index) {
   setDuration();
   caretPaceLeft.value = rowEnds.value[index] - left.value - 16;
@@ -535,9 +543,14 @@ function changeRowWithDelay(idx) {
 
 let caretPaceIndex = 0;
 async function moveCaretPace() {
-  while (caretPaceIndex < rowEnds.value.length && isTestStarted.value) {
-    await changeRowWithDelay(caretPaceIndex);
-    caretPaceIndex++;
+  if (appearanceStore.isClassicMode) {
+    while (caretPaceIndex < rowEnds.value.length && isTestStarted.value) {
+      await changeRowWithDelay(caretPaceIndex);
+      caretPaceIndex++;
+    }
+  }
+  if (appearanceStore.isTapeMode) {
+    movePaceCaretOnTape();
   }
 }
 
@@ -545,7 +558,6 @@ const rows = ref([]);
 watchEffect(() => {
   if (appearanceStore.isClassicMode) {
     setTimeout(() => {
-      setUpperRowLength();
       rows.value = getRowsCoords();
     }, 175);
   }
@@ -597,14 +609,36 @@ watch(currentInput, (newInputValue, oldInputValue) => {
       moveTapeForward();
     }
     if (appearanceStore.isClassicMode) {
-      if (!isExtraLetters.value) {
-        moveCaretForward();
-      }
+      moveCaretForward();
     }
   }
-  if (newInputValue.length < oldInputValue.length) {
+  // вторая часть условия это проверка,
+  // не перешёл ли тест на новое слово
+  // этот кейс не должен обрабатываться, как уменьшение инпута
+  if (
+    newInputValue.length < oldInputValue.length &&
+    !(oldInputValue.trim() === wordsQueue.value[currentWordIndex.value - 1])
+  ) {
     if (appearanceStore.isTapeMode) {
-      moveTapeBackward();
+      if (Backspace.value && !ControlLeft_Backspace.value) {
+        extraLetters.value.pop();
+        moveTapeBackward();
+      }
+      if (ControlLeft_Backspace.value) {
+        extraLetters.value = [];
+        currentInput.value = "";
+        const spaces = text.value
+          .split(" ")
+          .slice(0, currentWordIndex.value).length;
+        const chars = text.value
+          .split(" ")
+          .slice(0, currentWordIndex.value)
+          .toString().length;
+        function getCurrentWordStart() {
+          return ((spaces > 0 ? 1 : spaces) + chars) * widthLetter.value.width;
+        }
+        tapeMarginLeft.value = getCurrentWordStart();
+      }
     }
     if (appearanceStore.isClassicMode) {
       if (Backspace.value && !ControlLeft_Backspace.value) {
@@ -639,14 +673,16 @@ watchEffect(() => {
     isSpaceEntered.value &&
     !isTestEnded.value
   ) {
-    writtenWords.value.push(currentWord.value);
-    clearCurrentInput();
-    currentWordIndex.value += 1;
-    setCaretCoordinates();
-    if (rowNumber.value === "3" && appearanceStore.isClassicMode) {
-      classicMarginTop.value -= rows.value[1] - rows.value[0];
-      caretPaceTop.value -= rows.value[1] - rows.value[0];
-      setCaretCoordinates(0, rows.value[1]);
+    if (appearanceStore.isClassicMode) {
+      writtenWords.value.push(currentWord.value);
+      clearCurrentInput();
+      currentWordIndex.value += 1;
+      setCaretCoordinates();
+      if (rowNumber.value === "3") {
+        classicMarginTop.value -= rows.value[1] - rows.value[0];
+        caretPaceTop.value -= rows.value[1] - rows.value[0];
+        setCaretCoordinates(0, rows.value[1]);
+      }
     }
   }
 });

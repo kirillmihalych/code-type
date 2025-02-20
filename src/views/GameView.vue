@@ -16,6 +16,7 @@
         :final-accuracy="finalAccuracy"
         :final-result-wpm="bestResult"
         :is-test-started="isTestStarted"
+        :result-time="resultTime"
       />
     </div>
     <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
@@ -256,16 +257,19 @@ const writtenWordsAmount = computed(() => {
   return writtenWords.value.length;
 });
 const totalCharsAmount = computed(() => {
-  return writtenWords.value.join("").split("").length;
+  return (
+    writtenWords.value.join("").split("").length + writtenWords.value.length
+  );
 });
 const normalizedWordsAmount = computed(() => {
-  return totalCharsAmount.value / 5;
+  console.log("normalzied words", Math.round(totalCharsAmount.value / 5));
+  return Math.round(totalCharsAmount.value / 5);
 });
 const normalizedTime = computed(() => {
-  return resultTime.value / 60;
+  return 60 / resultTime.value;
 });
 const wpm = computed(() => {
-  return normalizedWordsAmount.value / normalizedTime.value;
+  return normalizedWordsAmount.value * normalizedTime.value;
 });
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
@@ -487,11 +491,27 @@ const caretPaceLeft = ref(0);
 const caretPaceTop = ref(0);
 
 function setDuration() {
-  duration.value =
+  // duration.value =
+  //   Math.round(
+  //     (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
+  //   ) / rows.value.length;
+  // duration.value = Math.round(
+  //   Math.round(
+  //     (text.value.split("").length / 5 / caretStore.selectedWpm) * 60 * 1000
+  //   ) / rows.value.length
+  // );
+  duration.value = Math.round(
+    ((text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000) /
+      rows.value.length
+  );
+  console.log(
     Math.round(
-      (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
-    ) / rows.value.length;
+      ((text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000) /
+        rows.value.length
+    )
+  );
   if (caretPaceIndex === rowEnds.value.length - 1) {
+    console.log("on tape???");
     duration.value =
       duration.value *
       (rowEnds.value[rowEnds.value.length - 1] / Math.max(...rowEnds.value));
@@ -546,13 +566,11 @@ let caretPaceIndex = 0;
 async function moveCaretPace() {
   if (appearanceStore.isClassicMode) {
     while (caretPaceIndex < rowEnds.value.length && isTestStarted.value) {
-      console.log("move caret classic");
       await changeRowWithDelay(caretPaceIndex);
       caretPaceIndex++;
     }
   }
   if (appearanceStore.isTapeMode) {
-    console.log("move caret tape");
     movePaceCaretOnTape();
   }
 }
@@ -658,8 +676,10 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     }
   }
 });
-watchEffect(() => {
-  if (isTestEnded.value) {
+
+watch(isTestEnded, (currTestEndedState) => {
+  if (currTestEndedState) {
+    console.log("test ends", displayedWpm.value);
     bestResult.value = displayedWpm.value;
     finalAccuracy.value = accuracy.value;
     stopWpmTest();

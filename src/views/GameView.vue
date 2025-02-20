@@ -495,21 +495,13 @@ const caretPaceLeft = ref(0);
 const caretPaceTop = ref(0);
 
 function setDuration() {
-  // duration.value =
-  //   Math.round(
-  //     (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
-  //   ) / rows.value.length;
-  // duration.value = Math.round(
-  //   Math.round(
-  //     (text.value.split("").length / 5 / caretStore.selectedWpm) * 60 * 1000
-  //   ) / rows.value.length
-  // );
   duration.value = Math.round(
     ((text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000) /
-      rows.value.length
+      (rows.value.length -
+        1 +
+        rowEnds.value[rowEnds.value.length - 1] / Math.max(...rowEnds.value))
   );
   if (caretPaceIndex === rowEnds.value.length - 1) {
-    console.log("on tape???");
     duration.value =
       duration.value *
       (rowEnds.value[rowEnds.value.length - 1] / Math.max(...rowEnds.value));

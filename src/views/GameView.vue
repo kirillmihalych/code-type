@@ -20,7 +20,6 @@
       />
     </div>
     <div :class="appearanceStore.isTapeMode ? 'tape-mask-image w-dvw' : ''">
-      <!-- h-[164px] -->
       <div
         ref="caret-parent"
         class="relative flex overflow-x-hidden overflow-y-hidden gap-6 py-4"
@@ -262,7 +261,6 @@ const totalCharsAmount = computed(() => {
   );
 });
 const normalizedWordsAmount = computed(() => {
-  console.log("normalzied words", Math.round(totalCharsAmount.value / 5));
   return Math.round(totalCharsAmount.value / 5);
 });
 const normalizedTime = computed(() => {
@@ -274,9 +272,17 @@ const wpm = computed(() => {
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
+// ===
+
+// ===
+
 const mistakesPercent = computed(() => {
+  console.log(mistakes.value.length, writtenCharsAmount.value);
   return Math.round(
-    100 - (mistakes.value.length / writtenCharsAmount.value) * 100
+    100 -
+      (mistakes.value.length /
+        (mistakes.value.length + writtenCharsAmount.value)) *
+        100
   );
 });
 const accuracy = computed(() => {
@@ -325,9 +331,8 @@ const isTestEnded = computed(() => {
   );
 });
 const isCharMistake = computed(() => {
-  return (
-    currentWord.value[trimmedInput.value.length - 1] !== lastWrittenChar.value
-  );
+  const char = currentWord.value[trimmedInput.value.length - 1];
+  return char !== lastWrittenChar.value;
 });
 
 function reset() {
@@ -336,6 +341,7 @@ function reset() {
   extraLetters.value = [];
   currentWordIndex.value = 0;
   writtenWords.value = [];
+  mistakes.value = [];
   stopWpmTest();
   classicMarginTop.value = 0;
   rows.value = getRowsCoords();
@@ -408,10 +414,8 @@ function handleAddExtra() {
     if (extraLetters.value.length < maxExtras) {
       if (extra.length === 0) {
         extraLetters.value.push(" ");
-        mistakes.value.push("extra");
       } else {
         extraLetters.value.push(extra[extra.length - 1]);
-        mistakes.value.push("extra");
       }
     }
   }
@@ -503,12 +507,6 @@ function setDuration() {
   duration.value = Math.round(
     ((text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000) /
       rows.value.length
-  );
-  console.log(
-    Math.round(
-      ((text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000) /
-        rows.value.length
-    )
   );
   if (caretPaceIndex === rowEnds.value.length - 1) {
     console.log("on tape???");
@@ -602,11 +600,6 @@ watchEffect(() => {
     }, 1);
   }
 });
-watchEffect(() => {
-  if (isCharMistake.value) {
-    mistakes.value.push("mistake");
-  }
-});
 watch(isTestStarted, (newValue) => {
   if (newValue) {
     rows.value = getRowsCoords();
@@ -631,6 +624,9 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     }
     if (appearanceStore.isClassicMode) {
       moveCaretForward();
+    }
+    if (isCharMistake.value) {
+      mistakes.value.push("miss");
     }
   }
   // вторая часть условия это проверка,

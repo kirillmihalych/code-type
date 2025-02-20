@@ -5,6 +5,7 @@
       <span><i class="fa-solid fa-chart-column"></i></span>
       <span>wpm {{ props.finalResultWpm }}</span>
       <span>acc {{ props.finalAccuracy }}</span>
+      <span>time {{ props.resultTime / 10 }}s</span>
     </div>
     <!-- current results -->
     <div v-if="props.isTestStarted" class="flex gap-4 text-primary text-3xl">
@@ -27,5 +28,6 @@ const props = defineProps([
   "finalAccuracy",
   "finalResultWpm",
   "isTestStarted",
+  "resultTime",
 ]);
 </script>

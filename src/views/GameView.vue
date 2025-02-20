@@ -426,6 +426,7 @@ function moveTapeForward() {
     isSpaceEntered.value &&
     !isTestEnded.value
   ) {
+    writtenWords.value.push(currentWord.value);
     currentInput.value = "";
     currentWordIndex.value += 1;
     extraLetters.value = [];
@@ -545,11 +546,13 @@ let caretPaceIndex = 0;
 async function moveCaretPace() {
   if (appearanceStore.isClassicMode) {
     while (caretPaceIndex < rowEnds.value.length && isTestStarted.value) {
+      console.log("move caret classic");
       await changeRowWithDelay(caretPaceIndex);
       caretPaceIndex++;
     }
   }
   if (appearanceStore.isTapeMode) {
+    console.log("move caret tape");
     movePaceCaretOnTape();
   }
 }
@@ -680,7 +683,6 @@ watchEffect(() => {
       setCaretCoordinates();
       if (rowNumber.value === "3") {
         classicMarginTop.value -= rows.value[1] - rows.value[0];
-        caretPaceTop.value -= rows.value[1] - rows.value[0];
         setCaretCoordinates(0, rows.value[1]);
       }
     }

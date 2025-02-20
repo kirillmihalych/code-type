@@ -6,13 +6,14 @@
 import { watchEffect } from "vue";
 import { useInterval } from "@vueuse/core";
 
-const { counter, reset, pause, resume } = useInterval(1000, { controls: true });
+const { counter, reset, pause, resume } = useInterval(100, { controls: true });
 const props = defineProps(["start"]);
 const emits = defineEmits(["result-time"]);
 
 watchEffect(() => {
   if (counter.value) {
-    emits("result-time", counter.value);
+    // 1 это 0,1 секунды
+    emits("result-time", counter.value / 10);
   }
 });
 

@@ -23,7 +23,11 @@
       <div
         ref="caret-parent"
         class="relative flex overflow-x-hidden overflow-y-hidden gap-6 py-4"
-        :class="appearanceStore.isClassicMode ? 'h-[164px]' : ''"
+        :class="
+          appearanceStore.isClassicMode
+            ? 'h-[164px] lg:h-[196px] max-w-[768px]'
+            : ''
+        "
         @click="setFocus"
       >
         <FocusWarning :is-input-focused="isInputFocused" />
@@ -52,13 +56,7 @@
         >
           <div
             ref="paceCaret"
-            style="
-              position: absolute;
-              width: 16px;
-              background-color: white;
-              opacity: 0.125;
-              height: 36px;
-            "
+            class="absolute w-4 xl:w-6 h-9 bg-primary opacity-15"
             :style="{ left: `${caretPaceL}px`, top: `${caretPaceTop}px` }"
           ></div>
           <div
@@ -272,12 +270,7 @@ const wpm = computed(() => {
 const displayedWpm = computed(() => {
   return isNaN(wpm.value) || !isFinite(wpm.value) ? 0 : Math.round(wpm.value);
 });
-// ===
-
-// ===
-
 const mistakesPercent = computed(() => {
-  console.log(mistakes.value.length, writtenCharsAmount.value);
   return Math.round(
     100 -
       (mistakes.value.length /
@@ -350,6 +343,7 @@ function reset() {
   }, 100);
   setTimeout(() => {
     resetCaretPace();
+    setWidthLetter();
   }, 200);
   if (colorThemeStore.isPresetMode) {
     colorThemeStore.setRandomTheme();
@@ -452,6 +446,7 @@ function moveCaretForward() {
 function moveCaretBackward() {
   const currWordStart =
     words.value[currentWordIndex.value].getBoundingClientRect().left -
+    left.value -
     widthLetter.value.width;
   const newCoords = caretCoordinates.value.left - widthLetter.value.width;
   // проверка, что курсор не двигается влево за слово
@@ -528,12 +523,14 @@ function movePaceCaretOnTape() {
     (text.value.split(" ").length / caretStore.selectedWpm) * 60 * 1000
   );
   caretPaceLeft.value =
-    wrapper.value.wrapper.getBoundingClientRect().width - 16;
+    wrapper.value.wrapper.getBoundingClientRect().width -
+    widthLetter.value.width;
   caretPaceTop.value = 0;
 }
 function moveLeft(index) {
   setDuration();
-  caretPaceLeft.value = rowEnds.value[index] - left.value - 16;
+  caretPaceLeft.value =
+    rowEnds.value[index] - left.value - widthLetter.value.width;
 }
 async function moveTop() {
   duration.value = 0;
@@ -564,6 +561,10 @@ async function moveCaretPace() {
     movePaceCaretOnTape();
   }
 }
+
+// watch(widthLetter, (newWidth, oldWidth) => {
+//   console.log(newWidth, oldWidth);
+// });
 
 const rows = ref([]);
 watchEffect(() => {
@@ -659,7 +660,7 @@ watch(currentInput, (newInputValue, oldInputValue) => {
         extraLetters.value = [];
         caretCoordinates.value.left =
           words.value[currentWordIndex.value].getBoundingClientRect().left -
-          widthLetter.value.width;
+          left.value;
       }
     }
   }
@@ -667,7 +668,6 @@ watch(currentInput, (newInputValue, oldInputValue) => {
 
 watch(isTestEnded, (currTestEndedState) => {
   if (currTestEndedState) {
-    console.log("test ends", displayedWpm.value);
     bestResult.value = displayedWpm.value;
     finalAccuracy.value = accuracy.value;
     stopWpmTest();

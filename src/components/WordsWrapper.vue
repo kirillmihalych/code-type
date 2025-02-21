@@ -1,8 +1,7 @@
 <template>
-  <!-- w-full  -->
   <div
+    class="relative text-2xl lg:text-3xl text-primary flex place-content-start gap-4 xl:gap-6 transition-all ease-linear duration-75"
     ref="wrapper"
-    class="relative text-2xl xl:text-3xl text-primary flex place-content-start gap-4 xl:gap-6 transition-all ease-linear duration-75"
     :class="[props.isInputFocused ? 'blur-none' : 'blur-sm']"
     :style="props.wordsWrapperStyle"
   >

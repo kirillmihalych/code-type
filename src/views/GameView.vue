@@ -115,19 +115,19 @@
       </div>
       <KeymapLayout v-if="appearanceStore.isKeymapShown" />
     </div>
-    <footer
-      class="place-self-start justify-self-center grid gap-2 place-items-center py-2"
-    >
-      <div class="flex">
+    <footer class="place-self-start h-full justify-self-center grid gap-2 py-2">
+      <div class="place-content-center flex lg:hidden">
         <button
           @click="reset"
           class="size-7 rounded-sm transition-colors text-text hover:text-sub"
+          title="начать заново"
         >
           <i class="fa-solid fa-repeat"></i>
         </button>
         <button
           @click="toggleMode"
           class="size-7 rounded-sm transition-colors text-text hover:text-sub"
+          title="сменить отображение"
         >
           <i class="fa-regular fa-keyboard"></i>
         </button>
@@ -630,10 +630,10 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     !(oldInputValue.trim() === wordsQueue.value[currentWordIndex.value - 1])
   ) {
     if (appearanceStore.isTapeMode) {
-      if (Backspace.value && !ControlLeft_Backspace.value) {
-        extraLetters.value.pop();
-        moveTapeBackward();
-      }
+      // if (Backspace.value && !ControlLeft_Backspace.value) {
+      //   extraLetters.value.pop();
+      //   moveTapeBackward();
+      // }
       if (ControlLeft_Backspace.value) {
         extraLetters.value = [];
         currentInput.value = "";
@@ -648,19 +648,27 @@ watch(currentInput, (newInputValue, oldInputValue) => {
           return ((spaces > 0 ? 1 : spaces) + chars) * widthLetter.value.width;
         }
         tapeMarginLeft.value = getCurrentWordStart();
+      } else {
+        if (Backspace.value && !ControlLeft_Backspace.value) {
+          extraLetters.value.pop();
+          moveTapeBackward();
+        }
       }
     }
     if (appearanceStore.isClassicMode) {
-      if (Backspace.value && !ControlLeft_Backspace.value) {
-        extraLetters.value.pop();
-        moveCaretBackward();
-      }
+      // if (Backspace.value && !ControlLeft_Backspace.value) {
+      //   extraLetters.value.pop();
+      //   moveCaretBackward();
+      // }
       if (ControlLeft_Backspace.value) {
         currentInput.value = "";
         extraLetters.value = [];
         caretCoordinates.value.left =
           words.value[currentWordIndex.value].getBoundingClientRect().left -
           left.value;
+      } else {
+        extraLetters.value.pop();
+        moveCaretBackward();
       }
     }
   }

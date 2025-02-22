@@ -162,13 +162,8 @@ import { useCaretStore } from "@/store/caretStore";
 const colorThemeStore = useColorThemeStore();
 const appearanceStore = useAppearanceStore();
 const caretStore = useCaretStore();
-const {
-  ControlLeft_Enter,
-  ControlLeft_z,
-  ControlLeft_Backspace,
-  Backspace,
-  current,
-} = useMagicKeys();
+const { ControlLeft_Enter, ControlLeft_z, ControlLeft_Backspace, current } =
+  useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -649,10 +644,8 @@ watch(currentInput, (newInputValue, oldInputValue) => {
         }
         tapeMarginLeft.value = getCurrentWordStart();
       } else {
-        if (Backspace.value && !ControlLeft_Backspace.value) {
-          extraLetters.value.pop();
-          moveTapeBackward();
-        }
+        extraLetters.value.pop();
+        moveTapeBackward();
       }
     }
     if (appearanceStore.isClassicMode) {

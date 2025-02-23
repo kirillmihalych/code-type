@@ -1,19 +1,47 @@
+div
 <template>
   <div>
     <CustomThemeList class="mb-6" />
-    <div class="grid gap-4 md:grid-cols-2 md:grid-rows-3">
+    <div class="relative grid gap-4 md:grid-cols-2 md:grid-rows-3">
       <div
         v-for="(color, index) in colorThemeStore.selectedThemeValues"
         :key="index"
         class="grid grid-cols-2"
       >
         <label :for="color.name" class="text-sub">{{ color.name }}</label>
+        <div
+          ref="picker"
+          v-show="index === selectedIndex"
+          class="flex flex-col absolute z-10 rounded-md border-4 border-white bg-white"
+        >
+          <button
+            class="place-self-end size-8 flex items-center justify-center"
+            @click="selectIndex(null)"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <ColorPicker
+            :id="color.name"
+            :color="color.value"
+            :copy="useCopy"
+            alpha-channel="hide"
+            :visible-formats="['hex']"
+            default-format="hex"
+            @color-change="
+              (e) => {
+                color.value = e.cssColor;
+                colorThemeStore.setValue(`--${color.name}`, color.value);
+              }
+            "
+          />
+        </div>
         <div class="flex items-center gap-2">
           <i
+            @click="selectIndex(index)"
             class="fa-solid fa-palette h-full text-xl flex items-center justify-center aspect-square rounded-md"
             :class="
               color.name === 'background'
-                ? 'text-sub bg-text'
+                ? 'text-sub bg-bg'
                 : color.name === 'primary'
                 ? 'text-background bg-primary'
                 : color.name === 'caret'
@@ -25,16 +53,18 @@
                 : 'text-background bg-error'
             "
           ></i>
-          <input
-            v-model="color.value"
-            :name="color.name"
-            :id="color.name"
-            @keypress.enter="
-              colorThemeStore.setValue(`--${color.name}`, color.value)
-            "
-            @blur="colorThemeStore.setValue(`--${color.name}`, color.value)"
-            class="w-full rounded-md p-1 bg-text text-sub outline-sub selection:text-text"
-          />
+          <div>
+            <input
+              v-model="color.value"
+              :name="color.name"
+              :id="color.name"
+              @keypress.enter="
+                colorThemeStore.setValue(`--${color.name}`, color.value)
+              "
+              @blur="colorThemeStore.setValue(`--${color.name}`, color.value)"
+              class="w-full rounded-md p-1 bg-text text-sub outline-sub selection:text-text"
+            />
+          </div>
         </div>
       </div>
       <button
@@ -54,8 +84,21 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { useColorThemeStore } from "@/store/colorThemeStore";
+import { useClipboard} from "@vueuse/core";
 import CustomThemeList from "./CustomThemeList.vue";
+import { ColorPicker } from "vue-accessible-color-picker";
+
 
 const colorThemeStore = useColorThemeStore();
+const { copy: useCopy } = useClipboard();
+const selectedIndex = ref(null);
+function selectIndex(idx) {
+  selectedIndex.value = idx;
+}
 </script>
+
+<style>
+@import url("vue-accessible-color-picker/styles");
+</style>

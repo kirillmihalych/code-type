@@ -1,4 +1,3 @@
-div
 <template>
   <div>
     <CustomThemeList class="mb-6" />
@@ -10,7 +9,7 @@ div
       >
         <label :for="color.name" class="text-sub">{{ color.name }}</label>
         <div
-          ref="picker"
+          ref="pickers"
           v-show="index === selectedIndex"
           class="flex flex-col absolute z-10 rounded-md border-4 border-white bg-white"
         >
@@ -84,19 +83,23 @@ div
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, useTemplateRef, onUpdated } from "vue";
 import { useColorThemeStore } from "@/store/colorThemeStore";
-import { useClipboard} from "@vueuse/core";
+import { useClipboard, onClickOutside } from "@vueuse/core";
 import CustomThemeList from "./CustomThemeList.vue";
 import { ColorPicker } from "vue-accessible-color-picker";
 
-
+const pickers = useTemplateRef("pickers");
 const colorThemeStore = useColorThemeStore();
 const { copy: useCopy } = useClipboard();
 const selectedIndex = ref(null);
 function selectIndex(idx) {
   selectedIndex.value = idx;
 }
+
+onUpdated(() => {
+  onClickOutside(pickers.value[selectedIndex.value], () => selectIndex(null));
+});
 </script>
 
 <style>

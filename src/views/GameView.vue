@@ -4,9 +4,7 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <p class="text-white">
-        {{ inputedChars }}
-      </p>
+      <p class="text-white">{{ inputedChars }} {{ inputedType }}</p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -562,8 +560,10 @@ async function moveCaretPace() {
 }
 
 const inputedChars = ref([]);
+const inputedType = ref("");
 useEventListener(input, "input", (e) => {
   inputedChars.value = e.data;
+  inputedType.value = e.inputType;
   console.log(e);
   if (e.inputType === "insertText") {
     handleAddExtra();

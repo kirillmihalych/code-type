@@ -4,6 +4,7 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
+      <p class="text-white">{{ currentInput }} {{ inputedChars }}</p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -107,12 +108,10 @@
             autocorrect="off"
             autocomplete="off"
             autocapitalize="off"
-            data-gramm="false"
-            data-gram_editor="false"
-            data-enable-grammarly="false"
             spellcheck="false"
             list="autocompleteOff"
             :maxLength="maxInputLength"
+            @input.prevent
             v-model="currentInput"
             placeholder="Начни писать, чтобы начать тест"
           />
@@ -151,6 +150,7 @@ import {
   useElementBounding,
   useTransition,
   TransitionPresets,
+  useEventListener,
   whenever,
 } from "@vueuse/core";
 import { quotes } from "@/assets/quotes";
@@ -562,9 +562,11 @@ async function moveCaretPace() {
   }
 }
 
-// watch(widthLetter, (newWidth, oldWidth) => {
-//   console.log(newWidth, oldWidth);
-// });
+const inputedChars = ref([]);
+useEventListener(input, "input", (e) => {
+  inputedChars.value = e.data;
+  console.log(e);
+});
 
 const rows = ref([]);
 watchEffect(() => {
@@ -630,10 +632,6 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     !(oldInputValue.trim() === wordsQueue.value[currentWordIndex.value - 1])
   ) {
     if (appearanceStore.isTapeMode) {
-      // if (Backspace.value && !ControlLeft_Backspace.value) {
-      //   extraLetters.value.pop();
-      //   moveTapeBackward();
-      // }
       if (ControlLeft_Backspace.value) {
         extraLetters.value = [];
         currentInput.value = "";
@@ -654,10 +652,6 @@ watch(currentInput, (newInputValue, oldInputValue) => {
       }
     }
     if (appearanceStore.isClassicMode) {
-      // if (Backspace.value && !ControlLeft_Backspace.value) {
-      //   extraLetters.value.pop();
-      //   moveCaretBackward();
-      // }
       if (ControlLeft_Backspace.value) {
         currentInput.value = "";
         extraLetters.value = [];

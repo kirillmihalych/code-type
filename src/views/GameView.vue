@@ -4,7 +4,9 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <p class="text-white">{{ currentInput }} {{ inputedChars }}</p>
+      <p class="text-white">
+        {{ trimmedInput }} {{ currentInput }} {{ inputedChars }}
+      </p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -103,17 +105,14 @@
         </WordsWrapper>
         <form class="absolute opacity-0" @submit.prevent>
           <input
+            v-model="currentInput"
             ref="input"
             type="text"
             autocorrect="off"
+            spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
-            spellcheck="false"
-            list="autocompleteOff"
             :maxLength="maxInputLength"
-            @input.prevent
-            v-model="currentInput"
-            placeholder="Начни писать, чтобы начать тест"
           />
         </form>
       </div>
@@ -566,6 +565,20 @@ const inputedChars = ref([]);
 useEventListener(input, "input", (e) => {
   inputedChars.value = e.data;
   console.log(e);
+  if (e.inputType === "insertText") {
+    handleAddExtra();
+    if (appearanceStore.isTapeMode) {
+      moveTapeForward();
+    }
+    if (appearanceStore.isClassicMode) {
+      moveCaretForward();
+    }
+    if (isCharMistake.value) {
+      mistakes.value.push("miss");
+    }
+  }
+  // if (newInputValue.length > oldInputValue.length) {
+  // }
 });
 
 const rows = ref([]);
@@ -612,18 +625,18 @@ watchEffect(() => {
   }
 });
 watch(currentInput, (newInputValue, oldInputValue) => {
-  if (newInputValue.length > oldInputValue.length) {
-    handleAddExtra();
-    if (appearanceStore.isTapeMode) {
-      moveTapeForward();
-    }
-    if (appearanceStore.isClassicMode) {
-      moveCaretForward();
-    }
-    if (isCharMistake.value) {
-      mistakes.value.push("miss");
-    }
-  }
+  // if (newInputValue.length > oldInputValue.length) {
+  //   handleAddExtra();
+  //   if (appearanceStore.isTapeMode) {
+  //     moveTapeForward();
+  //   }
+  //   if (appearanceStore.isClassicMode) {
+  //     moveCaretForward();
+  //   }
+  //   if (isCharMistake.value) {
+  //     mistakes.value.push("miss");
+  //   }
+  // }
   // вторая часть условия это проверка,
   // не перешёл ли тест на новое слово
   // этот кейс не должен обрабатываться, как уменьшение инпута

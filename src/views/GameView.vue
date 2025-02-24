@@ -5,7 +5,7 @@
   >
     <div class="place-self-end justify-self-center">
       <p class="text-white">
-        {{ trimmedInput }} {{ currentInput }} {{ inputedChars }}
+        {{ inputedChars }}
       </p>
       <CountdownTimer
         :start="isTestStarted"

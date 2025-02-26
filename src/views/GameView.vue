@@ -4,6 +4,7 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
+      <p class="text-white">{{ currentInput }} {{ oldInput }} {{ newInput }}</p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -603,8 +604,13 @@ watchEffect(() => {
     reset();
   }
 });
+
+const newInput = ref("");
+const oldInput = ref("");
 watch(currentInput, (newInputValue, oldInputValue) => {
   if (newInputValue.length > oldInputValue.length) {
+    oldInput.value = oldInputValue;
+    newInput.value = newInputValue;
     const charsLength = newInputValue.length - oldInputValue.length;
     handleAddExtra();
     if (appearanceStore.isTapeMode) {

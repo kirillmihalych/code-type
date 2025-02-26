@@ -4,6 +4,9 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
+      <p class="text-white">
+        {{ inputedChars }} {{ inputedType }} {{ currentInput }}
+      </p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -102,19 +105,14 @@
         </WordsWrapper>
         <form class="absolute opacity-0" @submit.prevent>
           <input
+            v-model="currentInput"
             ref="input"
             type="text"
             autocorrect="off"
+            spellcheck="false"
             autocomplete="off"
             autocapitalize="off"
-            data-gramm="false"
-            data-gram_editor="false"
-            data-enable-grammarly="false"
-            spellcheck="false"
-            list="autocompleteOff"
             :maxLength="maxInputLength"
-            v-model="currentInput"
-            placeholder="Начни писать, чтобы начать тест"
           />
         </form>
       </div>
@@ -151,6 +149,7 @@ import {
   useElementBounding,
   useTransition,
   TransitionPresets,
+  useEventListener,
   whenever,
 } from "@vueuse/core";
 import { quotes } from "@/assets/quotes";
@@ -210,7 +209,6 @@ const classicModeStyles = computed(() => {
     marginTop: classicMarginTop.value + "px",
     flexWrap: "wrap",
     overflow: "hidden",
-    // height: 148 + "px",
   };
 });
 const rowNumber = computed(() => {
@@ -566,9 +564,24 @@ async function moveCaretPace() {
   }
 }
 
-// watch(widthLetter, (newWidth, oldWidth) => {
-//   console.log(newWidth, oldWidth);
-// });
+const inputedChars = ref([]);
+const inputedType = ref("");
+
+useEventListener(input, "beforeinput", (e) => {
+  if (e.data !== " ") {
+    handleAddExtra();
+    if (appearanceStore.isTapeMode) {
+      moveTapeForward();
+    }
+    if (appearanceStore.isClassicMode) {
+      moveCaretForward();
+    }
+    if (isCharMistake.value) {
+      mistakes.value.push("miss");
+    }
+  }
+  console.log(e);
+});
 
 const rows = ref([]);
 watchEffect(() => {
@@ -635,10 +648,6 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     !(oldInputValue.trim() === wordsQueue.value[currentWordIndex.value - 1])
   ) {
     if (appearanceStore.isTapeMode) {
-      // if (Backspace.value && !ControlLeft_Backspace.value) {
-      //   extraLetters.value.pop();
-      //   moveTapeBackward();
-      // }
       if (ControlLeft_Backspace.value) {
         extraLetters.value = [];
         currentInput.value = "";
@@ -659,10 +668,6 @@ watch(currentInput, (newInputValue, oldInputValue) => {
       }
     }
     if (appearanceStore.isClassicMode) {
-      // if (Backspace.value && !ControlLeft_Backspace.value) {
-      //   extraLetters.value.pop();
-      //   moveCaretBackward();
-      // }
       if (ControlLeft_Backspace.value) {
         currentInput.value = "";
         extraLetters.value = [];

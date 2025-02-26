@@ -104,6 +104,7 @@
         <form class="absolute opacity-0" @submit.prevent>
           <input
             v-model="currentInput"
+            @paste.prevent
             ref="input"
             type="text"
             autocorrect="off"

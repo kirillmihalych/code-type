@@ -613,7 +613,7 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     newInput.value = newInputValue;
     let charsLength = newInputValue.length - oldInputValue.length;
     if (charsLength > 1) {
-      currentInput.value.trim();
+      currentInput.value = currentInput.value.trim();
       charsLength -= 1;
     }
     handleAddExtra();

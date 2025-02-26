@@ -4,7 +4,9 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <p class="text-white">{{ inputedChars }} {{ inputedType }}</p>
+      <p class="text-white">
+        {{ inputedChars }} {{ inputedType }} {{ currentInput }}
+      </p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -207,7 +209,6 @@ const classicModeStyles = computed(() => {
     marginTop: classicMarginTop.value + "px",
     flexWrap: "wrap",
     overflow: "hidden",
-    // height: 148 + "px",
   };
 });
 const rowNumber = computed(() => {
@@ -561,11 +562,9 @@ async function moveCaretPace() {
 
 const inputedChars = ref([]);
 const inputedType = ref("");
-useEventListener(input, "input", (e) => {
-  inputedChars.value = e.data;
-  inputedType.value = e.inputType;
-  console.log(e);
-  if (e.inputType === "insertText") {
+
+useEventListener(input, "beforeinput", (e) => {
+  if (e.data !== " ") {
     handleAddExtra();
     if (appearanceStore.isTapeMode) {
       moveTapeForward();
@@ -577,8 +576,7 @@ useEventListener(input, "input", (e) => {
       mistakes.value.push("miss");
     }
   }
-  // if (newInputValue.length > oldInputValue.length) {
-  // }
+  console.log(e);
 });
 
 const rows = ref([]);

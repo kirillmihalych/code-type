@@ -440,8 +440,12 @@ function moveTapeForward() {
 function moveTapeBackward() {
   tapeMarginLeft.value -= widthLetter.value.width;
 }
-function moveCaretForward() {
-  caretCoordinates.value.left += widthLetter.value.width;
+function moveCaretForward(charsLength) {
+  if (charsLength) {
+    caretCoordinates.value.left += widthLetter.value.width * charsLength;
+  } else {
+    caretCoordinates.value.left += widthLetter.value.width;
+  }
 }
 function moveCaretBackward() {
   const currWordStart =
@@ -611,12 +615,13 @@ watchEffect(() => {
 });
 watch(currentInput, (newInputValue, oldInputValue) => {
   if (newInputValue.length > oldInputValue.length) {
+    const charsLength = newInputValue - oldInputValue;
     handleAddExtra();
     if (appearanceStore.isTapeMode) {
       moveTapeForward();
     }
     if (appearanceStore.isClassicMode) {
-      moveCaretForward();
+      moveCaretForward(charsLength);
     }
     if (isCharMistake.value) {
       mistakes.value.push("miss");

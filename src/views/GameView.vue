@@ -611,7 +611,11 @@ watch(currentInput, (newInputValue, oldInputValue) => {
   if (newInputValue.length > oldInputValue.length) {
     oldInput.value = oldInputValue;
     newInput.value = newInputValue;
-    const charsLength = newInputValue.length - oldInputValue.length;
+    let charsLength = newInputValue.length - oldInputValue.length;
+    if (charsLength > 1) {
+      currentInput.value.trim();
+      charsLength -= 1;
+    }
     handleAddExtra();
     if (appearanceStore.isTapeMode) {
       moveTapeForward();

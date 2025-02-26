@@ -4,9 +4,6 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <p class="text-white">
-        {{ inputedChars }} {{ inputedType }} {{ currentInput }}
-      </p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -149,7 +146,6 @@ import {
   useElementBounding,
   useTransition,
   TransitionPresets,
-  useEventListener,
   whenever,
 } from "@vueuse/core";
 import { quotes } from "@/assets/quotes";
@@ -563,25 +559,6 @@ async function moveCaretPace() {
     movePaceCaretOnTape();
   }
 }
-
-const inputedChars = ref([]);
-const inputedType = ref("");
-
-useEventListener(input, "beforeinput", (e) => {
-  if (e.data !== " ") {
-    handleAddExtra();
-    if (appearanceStore.isTapeMode) {
-      moveTapeForward();
-    }
-    if (appearanceStore.isClassicMode) {
-      moveCaretForward();
-    }
-    if (isCharMistake.value) {
-      mistakes.value.push("miss");
-    }
-  }
-  console.log(e);
-});
 
 const rows = ref([]);
 watchEffect(() => {

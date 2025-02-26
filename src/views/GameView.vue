@@ -605,7 +605,7 @@ watchEffect(() => {
 });
 watch(currentInput, (newInputValue, oldInputValue) => {
   if (newInputValue.length > oldInputValue.length) {
-    const charsLength = newInputValue - oldInputValue;
+    const charsLength = newInputValue.length - oldInputValue.length;
     handleAddExtra();
     if (appearanceStore.isTapeMode) {
       moveTapeForward();

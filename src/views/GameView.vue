@@ -613,8 +613,7 @@ watch(currentInput, (newInputValue, oldInputValue) => {
     newInput.value = newInputValue;
     let charsLength = newInputValue.length - oldInputValue.length;
     if (charsLength > 1) {
-      currentInput.value = newInputValue.trim();
-      charsLength -= 1;
+      currentInput.value = newInputValue.trimEnd();
     }
     handleAddExtra();
     if (appearanceStore.isTapeMode) {

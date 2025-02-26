@@ -405,7 +405,9 @@ function handleAddExtra() {
       if (extra.length === 0) {
         extraLetters.value.push(" ");
       } else {
-        extraLetters.value.push(extra[extra.length - 1]);
+        for (let i = 0; i < diff; i++) {
+          extraLetters.value.push(extra[extra.length - 1]);
+        }
       }
     }
   }

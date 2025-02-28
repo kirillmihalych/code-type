@@ -4,6 +4,7 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
+      <p class="text-white">{{ backspacePressed }}</p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"
@@ -162,8 +163,13 @@ import { useCaretStore } from "@/store/caretStore";
 const colorThemeStore = useColorThemeStore();
 const appearanceStore = useAppearanceStore();
 const caretStore = useCaretStore();
-const { ControlLeft_Enter, ControlLeft_z, ControlLeft_Backspace, current } =
-  useMagicKeys();
+const {
+  ControlLeft_Enter,
+  ControlLeft_z,
+  ControlLeft_Backspace,
+  Backspace,
+  current,
+} = useMagicKeys();
 const mainDiv = useTemplateRef("main");
 const words = useTemplateRef("words");
 const letters = useTemplateRef("letter");
@@ -567,6 +573,11 @@ watchEffect(() => {
       rows.value = getRowsCoords();
     }, 175);
   }
+});
+
+const backspacePressed = ref(false);
+whenever(Backspace, () => {
+  backspacePressed.value = true;
 });
 
 whenever(ControlLeft_Enter, () => reset());

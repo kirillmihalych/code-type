@@ -4,7 +4,6 @@
     :class="isTestStarted ? 'cursor-none' : 'cursor-default'"
   >
     <div class="place-self-end justify-self-center">
-      <p class="text-white">{{ backspacePressed }}</p>
       <CountdownTimer
         :start="isTestStarted"
         @result-time="(seconds) => setResultTime(seconds)"

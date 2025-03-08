@@ -100,9 +100,11 @@
             </span>
           </div>
         </WordsWrapper>
+
         <form class="absolute opacity-0" @submit.prevent>
           <input
-            v-model="currentInput"
+            :value="currentInput"
+            @input="(e) => (currentInput = e.target.value)"
             ref="input"
             type="text"
             autocorrect="off"
@@ -613,6 +615,7 @@ watchEffect(() => {
     reset();
   }
 });
+// ====================================================
 watch(currentInput, (newInputValue, oldInputValue) => {
   if (newInputValue.length > oldInputValue.length) {
     const charsLength = newInputValue - oldInputValue;
